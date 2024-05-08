@@ -25,7 +25,7 @@ func Run(ctx context.Context) error {
 	}
 	switch len(os.Args) {
 	case 1:
-		return fmt.Errorf("no args")
+		return listServices()
 	case 2:
 		pkgName := os.Args[1]
 		return listMethods(pkgName)
@@ -69,6 +69,22 @@ func listMethods(pkgName string) error {
 	}
 	sort.Strings(methods)
 	for _, name := range methods {
+		fmt.Println(name)
+	}
+	return nil
+}
+
+func listServices() error {
+	services := make(map[string]struct{})
+	for name := range clientMethods {
+		services[strings.Split(name, "_")[0]] = struct{}{}
+	}
+	names := make([]string, 0)
+	for name := range services {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	for _, name := range names {
 		fmt.Println(name)
 	}
 	return nil

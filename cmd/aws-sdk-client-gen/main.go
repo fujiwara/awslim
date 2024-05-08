@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/firehose"
 	"github.com/aws/aws-sdk-go-v2/service/kinesis"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 )
 
@@ -18,6 +19,7 @@ func main() {
 	gen("firehose", reflect.TypeOf(firehose.New(firehose.Options{})))
 	gen("ssm", reflect.TypeOf(ssm.New(ssm.Options{})))
 	gen("ecs", reflect.TypeOf(ecs.New(ecs.Options{})))
+	gen("s3", reflect.TypeOf(s3.New(s3.Options{})))
 }
 
 func gen(pkgName string, clientType reflect.Type) error {

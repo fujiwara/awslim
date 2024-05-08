@@ -4,6 +4,7 @@ aws-sdk-client-go: go.* *.go gen
 	go build -o $@ cmd/aws-sdk-client-go/main.go
 
 gen:
+	go get ./...
 	go run cmd/aws-sdk-client-gen/main.go
 	go fmt .
 

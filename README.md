@@ -18,15 +18,27 @@ The output is JSON format.
 
 ### Examples
 
+#### Show supported services
+
 ```console
-$ aws-sdk-client-go ecs ListClusters
+$ aws-sdk-client-go
 ```
 
-The third argument is optional. The value is passed to the method as a input parameter.
+### Show methods of the service
+
+```console
+$ aws-sdk-client-go ecs
+```
+
+### Call method of the service
 
 ```console
 $ aws-sdk-client-go ecs DescribeClusters '{"Cluster":"default"}'
 ```
+
+The third argument is JSON input for the method. If the method does not require input, you can omit the third argument (implicitly `{}` passed).
+
+```console
 
 ## LICENSE
 
