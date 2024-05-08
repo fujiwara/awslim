@@ -24,13 +24,13 @@ The output is JSON format.
 $ aws-sdk-client-go
 ```
 
-### Show methods of the service
+#### Show methods of the service
 
 ```console
 $ aws-sdk-client-go ecs
 ```
 
-### Call method of the service
+#### Call method of the service
 
 ```console
 $ aws-sdk-client-go ecs DescribeClusters '{"Cluster":"default"}'
@@ -38,7 +38,6 @@ $ aws-sdk-client-go ecs DescribeClusters '{"Cluster":"default"}'
 
 The third argument is JSON input for the method. If the method does not require input, you can omit the third argument (implicitly `{}` passed).
 
-```console
 
 ## LICENSE
 
