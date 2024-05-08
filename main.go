@@ -15,7 +15,7 @@ import (
 
 var awsCfg aws.Config
 
-var clientMethods = make(map[string]func(context.Context, json.RawMessage) (json.RawMessage, error))
+var clientMethods = make(map[string]func(context.Context, json.RawMessage) (any, error))
 
 func Run(ctx context.Context) error {
 	var err error
@@ -53,8 +53,12 @@ func dispatchMethod(ctx context.Context, pkgName, methodName string, in json.Raw
 	if err != nil {
 		return err
 	}
+	b, err := json.Marshal(out)
+	if err != nil {
+		return fmt.Errorf("failed to marshal response: %w", err)
+	}
 	var buf bytes.Buffer
-	json.Indent(&buf, out, "", "  ")
+	json.Indent(&buf, b, "", "  ")
 	buf.WriteTo(os.Stdout)
 	fmt.Fprintln(os.Stdout)
 	return nil
