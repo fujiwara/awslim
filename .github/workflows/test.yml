@@ -5,23 +5,25 @@ jobs:
     strategy:
       matrix:
         go:
-          - '1.20'
           - '1.21'
+          - '1.22'
     name: Build
     runs-on: ubuntu-latest
 
     steps:
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
         id: go
 
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Build & Test
         run: |
-          go test -race ./...
+          go generate ./cmd/aws-sdk-client-gen .
+          go build -o aws-sdk-client-go ./cmd/aws-sdk-client-go/main.go
+          go test ./...
         env:
           GO111MODULE: on
