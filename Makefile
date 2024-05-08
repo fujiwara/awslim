@@ -3,13 +3,11 @@
 aws-sdk-client-go: go.* *.go gen
 	go build -o $@ cmd/aws-sdk-client-go/main.go
 
-gen:
-	go get ./...
-	go run cmd/aws-sdk-client-gen/main.go
-	go fmt .
-
 clean:
-	rm -rf *_gen.go aws-sdk-client-go dist/
+	rm -rf *_gen.go aws-sdk-client-go dist/ cmd/aws-sdk-client-gen/gen.go
+
+gen:
+	go generate ./cmd/aws-sdk-client-gen .
 
 test:
 	go test -v ./...

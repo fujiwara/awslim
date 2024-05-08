@@ -89,3 +89,5 @@ func listServices() error {
 	}
 	return nil
 }
+
+//go:generate go run cmd/aws-sdk-client-gen/main.go cmd/aws-sdk-client-gen/gen.go

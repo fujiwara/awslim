@@ -1,0 +1,9 @@
+services:
+  ecs:
+    - DescribeClusters
+    - DescribeTasks
+  firehose:
+    - DescribeDeliveryStream
+    - ListDeliveryStreams
+  kinesis:
+    # all methods of the service

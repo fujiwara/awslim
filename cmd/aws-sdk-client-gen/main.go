@@ -6,23 +6,17 @@ import (
 	"os"
 	"reflect"
 	"strings"
-
-	"github.com/aws/aws-sdk-go-v2/service/ecs"
-	"github.com/aws/aws-sdk-go-v2/service/firehose"
-	"github.com/aws/aws-sdk-go-v2/service/kinesis"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/service/ssm"
 )
 
+//go:generate go run ../aws-sdk-client-gen-gen/main.go
+//go:generate go get ./...
+
 func main() {
-	gen("kinesis", reflect.TypeOf(kinesis.New(kinesis.Options{})))
-	gen("firehose", reflect.TypeOf(firehose.New(firehose.Options{})))
-	gen("ssm", reflect.TypeOf(ssm.New(ssm.Options{})))
-	gen("ecs", reflect.TypeOf(ecs.New(ecs.Options{})))
-	gen("s3", reflect.TypeOf(s3.New(s3.Options{})))
+	generateAll()
 }
 
-func gen(pkgName string, clientType reflect.Type) error {
+func gen(pkgName string, clientType reflect.Type, genNames []string) error {
+	log.Printf("generating %s_gen.go", pkgName)
 	buf := &strings.Builder{}
 	fmt.Fprintln(buf, "package sdkclient")
 	fmt.Fprintln(buf)
@@ -36,6 +30,9 @@ func gen(pkgName string, clientType reflect.Type) error {
 	var methodNames []string
 	for i := 0; i < clientType.NumMethod(); i++ {
 		method := clientType.Method(i)
+		if len(genNames) > 0 && !contains(genNames, method.Name) {
+			continue
+		}
 		params := make([]string, 0)
 		for j := 0; j < method.Type.NumIn(); j++ {
 			params = append(params, method.Type.In(j).String())
@@ -45,7 +42,7 @@ func gen(pkgName string, clientType reflect.Type) error {
 			continue
 		}
 		methodNames = append(methodNames, method.Name)
-
+		log.Printf("generating %s_%s", pkgName, method.Name)
 		fmt.Fprintf(buf, `func %s_%s(ctx context.Context, b json.RawMessage) (json.RawMessage, error) {
 			svc := %s.NewFromConfig(awsCfg)
 			var in %s
@@ -88,4 +85,13 @@ func gen(pkgName string, clientType reflect.Type) error {
 	}
 	log.Printf("generated %s_gen.go", pkgName)
 	return nil
+}
+
+func contains(ss []string, s string) bool {
+	for _, v := range ss {
+		if v == s {
+			return true
+		}
+	}
+	return false
 }
