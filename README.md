@@ -4,6 +4,10 @@ aws-sdk-client-go is a Go client for AWS SDK services.
 
 This client is auto generated from the AWS SDK Go service client.
 
+## Motivation
+
+The AWS CLI is very useful, but it requires too many CPU and memory resources to boot up. This client is a simplified alternative to the AWS CLI for limited use cases.
+
 ## Build
 
 aws-sdk-client-go does not release binaries. Because the binary containing all services is too large, you need to build the client yourself to support the services you want to use.
