@@ -1,7 +1,11 @@
 .PHONY: clean test gen
 
 aws-sdk-client-go: go.* *.go gen
-	go build -o $@ cmd/aws-sdk-client-go/main.go
+	CGO_ENABLED=0 \
+		go build -o $@ \
+		-tags netgo \
+		-ldflags '-s -w -extldflags "-static"' \
+		cmd/aws-sdk-client-go/main.go
 
 clean:
 	rm -rf *_gen.go aws-sdk-client-go dist/ cmd/aws-sdk-client-gen/gen.go
