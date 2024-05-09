@@ -7,8 +7,3 @@ services:
     - ListDeliveryStreams
   kinesis:
     # all methods of the service
-  ec2:
-  ecr:
-  s3:
-  sns:
-  sqs:
