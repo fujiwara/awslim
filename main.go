@@ -15,31 +15,44 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 )
 
-var clientMethods = make(map[string]func(context.Context, aws.Config, json.RawMessage) (any, error))
+var clientMethods = make(map[string]ClientMethod)
+
+type ClientMethod func(context.Context, aws.Config, json.RawMessage) (any, error)
 
 type CLI struct {
 	Service string `arg:"" help:"service name" default:""`
 	Method  string `arg:"" help:"method name" default:""`
 	Input   string `arg:"" help:"input JSON" default:"{}"`
 	Compact bool   `short:"c" help:"compact JSON output"`
+
+	w io.Writer
 }
 
 func Run(ctx context.Context) error {
 	var c CLI
+	c.w = os.Stdout
 	kong.Parse(&c)
+	return c.Dispatch(ctx)
+}
+
+func (c *CLI) Dispatch(ctx context.Context) error {
 	if c.Service == "" {
-		return c.listServices(ctx)
+		return c.ListServices(ctx)
 	} else if c.Method == "" {
-		return c.listMethods(ctx)
+		return c.ListMethods(ctx)
 	} else {
-		return c.dispatchMethod(ctx)
+		return c.CallMethod(ctx)
 	}
 }
 
-func (c *CLI) dispatchMethod(ctx context.Context) error {
+func (c *CLI) SetWriter(w io.Writer) {
+	c.w = w
+}
+
+func (c *CLI) CallMethod(ctx context.Context) error {
 	key := buildKey(c.Service, c.Method)
 	if c.Input == "help" {
-		fmt.Printf("See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/%s\n", key)
+		fmt.Fprintf(c.w, "See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/%s\n", key)
 		return nil
 	}
 
@@ -63,15 +76,15 @@ func (c *CLI) dispatchMethod(ctx context.Context) error {
 	if !c.Compact {
 		var buf bytes.Buffer
 		json.Indent(&buf, b, "", "  ")
-		buf.WriteTo(os.Stdout)
-		fmt.Fprintln(os.Stdout)
+		buf.WriteString("\n")
+		buf.WriteTo(c.w)
 	} else {
-		io.WriteString(os.Stdout, string(b))
+		io.WriteString(c.w, string(b))
 	}
 	return nil
 }
 
-func (c *CLI) listMethods(_ context.Context) error {
+func (c *CLI) ListMethods(_ context.Context) error {
 	methods := make([]string, 0)
 	for name := range clientMethods {
 		service, method := parseKey(name)
@@ -81,12 +94,12 @@ func (c *CLI) listMethods(_ context.Context) error {
 	}
 	sort.Strings(methods)
 	for _, name := range methods {
-		fmt.Println(name)
+		fmt.Fprintln(c.w, name)
 	}
 	return nil
 }
 
-func (c *CLI) listServices(_ context.Context) error {
+func (c *CLI) ListServices(_ context.Context) error {
 	services := make(map[string]struct{})
 	for name := range clientMethods {
 		service, _ := parseKey(name)
@@ -98,7 +111,7 @@ func (c *CLI) listServices(_ context.Context) error {
 	}
 	sort.Strings(names)
 	for _, name := range names {
-		fmt.Println(name)
+		fmt.Fprintln(c.w, name)
 	}
 	return nil
 }
