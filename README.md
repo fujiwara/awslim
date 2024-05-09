@@ -1,6 +1,6 @@
 # aws-sdk-client-go
 
-aws-sdk-client-go is a Go client CLI for AWS SDK services.
+aws-sdk-client-go is a Go client CLI for AWS services.
 
 This CLI is auto generated from the AWS SDK Go v2 service client.
 
@@ -26,7 +26,7 @@ services:
     # all methods of the service
 ```
 
-Keys of `services` are AWS service names (`github.com/aws/aws-sdk-go-v2/service/*`), and values are method names of the service client. If you don't specify the method names, all methods of the service client are generated.
+Keys of `services` are AWS service names (`github.com/aws/aws-sdk-go-v2/service/*`), and values are method names of the service client (for example, `s3` is [s3.Client](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#Client)). If you don't specify the method names, all methods of the service client are generated.
 
 To build the client, run the following commands (or simply run `make`):
 
