@@ -5,54 +5,67 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"sort"
 	"strings"
 
+	"github.com/alecthomas/kong"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 )
 
-var clientMethods = make(map[string]func(context.Context, aws.Config, json.RawMessage) (any, error))
+var clientMethods = make(map[string]ClientMethod)
+
+type ClientMethod func(context.Context, aws.Config, json.RawMessage) (any, error)
+
+type CLI struct {
+	Service string `arg:"" help:"service name" default:""`
+	Method  string `arg:"" help:"method name" default:""`
+	Input   string `arg:"" help:"input JSON" default:"{}"`
+	Compact bool   `short:"c" help:"compact JSON output"`
+
+	w io.Writer
+}
 
 func Run(ctx context.Context) error {
-	var err error
-	awsCfg, err := config.LoadDefaultConfig(ctx)
-	if err != nil {
-		return err
-	}
-	switch len(os.Args) {
-	case 1:
-		return listServices()
-	case 2:
-		pkgName := os.Args[1]
-		return listMethods(pkgName)
-	case 3:
-		pkgName := os.Args[1]
-		methodName := os.Args[2]
-		input := json.RawMessage(`{}`)
-		return dispatchMethod(ctx, awsCfg, pkgName, methodName, input)
-	case 4:
-		pkgName := os.Args[1]
-		methodName := os.Args[2]
-		input := json.RawMessage(os.Args[3])
-		return dispatchMethod(ctx, awsCfg, pkgName, methodName, input)
-	default:
-		return fmt.Errorf("too many args")
+	var c CLI
+	c.w = os.Stdout
+	kong.Parse(&c)
+	return c.Dispatch(ctx)
+}
+
+func (c *CLI) Dispatch(ctx context.Context) error {
+	if c.Service == "" {
+		return c.ListServices(ctx)
+	} else if c.Method == "" {
+		return c.ListMethods(ctx)
+	} else {
+		return c.CallMethod(ctx)
 	}
 }
 
-func dispatchMethod(ctx context.Context, awsCfg aws.Config, pkgName, methodName string, in json.RawMessage) error {
-	key := buildKey(pkgName, methodName)
-	if bytes.Equal(in, []byte(`help`)) {
-		fmt.Printf("See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/%s\n", key)
+func (c *CLI) SetWriter(w io.Writer) {
+	c.w = w
+}
+
+func (c *CLI) CallMethod(ctx context.Context) error {
+	key := buildKey(c.Service, c.Method)
+	if c.Input == "help" {
+		fmt.Fprintf(c.w, "See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/%s\n", key)
 		return nil
 	}
+
 	fn := clientMethods[key]
 	if fn == nil {
 		return fmt.Errorf("unknown function %s", key)
 	}
-	out, err := fn(ctx, awsCfg, in)
+
+	awsCfg, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		return err
+	}
+	out, err := fn(ctx, awsCfg, json.RawMessage(c.Input))
 	if err != nil {
 		return err
 	}
@@ -60,29 +73,33 @@ func dispatchMethod(ctx context.Context, awsCfg aws.Config, pkgName, methodName 
 	if err != nil {
 		return fmt.Errorf("failed to marshal response: %w", err)
 	}
-	var buf bytes.Buffer
-	json.Indent(&buf, b, "", "  ")
-	buf.WriteTo(os.Stdout)
-	fmt.Fprintln(os.Stdout)
+	if !c.Compact {
+		var buf bytes.Buffer
+		json.Indent(&buf, b, "", "  ")
+		buf.WriteString("\n")
+		buf.WriteTo(c.w)
+	} else {
+		io.WriteString(c.w, string(b))
+	}
 	return nil
 }
 
-func listMethods(pkgName string) error {
+func (c *CLI) ListMethods(_ context.Context) error {
 	methods := make([]string, 0)
 	for name := range clientMethods {
 		service, method := parseKey(name)
-		if service == pkgName {
+		if service == c.Service {
 			methods = append(methods, method)
 		}
 	}
 	sort.Strings(methods)
 	for _, name := range methods {
-		fmt.Println(name)
+		fmt.Fprintln(c.w, name)
 	}
 	return nil
 }
 
-func listServices() error {
+func (c *CLI) ListServices(_ context.Context) error {
 	services := make(map[string]struct{})
 	for name := range clientMethods {
 		service, _ := parseKey(name)
@@ -94,7 +111,7 @@ func listServices() error {
 	}
 	sort.Strings(names)
 	for _, name := range names {
-		fmt.Println(name)
+		fmt.Fprintln(c.w, name)
 	}
 	return nil
 }

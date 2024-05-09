@@ -20,10 +20,11 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
 
-      - name: Build & Test
+      - name: Test
+        run: |
+          go test -v .
+
+      - name: Build
         run: |
           go generate ./cmd/aws-sdk-client-gen .
           go build -o aws-sdk-client-go ./cmd/aws-sdk-client-go/main.go
-          go test ./...
-        env:
-          GO111MODULE: on
