@@ -1,4 +1,4 @@
-.PHONY: clean test
+.PHONY: clean test gen
 
 aws-sdk-client-go: go.* *.go gen
 	go build -o $@ cmd/aws-sdk-client-go/main.go
@@ -13,9 +13,3 @@ gen:
 
 test:
 	go test -v ./...
-
-install:
-	go install github.com/fujiwara/aws-sdk-client-go/cmd/aws-sdk-client-go
-
-dist:
-	goreleaser build --snapshot --rm-dist

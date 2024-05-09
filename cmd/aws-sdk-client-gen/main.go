@@ -25,6 +25,8 @@ func gen(pkgName string, clientType reflect.Type, genNames []string) error {
 		"context"
 		"encoding/json"
 		"fmt"
+
+		"github.com/aws/aws-sdk-go-v2/aws"
 		"github.com/aws/aws-sdk-go-v2/service/%s"
 	)
 	`, pkgName)
@@ -44,17 +46,13 @@ func gen(pkgName string, clientType reflect.Type, genNames []string) error {
 		}
 		methodNames = append(methodNames, method.Name)
 		log.Printf("generating %s_%s", pkgName, method.Name)
-		fmt.Fprintf(buf, `func %s_%s(ctx context.Context, b json.RawMessage) (any, error) {
+		fmt.Fprintf(buf, `func %s_%s(ctx context.Context, awsCfg aws.Config, b json.RawMessage) (any, error) {
 			svc := %s.NewFromConfig(awsCfg)
 			var in %s
 			if err := json.Unmarshal(b, &in); err != nil {
 				return nil, fmt.Errorf("failed to unmarshal request: %%w", err)
 			}
-			if out, err := svc.%s(ctx, &in); err != nil {
-				return nil, fmt.Errorf("failed to call %s: %%w", err)
-			} else {
-				return out, nil
-			}
+			return svc.%s(ctx, &in)
 		}
 		`,
 			pkgName,
@@ -62,22 +60,16 @@ func gen(pkgName string, clientType reflect.Type, genNames []string) error {
 			pkgName,
 			strings.TrimPrefix(params[2], "*"), // (receiver, context.Context, *Request, ...)
 			method.Name,
-			method.Name,
 		)
 		fmt.Fprintln(buf)
 	}
 	fmt.Fprintln(buf, `func init() {`)
 	for _, name := range methodNames {
-		fmt.Fprintf(buf, `clientMethods["%s_%s"] = %s_%s
-		`, pkgName, name, pkgName, name)
+		fmt.Fprintf(buf, "	clientMethods[\"%s#Client.%s\"] = %s_%s\n", pkgName, name, pkgName, name)
 	}
 	fmt.Fprintln(buf, "}")
-	f, err := os.OpenFile(pkgName+"_gen.go", os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	if _, err := f.WriteString(buf.String()); err != nil {
+
+	if err := os.WriteFile(pkgName+"_gen.go", []byte(buf.String()), 0644); err != nil {
 		return err
 	}
 	log.Printf("generated %s_gen.go", pkgName)

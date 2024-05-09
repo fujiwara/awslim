@@ -1,8 +1,8 @@
 # aws-sdk-client-go
 
-aws-sdk-client-go is a Go client for AWS SDK services.
+aws-sdk-client-go is a Go client CLI for AWS SDK services.
 
-This client is auto generated from the AWS SDK Go service client.
+This CLI is auto generated from the AWS SDK Go v2 service client.
 
 ## Motivation
 
@@ -28,7 +28,7 @@ services:
 
 Keys of `services` are AWS service names (`github.com/aws/aws-sdk-go-v2/service/*`), and values are method names of the service client. If you don't specify the method names, all methods of the service client are generated.
 
-To build the client, run the following commands:
+To build the client, run the following commands (or simply run `make`):
 
 ```console
 $ go generate ./cmd/aws-sdk-client-gen .
@@ -72,6 +72,14 @@ $ aws-sdk-client-go ecs DescribeClusters '{"Cluster":"default"}'
 
 The third argument is JSON input for the method. If the method does not require input, you can omit the third argument (implicitly `{}` passed).
 
+#### Show help
+
+aws-sdk-client-go is a simple wrapper of the AWS SDK Go v2 service client. Its usage is the same as that of the AWS SDK Go v2.
+
+```console
+$ aws-sdk-client-go ecs DescribeClusters help
+See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/ecs#Client.DescribeClusters
+```
 
 ## LICENSE
 

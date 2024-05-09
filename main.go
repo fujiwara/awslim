@@ -13,13 +13,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 )
 
-var awsCfg aws.Config
-
-var clientMethods = make(map[string]func(context.Context, json.RawMessage) (any, error))
+var clientMethods = make(map[string]func(context.Context, aws.Config, json.RawMessage) (any, error))
 
 func Run(ctx context.Context) error {
 	var err error
-	awsCfg, err = config.LoadDefaultConfig(ctx)
+	awsCfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
 		return err
 	}
@@ -33,23 +31,28 @@ func Run(ctx context.Context) error {
 		pkgName := os.Args[1]
 		methodName := os.Args[2]
 		input := json.RawMessage(`{}`)
-		return dispatchMethod(ctx, pkgName, methodName, input)
+		return dispatchMethod(ctx, awsCfg, pkgName, methodName, input)
 	case 4:
 		pkgName := os.Args[1]
 		methodName := os.Args[2]
 		input := json.RawMessage(os.Args[3])
-		return dispatchMethod(ctx, pkgName, methodName, input)
+		return dispatchMethod(ctx, awsCfg, pkgName, methodName, input)
 	default:
 		return fmt.Errorf("too many args")
 	}
 }
 
-func dispatchMethod(ctx context.Context, pkgName, methodName string, in json.RawMessage) error {
-	fn := clientMethods[pkgName+"_"+methodName]
-	if fn == nil {
-		return fmt.Errorf("unknown method %s of %s", methodName, pkgName)
+func dispatchMethod(ctx context.Context, awsCfg aws.Config, pkgName, methodName string, in json.RawMessage) error {
+	key := buildKey(pkgName, methodName)
+	if bytes.Equal(in, []byte(`help`)) {
+		fmt.Printf("See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/%s\n", key)
+		return nil
 	}
-	out, err := fn(ctx, in)
+	fn := clientMethods[key]
+	if fn == nil {
+		return fmt.Errorf("unknown function %s", key)
+	}
+	out, err := fn(ctx, awsCfg, in)
 	if err != nil {
 		return err
 	}
@@ -67,8 +70,9 @@ func dispatchMethod(ctx context.Context, pkgName, methodName string, in json.Raw
 func listMethods(pkgName string) error {
 	methods := make([]string, 0)
 	for name := range clientMethods {
-		if strings.HasPrefix(name, pkgName+"_") {
-			methods = append(methods, strings.TrimPrefix(name, pkgName+"_"))
+		service, method := parseKey(name)
+		if service == pkgName {
+			methods = append(methods, method)
 		}
 	}
 	sort.Strings(methods)
@@ -81,7 +85,8 @@ func listMethods(pkgName string) error {
 func listServices() error {
 	services := make(map[string]struct{})
 	for name := range clientMethods {
-		services[strings.Split(name, "_")[0]] = struct{}{}
+		service, _ := parseKey(name)
+		services[service] = struct{}{}
 	}
 	names := make([]string, 0)
 	for name := range services {
@@ -92,6 +97,17 @@ func listServices() error {
 		fmt.Println(name)
 	}
 	return nil
+}
+
+func parseKey(key string) (string, string) {
+	parts := strings.Split(key, "#")
+	service := parts[0]
+	method := strings.SplitN(parts[1], ".", 2)[1]
+	return service, method
+}
+
+func buildKey(service, method string) string {
+	return fmt.Sprintf("%s#Client.%s", service, method)
 }
 
 //go:generate go run cmd/aws-sdk-client-gen/main.go cmd/aws-sdk-client-gen/gen.go
