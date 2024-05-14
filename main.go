@@ -13,6 +13,7 @@ import (
 	"github.com/alecthomas/kong"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/jmespath/go-jmespath"
 )
 
 var clientMethods = make(map[string]ClientMethod)
@@ -24,6 +25,7 @@ type CLI struct {
 	Method  string `arg:"" help:"method name" default:""`
 	Input   string `arg:"" help:"input JSON" default:"{}"`
 	Compact bool   `short:"c" help:"compact JSON output"`
+	Query   string `short:"q" help:"JMESPath query to apply to output"`
 
 	w io.Writer
 }
@@ -69,6 +71,14 @@ func (c *CLI) CallMethod(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
+	if c.Query != "" {
+		out, err = jmespath.Search(c.Query, out)
+		if err != nil {
+			return fmt.Errorf("failed to apply JMESPath query: %w", err)
+		}
+	}
+
 	b, err := json.Marshal(out)
 	if err != nil {
 		return fmt.Errorf("failed to marshal response: %w", err)
