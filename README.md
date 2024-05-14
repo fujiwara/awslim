@@ -93,7 +93,7 @@ $ aws-sdk-client-go ecs describe-clusters '{"Cluster":"default"}'
 `--query` option allows you to query the output by JMESPath like the AWS CLI.
 
 ```console
-./aws-sdk-client-go ecs DescribeClusters '{"Cluster":"default"}' \
+$ aws-sdk-client-go ecs DescribeClusters '{"Cluster":"default"}' \
   --query 'Clusters[0].ClusterArn'
 ```
 
