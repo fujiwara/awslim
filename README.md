@@ -82,6 +82,21 @@ $ aws-sdk-client-go ecs DescribeClusters '{"Cluster":"default"}'
 
 The third argument is JSON input for the method. If the method does not require input, you can omit the third argument (implicitly `{}` passed).
 
+If the method name is "kebab-case", it automatically converts to "PascalCase" (for example, `describe-clusters` -> `DescribeClusters`).
+
+```console
+$ aws-sdk-client-go ecs describe-clusters '{"Cluster":"default"}'
+```
+
+#### Query output by JMESPath
+
+`--query` option allows you to query the output by JMESPath like the AWS CLI.
+
+```console
+./aws-sdk-client-go ecs DescribeClusters '{"Cluster":"default"}' \
+  --query 'Clusters[0].ClusterArn'
+```
+
 #### Show help
 
 aws-sdk-client-go is a simple wrapper of the AWS SDK Go v2 service client. Its usage is the same as that of the AWS SDK Go v2.
