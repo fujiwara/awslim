@@ -40,8 +40,18 @@ $ go build -o your-client ./cmd/aws-sdk-client-go/main.go
 
 ## Usage
 
-```console
-$ aws-sdk-client-go [service] [method] [input]
+```
+Usage: aws-sdk-client-go [<service> [<method> [<input>]]] [flags]
+
+Arguments:
+  [<service>]    service name
+  [<method>]     method name
+  [<input>]      input JSON
+
+Flags:
+  -h, --help            Show context-sensitive help.
+  -c, --compact         compact JSON output
+  -q, --query=STRING    JMESPath query to apply to output
 ```
 
 - `service`: AWS service name.
