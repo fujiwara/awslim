@@ -52,7 +52,8 @@ func (c *CLI) SetWriter(w io.Writer) {
 }
 
 func (c *CLI) CallMethod(ctx context.Context) error {
-	key := buildKey(c.Service, c.Method)
+	method := kebabToCamel(c.Method)
+	key := buildKey(c.Service, method)
 	if c.Input == "help" {
 		fmt.Fprintf(c.w, "See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/%s\n", key)
 		return nil
@@ -135,6 +136,18 @@ func parseKey(key string) (string, string) {
 
 func buildKey(service, method string) string {
 	return fmt.Sprintf("%s#Client.%s", service, method)
+}
+
+func kebabToCamel(kebab string) string {
+	parts := strings.Split(kebab, "-")
+	results := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if len(p) == 0 {
+			continue
+		}
+		results = append(results, strings.ToUpper(p[:1])+p[1:])
+	}
+	return strings.Join(results, "")
 }
 
 //go:generate go run cmd/aws-sdk-client-gen/main.go cmd/aws-sdk-client-gen/gen.go
