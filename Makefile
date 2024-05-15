@@ -1,10 +1,11 @@
+VERSION := $(shell git describe --abbrev=0 --tags)
 .PHONY: clean test gen
 
 aws-sdk-client-go: go.* *.go gen
 	CGO_ENABLED=0 \
 		go build -o $@ \
 		-tags netgo \
-		-ldflags '-s -w -extldflags "-static"' \
+		-ldflags '-s -w -extldflags "-static" -X github.com/fujiwara/aws-sdk-client-go.Version=$(VERSION)' \
 		cmd/aws-sdk-client-go/main.go
 
 clean:

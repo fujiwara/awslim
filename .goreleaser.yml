@@ -6,17 +6,28 @@ builds:
       - CGO_ENABLED=0
     main: cmd/aws-sdk-client-go/main.go
     binary: aws-sdk-client-go
-    ldflags: '-s -w -extldflags "-static"'
+    ldflags:
+      - -s
+      - -w
+      - -extldflags "-static"
+      - -X github.com/fujiwara/aws-sdk-client-go.Version={{.Version}}
     tags:
       - osusergo
       - netgo
     goos:
       - linux
-      #- darwin
+      - darwin
       #- windows
     goarch:
       - amd64
       - arm64
+archives:
+  - format: tar.gz
+    files:
+      - aws-sdk-client-go
+      - LICENSE
+      - README.md
+
 checksum:
   name_template: "checksums.txt"
 snapshot:
