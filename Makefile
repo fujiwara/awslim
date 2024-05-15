@@ -17,3 +17,6 @@ gen:
 
 test:
 	go test -v .
+
+packages:
+	goreleaser build --skip-validate --rm-dist
