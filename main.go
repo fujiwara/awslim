@@ -16,6 +16,8 @@ import (
 	"github.com/jmespath/go-jmespath"
 )
 
+var Version = "HEAD"
+
 var clientMethods = make(map[string]ClientMethod)
 
 type ClientMethod func(context.Context, aws.Config, json.RawMessage) (any, error)
@@ -26,6 +28,7 @@ type CLI struct {
 	Input   string `arg:"" help:"input JSON" default:"{}"`
 	Compact bool   `short:"c" help:"compact JSON output"`
 	Query   string `short:"q" help:"JMESPath query to apply to output"`
+	Version bool   `short:"v" help:"show version"`
 
 	w io.Writer
 }
@@ -38,6 +41,10 @@ func Run(ctx context.Context) error {
 }
 
 func (c *CLI) Dispatch(ctx context.Context) error {
+	if c.Version {
+		fmt.Fprintf(c.w, "aws-sdk-client-go %s\n", Version)
+		return nil
+	}
 	if c.Service == "" {
 		return c.ListServices(ctx)
 	} else if c.Method == "" {

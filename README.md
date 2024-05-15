@@ -10,7 +10,7 @@ The [AWS CLI](https://aws.amazon.com/cli/) is very useful, but it requires too m
 
 ## Install
 
-**Note:** The release binaries are large (about 500MB after being extracted) because they contain codes for access to **[all AWS services](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service)**. If you want to use only a few services, you can build the client yourself. See [Build](#build) section.
+**Note:** The release binaries are large (about 500MB after being extracted) and slow a bit to boot up (about 100ms), because they contain codes for access to **[all AWS services](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service)**. If you want to use only a few services, you can build the client yourself. See [Build](#build) section.
 
 ### Release binary
 
@@ -24,7 +24,7 @@ $ brew install fujiwara/tap/aws-sdk-client-go
 
 ## Build
 
-You can build the client yourself, including only the needed services and methods.
+You can build the client yourself, including only the needed services and methods. The optimized binary is small and boots up quickly.
 
 The client is built by a configuration file `gen.yaml`.
 
@@ -113,7 +113,7 @@ $ aws-sdk-client-go ecs DescribeClusters '{"Cluster":"default"}' \
 
 #### Show help
 
-aws-sdk-client-go is a simple wrapper of the AWS SDK Go v2 service client. Its usage is the same as that of the AWS SDK Go v2.
+aws-sdk-client-go is a simple wrapper of the AWS SDK Go v2 service client. Its usage is the same as that of the AWS SDK Go v2. If the third argument is "help", it shows the URL of the method documentation.
 
 ```console
 $ aws-sdk-client-go ecs DescribeClusters help
