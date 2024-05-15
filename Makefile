@@ -19,4 +19,4 @@ test:
 	go test -v .
 
 packages:
-	goreleaser build --skip-validate --rm-dist
+	goreleaser build --skip-validate --clean
