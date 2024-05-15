@@ -24,7 +24,6 @@ builds:
 archives:
   - format: tar.gz
     files:
-      - aws-sdk-client-go
       - LICENSE
       - README.md
 
