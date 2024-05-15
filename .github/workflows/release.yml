@@ -7,6 +7,12 @@ on:
       - "v*.*.*"
       - "v*.*.*-rc*"
 
+permissions:
+  pull-requests: write
+  packages: write
+  contents: write
+  actions: write
+
 jobs:
   release:
     name: Release
