@@ -6,11 +6,25 @@ This CLI is auto generated from the AWS SDK Go v2 service client.
 
 ## Motivation
 
-The AWS CLI is very useful, but it requires too many CPU and memory resources to boot up. This client is a simplified alternative to the AWS CLI for limited use cases.
+The [AWS CLI](https://aws.amazon.com/cli/) is very useful, but it requires too many CPU and memory resources to boot up. This client is a simplified alternative to the AWS CLI for limited use cases.
+
+## Install
+
+**Note:** The release binaries are large (about 500MB after being extracted) because they contain codes for access to **[all AWS services](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service)**. If you want to use only a few services, you can build the client yourself. See [Build](#build) section.
+
+### Release binary
+
+Download the binary from the [release page](https://github.com/fujiwara/aws-sdk-client-go/releases).
+
+### Homebrew
+
+```console
+$ brew install fujiwara/tap/aws-sdk-client-go
+```
 
 ## Build
 
-aws-sdk-client-go does not release binaries. Because the binary containing all services is too large, you need to build the client yourself to support the services you want to use.
+You can build the client yourself, including only the needed services and methods.
 
 The client is built by a configuration file `gen.yaml`.
 
