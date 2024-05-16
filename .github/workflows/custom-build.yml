@@ -1,0 +1,62 @@
+name: custom-build
+on:
+  workflow_dispatch:
+    inputs:
+      services:
+        description: 'AWS services to build(, separated)'
+        required: true
+      os:
+        description: 'os to build'
+        required: true
+        type: choice
+        options:
+          - linux
+          - darwin
+          - windows
+        default: linux
+      arch:
+        description: 'arch to build'
+        required: true
+        type: choice
+        options:
+          - amd64
+          - arm64
+          - arm
+        default: amd64
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.22
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4
+
+      - name: generate gen.yml
+        run: |
+          echo "services:" > gen.yaml
+          IFS=','
+          for service in ${{ github.event.inputs.services }}; do
+            echo "  $service:" >> gen.yaml
+          done
+          unset IFS
+          cat gen.yaml
+
+      - name: Build
+        run: |
+          make
+        env:
+          GOOS: ${{ github.event.inputs.os }}
+          GOARCH: ${{ github.event.inputs.arch }}
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: aws-sdk-client-go-${{ github.event.inputs.os }}-${{ github.event.inputs.arch }}
+          path: aws-sdk-client-go
