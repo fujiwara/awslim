@@ -44,7 +44,7 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
 
-      - name: generate gen.yml
+      - name: generate
         run: |
           echo "services:" > gen.yaml
           IFS=','
@@ -54,10 +54,11 @@ jobs:
           done
           unset IFS
           cat gen.yaml
+          make gen
 
       - name: Build
         run: |
-          make
+          make aws-sdk-client-go
         env:
           GOOS: ${{ github.event.inputs.os }}
           GOARCH: ${{ github.event.inputs.arch }}
