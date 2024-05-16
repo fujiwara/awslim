@@ -48,7 +48,8 @@ jobs:
         run: |
           echo "services:" > gen.yaml
           IFS=','
-          for service in ${{ github.event.inputs.services }}; do
+          SERVICES="${{ github.event.inputs.services }}"
+          for service in $SERVICES; do
             echo "  $service:" >> gen.yaml
           done
           unset IFS
