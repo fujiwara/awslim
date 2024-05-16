@@ -23,6 +23,12 @@ on:
           - arm64
           - arm
         default: amd64
+
+permissions:
+  packages: write
+  contents: write
+  actions: write
+
 jobs:
   build:
     name: Build
