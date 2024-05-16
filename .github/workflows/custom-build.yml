@@ -63,7 +63,7 @@ jobs:
           GOARCH: ${{ github.event.inputs.arch }}
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: aws-sdk-client-go-${{ github.event.inputs.os }}-${{ github.event.inputs.arch }}
           path: aws-sdk-client-go
