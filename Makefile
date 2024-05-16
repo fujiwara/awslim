@@ -1,7 +1,10 @@
 VERSION := $(shell git describe --abbrev=0 --tags)
 .PHONY: clean test gen
 
-aws-sdk-client-go: go.* *.go gen
+build: gen aws-sdk-client-go
+	
+
+aws-sdk-client-go: go.* *.go
 	CGO_ENABLED=0 \
 		go build -o $@ \
 		-tags netgo \
