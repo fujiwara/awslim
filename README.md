@@ -52,6 +52,23 @@ $ go build -o your-client ./cmd/aws-sdk-client-go/main.go
 1. `go generate ./cmd/aws-sdk-client-gen .` generates the generator by `gen.yaml`.
 2. `go build -o your-client ./cmd/aws-sdk-client-go/main.go` builds your client.
 
+
+## Performance comparison
+
+Example of execution `sts get-caller-identity` on 0.25vCPU Fargate(AMD64).
+`/usr/bin/time -v` is used for measurement.
+
+| command | CPU time(user, sys)| Elapsed time(s) | Max memory(MB) |
+| ---- | ---- | ---- | --- |
+| aws               | 0.67 + 0.10 = 0.77 | 3.11 | 64.2 |
+| aws-sdk-client-go(all) | 0.08 + 0.03 = 0.11 | 0.43 | 101.5 |
+| aws-sdk-client-go(40) | 0.02 + 0.01 = 0.03 | 0.05 | 30.2 |
+
+- `aws-sdk-client-go`(built for all AWS services): 7.0x faster than `aws`
+- `aws-sdk-client-go`(built for 40 AWS services): 62.0x faster than `aws`
+
+`aws-cli/2.15.51 Python/3.11.8`, `aws-sdk-client-go 0.0.10`
+
 ## Usage
 
 ```
