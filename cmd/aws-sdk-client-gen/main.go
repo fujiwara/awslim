@@ -20,15 +20,21 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/{{ .PkgName }}"
 )
 
 {{ range .Methods }}
-func {{ $.PkgName }}_{{ .Name }}(ctx context.Context, awsCfg aws.Config, b json.RawMessage) (any, error) {
+func {{ $.PkgName }}_{{ .Name }}(ctx context.Context, awsCfg aws.Config, b json.RawMessage, fin io.Reader) (any, error) {
 	svc := {{ $.PkgName }}.NewFromConfig(awsCfg)
 	var in {{ .Input }}
+	if fin != nil {
+		if err := bindBody(&in, fin); err != nil {
+			return nil, fmt.Errorf("failed to bind reader to request: %w", err)
+		}
+	}
 	if err := json.Unmarshal(b, &in); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal request: %w", err)
 	}

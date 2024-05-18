@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
+	"reflect"
 	"sort"
 	"strings"
 
@@ -20,7 +22,7 @@ var Version = "HEAD"
 
 var clientMethods = make(map[string]ClientMethod)
 
-type ClientMethod func(context.Context, aws.Config, json.RawMessage) (any, error)
+type ClientMethod func(context.Context, aws.Config, json.RawMessage, io.Reader) (any, error)
 
 type CLI struct {
 	Service string `arg:"" help:"service name" default:""`
@@ -75,7 +77,7 @@ func (c *CLI) CallMethod(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	out, err := fn(ctx, awsCfg, json.RawMessage(c.Input))
+	out, err := fn(ctx, awsCfg, json.RawMessage(c.Input), os.Stdin)
 	if err != nil {
 		return err
 	}
@@ -155,6 +157,43 @@ func kebabToCamel(kebab string) string {
 		results = append(results, strings.ToUpper(p[:1])+p[1:])
 	}
 	return strings.Join(results, "")
+}
+
+func bindBody(v any, fin io.Reader) error {
+	st := reflect.ValueOf(v).Elem()
+	fBody := st.FieldByName("Body")
+	if !fBody.IsValid() {
+		return nil
+	}
+	fContentLength := st.FieldByName("ContentLength")
+	if !fContentLength.IsValid() {
+		return nil
+	}
+	fContentType := st.FieldByName("ContentType")
+	if !fContentType.IsValid() {
+		return nil
+	}
+
+	if fBody.Type().String() != "io.Reader" {
+		return nil
+	}
+	if fContentLength.Type().String() != "*int64" {
+		return nil
+	}
+	if fContentType.Type().String() != "*string" {
+		return nil
+	}
+	b, err := io.ReadAll(fin)
+	if err != nil {
+		return err
+	}
+	fBody.Set(reflect.ValueOf(bytes.NewReader(b)))
+	contentLength := int64(len(b))
+	fContentLength.Set(reflect.ValueOf(&contentLength))
+	contentType := http.DetectContentType(b)
+	fContentType.Set(reflect.ValueOf(&contentType))
+
+	return nil
 }
 
 //go:generate go run cmd/aws-sdk-client-gen/main.go cmd/aws-sdk-client-gen/gen.go
