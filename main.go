@@ -162,27 +162,18 @@ func kebabToCamel(kebab string) string {
 func bindBody(v any, fin io.Reader) error {
 	st := reflect.ValueOf(v).Elem()
 	fBody := st.FieldByName("Body")
-	if !fBody.IsValid() {
+	if !fBody.IsValid() || fBody.Type().String() != "io.Reader" {
 		return nil
 	}
 	fContentLength := st.FieldByName("ContentLength")
-	if !fContentLength.IsValid() {
+	if !fContentLength.IsValid() || fContentLength.Type().String() != "*int64" {
 		return nil
 	}
 	fContentType := st.FieldByName("ContentType")
-	if !fContentType.IsValid() {
+	if !fContentType.IsValid() || fContentType.Type().String() != "*string" {
 		return nil
 	}
 
-	if fBody.Type().String() != "io.Reader" {
-		return nil
-	}
-	if fContentLength.Type().String() != "*int64" {
-		return nil
-	}
-	if fContentType.Type().String() != "*string" {
-		return nil
-	}
 	b, err := io.ReadAll(fin)
 	if err != nil {
 		return err
