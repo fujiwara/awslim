@@ -80,9 +80,11 @@ Arguments:
   [<input>]      input JSON
 
 Flags:
-  -h, --help            Show context-sensitive help.
-  -c, --compact         compact JSON output
-  -q, --query=STRING    JMESPath query to apply to output
+  -h, --help                   Show context-sensitive help.
+  -i, --input-stream=STRING    bind input filename or '-' to io.Reader field in the input struct
+  -c, --compact                compact JSON output
+  -q, --query=STRING           JMESPath query to apply to output
+  -v, --version                show version
 ```
 
 - `service`: AWS service name.
@@ -118,6 +120,22 @@ If the method name is "kebab-case", it automatically converts to "PascalCase" (f
 ```console
 $ aws-sdk-client-go ecs describe-clusters '{"Cluster":"default"}'
 ```
+
+#### `--input-stream` option
+
+`--input-stream` option allows you to bind a file or stdin to the input struct.
+
+```console
+$ aws-sdk-client-go s3 put-object '{"Bucket": "my-bucket", "Key": "my.txt"}' --input-stream my.txt
+```
+
+[s3#PutObjectInput](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#PutObjectInput) has `Body` field of `io.Reader`. `--input-stream` option binds the file to the field.
+
+When the input struct has only one field of `io.Reader`, `aws-sdk-client-go` reads the file and binds it to the field automatically. (At now, all SDK input structs have only one field of `io.Reader`.)
+
+When the input struct has a "\*Length" field for the size of the content, `aws-sdk-client-go` sets the size of the content to the field automatically. For example, [s3#PutObjectInput](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#PutObjectInput) has `ContentLength` field.
+
+If `--input-stream` is "-", `aws-sdk-client-go` reads from stdin. In this case, `aws-sdk-client-go` reads all contents into memory, so it is not suitable for large files. Consider using a file for large content.
 
 #### Query output by JMESPath
 
