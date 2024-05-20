@@ -7,3 +7,16 @@ services:
     - ListDeliveryStreams
   kinesis:
     # all methods of the service
+  s3:
+    - GetBucketLocation
+    - GetObject
+    - ListBuckets
+    - ListObjects
+    - ListObjectsV2
+    - PutObject
+    - PutObjectAcl
+    - PutObjectTagging
+    - RestoreObject
+    - SelectObjectContent
+    - UploadPart
+    - UploadPartCopy

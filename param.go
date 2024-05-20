@@ -8,8 +8,7 @@ import (
 )
 
 type clientMethodParam struct {
-	awsCfg     aws.Config
-	b          json.RawMessage
-	bindKey    string
-	bindReader io.Reader
+	awsCfg      aws.Config
+	b           json.RawMessage
+	inputReader io.Reader
 }

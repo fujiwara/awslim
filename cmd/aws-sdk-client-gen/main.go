@@ -31,6 +31,11 @@ func {{ $.PkgName }}_{{ .Name }}(ctx context.Context, p *clientMethodParam) (any
 	if err := json.Unmarshal(p.b, &in); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal request: %w", err)
 	}
+	{{- if .InputReaderKey }}
+	if p.inputReader != nil {
+		in.{{ .InputReaderKey }} = p.inputReader
+	}
+	{{- end }}
 	return svc.{{ .Name }}(ctx, &in)
 }
 
@@ -65,15 +70,18 @@ func gen(pkgName string, clientType reflect.Type, genNames []string) error {
 			continue
 		}
 		inputParam := method.Type.In(2)
+		var inputReaderKey string
 		for j := 0; j < inputParam.Elem().NumField(); j++ {
 			field := inputParam.Elem().Field(j)
 			if t := field.Type.String(); t == "io.Reader" {
 				log.Printf("found %s field in %s.%sInput %s %s", t, pkgName, method.Name, field.Name, t)
+				inputReaderKey = field.Name
 			}
 		}
 		methods = append(methods, map[string]string{
-			"Name":  method.Name,
-			"Input": strings.TrimPrefix(params[2], "*"),
+			"Name":           method.Name,
+			"Input":          strings.TrimPrefix(params[2], "*"),
+			"InputReaderKey": inputReaderKey,
 		})
 		/*
 			output := method.Type.Out(0)
