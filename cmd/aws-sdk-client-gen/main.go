@@ -21,15 +21,14 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/{{ .PkgName }}"
 )
 
 {{ range .Methods }}
-func {{ $.PkgName }}_{{ .Name }}(ctx context.Context, awsCfg aws.Config, b json.RawMessage) (any, error) {
-	svc := {{ $.PkgName }}.NewFromConfig(awsCfg)
+func {{ $.PkgName }}_{{ .Name }}(ctx context.Context, p *clientMethodParam) (any, error) {
+	svc := {{ $.PkgName }}.NewFromConfig(p.awsCfg)
 	var in {{ .Input }}
-	if err := json.Unmarshal(b, &in); err != nil {
+	if err := json.Unmarshal(p.b, &in); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal request: %w", err)
 	}
 	return svc.{{ .Name }}(ctx, &in)
@@ -65,10 +64,29 @@ func gen(pkgName string, clientType reflect.Type, genNames []string) error {
 			log.Printf("no params func %s", method.Name)
 			continue
 		}
+		inputParam := method.Type.In(2)
+		for j := 0; j < inputParam.Elem().NumField(); j++ {
+			field := inputParam.Elem().Field(j)
+			if t := field.Type.String(); t == "io.Reader" {
+				log.Printf("found %s field in %s.%sInput %s %s", t, pkgName, method.Name, field.Name, t)
+			}
+		}
 		methods = append(methods, map[string]string{
 			"Name":  method.Name,
 			"Input": strings.TrimPrefix(params[2], "*"),
 		})
+		/*
+			output := method.Type.Out(0)
+			if output.Kind() == reflect.Ptr {
+				output = output.Elem()
+			}
+			for j := 0; j < output.NumField(); j++ {
+				field := output.Field(j)
+				if t := field.Type.String(); strings.Contains(t, "io.") {
+					log.Printf("found %s field in %s.%sOutput %s %s", t, pkgName, method.Name, field.Name, t)
+				}
+			}
+		*/
 	}
 
 	tmpl, err := template.New("clientGen").Parse(templateStr)

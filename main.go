@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/alecthomas/kong"
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/jmespath/go-jmespath"
 )
@@ -20,7 +19,7 @@ var Version = "HEAD"
 
 var clientMethods = make(map[string]ClientMethod)
 
-type ClientMethod func(context.Context, aws.Config, json.RawMessage) (any, error)
+type ClientMethod func(context.Context, *clientMethodParam) (any, error)
 
 type CLI struct {
 	Service string `arg:"" help:"service name" default:""`
@@ -75,7 +74,11 @@ func (c *CLI) CallMethod(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	out, err := fn(ctx, awsCfg, json.RawMessage(c.Input))
+	p := &clientMethodParam{
+		awsCfg: awsCfg,
+		b:      json.RawMessage(c.Input),
+	}
+	out, err := fn(ctx, p)
 	if err != nil {
 		return err
 	}
