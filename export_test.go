@@ -7,3 +7,5 @@ func SetClientMethod(key string, fn ClientMethod) {
 func ClientMethods() map[string]ClientMethod {
 	return clientMethods
 }
+
+type ClientMethodParam = clientMethodParam

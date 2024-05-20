@@ -20,15 +20,17 @@ var Version = "HEAD"
 
 var clientMethods = make(map[string]ClientMethod)
 
-type ClientMethod func(context.Context, aws.Config, json.RawMessage) (any, error)
+type ClientMethod func(context.Context, *clientMethodParam) (any, error)
 
 type CLI struct {
 	Service string `arg:"" help:"service name" default:""`
 	Method  string `arg:"" help:"method name" default:""`
 	Input   string `arg:"" help:"input JSON" default:"{}"`
-	Compact bool   `short:"c" help:"compact JSON output"`
-	Query   string `short:"q" help:"JMESPath query to apply to output"`
-	Version bool   `short:"v" help:"show version"`
+
+	InputStream string `short:"i" help:"bind input filename or '-' to io.Reader field in the input struct"`
+	Compact     bool   `short:"c" help:"compact JSON output"`
+	Query       string `short:"q" help:"JMESPath query to apply to output"`
+	Version     bool   `short:"v" help:"show version"`
 
 	w io.Writer
 }
@@ -65,17 +67,17 @@ func (c *CLI) CallMethod(ctx context.Context) error {
 		fmt.Fprintf(c.w, "See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/%s\n", key)
 		return nil
 	}
-
 	fn := clientMethods[key]
 	if fn == nil {
 		return fmt.Errorf("unknown function %s", key)
 	}
-
-	awsCfg, err := config.LoadDefaultConfig(ctx)
+	p, err := c.clientMethodParam(ctx)
 	if err != nil {
 		return err
 	}
-	out, err := fn(ctx, awsCfg, json.RawMessage(c.Input))
+	defer p.Cleanup()
+
+	out, err := fn(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -100,6 +102,45 @@ func (c *CLI) CallMethod(ctx context.Context) error {
 		io.WriteString(c.w, string(b))
 	}
 	return nil
+}
+
+func (c *CLI) clientMethodParam(ctx context.Context) (*clientMethodParam, error) {
+	awsCfg, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		return nil, err
+	}
+	p := &clientMethodParam{
+		awsCfg:      awsCfg,
+		InputBytes:  json.RawMessage(c.Input),
+		InputReader: nil,
+	}
+
+	switch c.InputStream {
+	case "":
+		// do nothing
+	case "-": // stdin
+		buf := &bytes.Buffer{}
+		if _, err := io.Copy(buf, os.Stdin); err != nil {
+			if err != io.EOF {
+				return nil, fmt.Errorf("failed to read from stdin: %w", err)
+			}
+		}
+		p.InputReader = buf
+		p.InputReaderLength = aws.Int64(int64(buf.Len()))
+	default:
+		f, err := os.Open(c.InputStream)
+		if err != nil {
+			return nil, fmt.Errorf("failed to open input file: %w", err)
+		}
+		p.InputReader = f
+		p.cleanup = append(p.cleanup, f.Close)
+		st, err := f.Stat()
+		if err != nil {
+			return nil, fmt.Errorf("failed to stat input file: %w", err)
+		}
+		p.InputReaderLength = aws.Int64(st.Size())
+	}
+	return p, nil
 }
 
 func (c *CLI) ListMethods(_ context.Context) error {
