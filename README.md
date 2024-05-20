@@ -80,11 +80,13 @@ Arguments:
   [<input>]      input JSON
 
 Flags:
-  -h, --help                   Show context-sensitive help.
-  -i, --input-stream=STRING    bind input filename or '-' to io.Reader field in the input struct
-  -c, --compact                compact JSON output
-  -q, --query=STRING           JMESPath query to apply to output
-  -v, --version                show version
+  -h, --help                    Show context-sensitive help.
+  -i, --input-stream=STRING     bind input filename or '-' to io.Reader field in the input struct
+  -o, --output-stream=STRING    bind output filename or '-' to io.ReadCloser field in the output struct
+  -n, --no-api-output           do not output API response into stdout
+  -c, --compact                 compact JSON output
+  -q, --query=STRING            JMESPath query to apply to output
+  -v, --version                 show version
 ```
 
 - `service`: AWS service name.
@@ -123,7 +125,7 @@ $ aws-sdk-client-go ecs describe-clusters '{"Cluster":"default"}'
 
 #### `--input-stream` option
 
-`--input-stream` option allows you to bind a file or stdin to the input struct.
+`--input-stream` (`-i`) option allows you to bind a file or stdin to the input struct.
 
 ```console
 $ aws-sdk-client-go s3 put-object '{"Bucket": "my-bucket", "Key": "my.txt"}' --input-stream my.txt
@@ -131,11 +133,25 @@ $ aws-sdk-client-go s3 put-object '{"Bucket": "my-bucket", "Key": "my.txt"}' --i
 
 [s3#PutObjectInput](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#PutObjectInput) has `Body` field of `io.Reader`. `--input-stream` option binds the file to the field.
 
-When the input struct has only one field of `io.Reader`, `aws-sdk-client-go` reads the file and binds it to the field automatically. (At now, all SDK input structs have only one field of `io.Reader`.)
+When the input struct has only one field of `io.Reader`, `aws-sdk-client-go` reads the file and binds it to the field automatically. (Currently, all SDK input structs have at most one io.Reader field.)
 
 When the input struct has a "\*Length" field for the size of the content, `aws-sdk-client-go` sets the size of the content to the field automatically. For example, [s3#PutObjectInput](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#PutObjectInput) has `ContentLength` field.
 
 If `--input-stream` is "-", `aws-sdk-client-go` reads from stdin. In this case, `aws-sdk-client-go` reads all contents into memory, so it is not suitable for large files. Consider using a file for large content.
+
+#### `--output-stream` option
+
+`--output-stream` (`-o`) option allows you to bind the `io.ReadCloser` of the API output to a file or stdout.
+
+```console
+$ aws-sdk-client-go s3 get-object '{"Bucket": "my-bucket", "Key": "my.txt"}' --output-stream my.txt
+```
+
+[s3#GetObjectOutput](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#PutObjectOutput) has `Body` field of `io.ReadeCloser`. `--output-stream` option binds the file to the field.
+
+When the output struct has only one field of `io.ReadCloser`, `aws-sdk-client-go` copies it to the file automatically. (Currently, all SDK output structs have at most one io.ReadCloser field.)
+
+If `--output-stream` is "-", `aws-sdk-client-go` writes into stdout. The result of the API also writes to stdout by default. If you don't want to output the result, use `--no-api-output` (`-n`).
 
 #### Query output by JMESPath
 

@@ -20,12 +20,16 @@ import (
 )
 
 func generateAll() {
+	var err error
 {{ range $key, $value := .Services }}
 {{- if eq (len $value) 0 }}
-	gen("{{ $key }}", reflect.TypeOf({{ $key }}.New({{ $key }}.Options{})), nil)
+	err = gen("{{ $key }}", reflect.TypeOf({{ $key }}.New({{ $key }}.Options{})), nil)
 {{- else }}
-	gen("{{ $key }}", reflect.TypeOf({{ $key }}.New({{ $key }}.Options{})), {{ printf "%#v" $value }})
+	err = gen("{{ $key }}", reflect.TypeOf({{ $key }}.New({{ $key }}.Options{})), {{ printf "%#v" $value }})
 {{- end }}
+	if err != nil {
+		panic("failed to generate {{ $key }}" + err.Error())
+	}
 {{ end }}
 }
 `
