@@ -7,6 +7,7 @@ services:
     - ListDeliveryStreams
   kinesis:
     # all methods of the service
+  lambda:
   s3:
     - GetBucketLocation
     - GetObject

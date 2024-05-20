@@ -9,10 +9,11 @@ import (
 )
 
 type clientMethodParam struct {
-	awsCfg      aws.Config
-	b           json.RawMessage
-	inputReader io.Reader
-	cleanup     []func() error
+	InputBytes  json.RawMessage
+	InputReader io.Reader
+
+	awsCfg  aws.Config
+	cleanup []func() error
 }
 
 func (p *clientMethodParam) Cleanup() {

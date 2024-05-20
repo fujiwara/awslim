@@ -110,8 +110,8 @@ func (c *CLI) clientMethodParam(ctx context.Context) (*clientMethodParam, error)
 	}
 	p := &clientMethodParam{
 		awsCfg:      awsCfg,
-		b:           json.RawMessage(c.Input),
-		inputReader: nil,
+		InputBytes:  json.RawMessage(c.Input),
+		InputReader: nil,
 	}
 
 	switch c.InputStream {
@@ -124,13 +124,13 @@ func (c *CLI) clientMethodParam(ctx context.Context) (*clientMethodParam, error)
 				return nil, fmt.Errorf("failed to read from stdin: %w", err)
 			}
 		}
-		p.inputReader = buf
+		p.InputReader = buf
 	default:
 		f, err := os.Open(c.InputStream)
 		if err != nil {
 			return nil, fmt.Errorf("failed to open input file: %w", err)
 		}
-		p.inputReader = f
+		p.InputReader = f
 		p.cleanup = append(p.cleanup, f.Close)
 	}
 	return p, nil

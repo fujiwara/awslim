@@ -28,12 +28,12 @@ import (
 func {{ $.PkgName }}_{{ .Name }}(ctx context.Context, p *clientMethodParam) (any, error) {
 	svc := {{ $.PkgName }}.NewFromConfig(p.awsCfg)
 	var in {{ .Input }}
-	if err := json.Unmarshal(p.b, &in); err != nil {
+	if err := json.Unmarshal(p.InputBytes, &in); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal request: %w", err)
 	}
 	{{- if .InputReaderKey }}
-	if p.inputReader != nil {
-		in.{{ .InputReaderKey }} = p.inputReader
+	if p.InputReader != nil {
+		in.{{ .InputReaderKey }} = p.InputReader
 	}
 	{{- end }}
 	return svc.{{ .Name }}(ctx, &in)

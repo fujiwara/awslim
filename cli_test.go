@@ -8,26 +8,25 @@ import (
 	"testing"
 
 	"github.com/alecthomas/kong"
-	"github.com/aws/aws-sdk-go-v2/aws"
 	sdkclient "github.com/fujiwara/aws-sdk-client-go"
 )
 
 func init() {
-	sdkclient.SetClientMethod("foo#Client.List", func(_ context.Context, _ aws.Config, _ json.RawMessage) (any, error) {
+	sdkclient.SetClientMethod("foo#Client.List", func(_ context.Context, _ *sdkclient.ClientMethodParam) (any, error) {
 		return []string{"a", "b", "c"}, nil
 	})
-	sdkclient.SetClientMethod("foo#Client.Get", func(_ context.Context, _ aws.Config, _ json.RawMessage) (any, error) {
+	sdkclient.SetClientMethod("foo#Client.Get", func(_ context.Context, _ *sdkclient.ClientMethodParam) (any, error) {
 		return struct{ Name string }{Name: "foo"}, nil
 	})
-	sdkclient.SetClientMethod("bar#Client.List", func(_ context.Context, _ aws.Config, _ json.RawMessage) (any, error) {
+	sdkclient.SetClientMethod("bar#Client.List", func(_ context.Context, _ *sdkclient.ClientMethodParam) (any, error) {
 		return []string{"x", "y", "z"}, nil
 	})
-	sdkclient.SetClientMethod("bar#Client.Get", func(_ context.Context, _ aws.Config, _ json.RawMessage) (any, error) {
+	sdkclient.SetClientMethod("bar#Client.Get", func(_ context.Context, _ *sdkclient.ClientMethodParam) (any, error) {
 		return struct{ Name string }{Name: "bar"}, nil
 	})
-	sdkclient.SetClientMethod("baz#Client.Echo", func(_ context.Context, _ aws.Config, b json.RawMessage) (any, error) {
+	sdkclient.SetClientMethod("baz#Client.Echo", func(_ context.Context, p *sdkclient.ClientMethodParam) (any, error) {
 		var v any
-		err := json.Unmarshal(b, &v)
+		err := json.Unmarshal(p.InputBytes, &v)
 		return v, err
 	})
 }
