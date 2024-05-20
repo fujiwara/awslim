@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/alecthomas/kong"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/jmespath/go-jmespath"
 )
@@ -125,6 +126,7 @@ func (c *CLI) clientMethodParam(ctx context.Context) (*clientMethodParam, error)
 			}
 		}
 		p.InputReader = buf
+		p.InputReaderLength = aws.Int64(int64(buf.Len()))
 	default:
 		f, err := os.Open(c.InputStream)
 		if err != nil {
@@ -132,6 +134,11 @@ func (c *CLI) clientMethodParam(ctx context.Context) (*clientMethodParam, error)
 		}
 		p.InputReader = f
 		p.cleanup = append(p.cleanup, f.Close)
+		st, err := f.Stat()
+		if err != nil {
+			return nil, fmt.Errorf("failed to stat input file: %w", err)
+		}
+		p.InputReaderLength = aws.Int64(st.Size())
 	}
 	return p, nil
 }

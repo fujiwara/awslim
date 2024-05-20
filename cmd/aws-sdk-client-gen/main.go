@@ -28,12 +28,16 @@ import (
 func {{ $.PkgName }}_{{ .Name }}(ctx context.Context, p *clientMethodParam) (any, error) {
 	svc := {{ $.PkgName }}.NewFromConfig(p.awsCfg)
 	var in {{ .Input }}
+	{{ if .InputReaderLengthField }}
+	p.mustInject("{{ .InputReaderLengthField }}", p.InputReaderLength)
+	{{ end }}
+
 	if err := json.Unmarshal(p.InputBytes, &in); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal request: %w", err)
 	}
-	{{- if .InputReaderKey }}
+	{{- if .InputReaderField }}
 	if p.InputReader != nil {
-		in.{{ .InputReaderKey }} = p.InputReader
+		in.{{ .InputReaderField }} = p.InputReader
 	}
 	{{- end }}
 	return svc.{{ .Name }}(ctx, &in)
@@ -70,18 +74,34 @@ func gen(pkgName string, clientType reflect.Type, genNames []string) error {
 			continue
 		}
 		inputParam := method.Type.In(2)
-		var inputReaderKey string
+		var inputReaderField, inputReaderLengthField string
 		for j := 0; j < inputParam.Elem().NumField(); j++ {
 			field := inputParam.Elem().Field(j)
 			if t := field.Type.String(); t == "io.Reader" {
 				log.Printf("found %s field in %s.%sInput %s %s", t, pkgName, method.Name, field.Name, t)
-				inputReaderKey = field.Name
+				if inputReaderField != "" {
+					return fmt.Errorf("found multiple io.Reader fields in %s.%sInput", pkgName, method.Name)
+				}
+				inputReaderField = field.Name
+			}
+		}
+		if inputReaderField != "" {
+			for j := 0; j < inputParam.Elem().NumField(); j++ {
+				field := inputParam.Elem().Field(j)
+				if t := field.Name; strings.Contains(t, "Length") {
+					log.Printf("found %s field in %s.%sInput %s %s", t, pkgName, method.Name, field.Name, t)
+					if inputReaderLengthField != "" {
+						return fmt.Errorf("found multiple Length fields in %s.%sInput", pkgName, method.Name)
+					}
+					inputReaderLengthField = field.Name
+				}
 			}
 		}
 		methods = append(methods, map[string]string{
-			"Name":           method.Name,
-			"Input":          strings.TrimPrefix(params[2], "*"),
-			"InputReaderKey": inputReaderKey,
+			"Name":                   method.Name,
+			"Input":                  strings.TrimPrefix(params[2], "*"),
+			"InputReaderField":       inputReaderField,
+			"InputReaderLengthField": inputReaderLengthField,
 		})
 		/*
 			output := method.Type.Out(0)
