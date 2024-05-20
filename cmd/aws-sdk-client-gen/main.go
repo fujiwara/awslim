@@ -35,15 +35,13 @@ func {{ $.PkgName }}_{{ .Name }}(ctx context.Context, p *clientMethodParam) (any
 	if err := json.Unmarshal(p.InputBytes, &in); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal request: %w", err)
 	}
-	{{- if .InputReaderField }}
 	if p.InputReader != nil {
+	{{- if .InputReaderField }}
 		in.{{ .InputReaderField }} = p.InputReader
-	}
 	{{- else }}
-		if p.InputReader != nil {
-			return nil, fmt.Errorf("{{ $.PkgName }}.{{ .Name }}Input has no io.Reader field")
-		}
+		return nil, fmt.Errorf("{{ $.PkgName }}.{{ .Name }}Input has no io.Reader field")
 	{{- end }}
+	}
 	return svc.{{ .Name }}(ctx, &in)
 }
 
