@@ -74,6 +74,7 @@ func (c *CLI) CallMethod(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	defer p.Cleanup()
 
 	out, err := fn(ctx, p)
 	if err != nil {
@@ -129,8 +130,8 @@ func (c *CLI) clientMethodParam(ctx context.Context) (*clientMethodParam, error)
 		if err != nil {
 			return nil, fmt.Errorf("failed to open input file: %w", err)
 		}
-		defer f.Close()
 		p.inputReader = f
+		p.cleanup = append(p.cleanup, f.Close)
 	}
 	return p, nil
 }
