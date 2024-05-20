@@ -14,6 +14,7 @@ type clientMethodParam struct {
 	InputBytes        json.RawMessage
 	InputReader       io.Reader
 	InputReaderLength *int64
+	OutputWriter      io.Writer
 
 	awsCfg  aws.Config
 	cleanup []func() error
@@ -25,6 +26,25 @@ func (p *clientMethodParam) Cleanup() {
 			log.Printf("[warn] failed to cleanup: %v", err)
 		}
 	}
+}
+
+func (p *clientMethodParam) Output(src io.ReadCloser) error {
+	if p.OutputWriter == nil {
+		return nil
+	}
+	defer src.Close()
+	_, err := io.Copy(p.OutputWriter, src)
+	return err
+}
+
+func (p *clientMethodParam) validate(name, inputReaderField, outputReadCloserField string) error {
+	if p.InputReader != nil && inputReaderField == "" {
+		return fmt.Errorf("%sInput has not io.Reader field", name)
+	}
+	if p.OutputWriter != nil && outputReadCloserField == "" {
+		return fmt.Errorf("%sOutput has not io.ReadCloser field", name)
+	}
+	return nil
 }
 
 func (p *clientMethodParam) mustInject(field string, value *int64) {

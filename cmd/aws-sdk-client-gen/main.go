@@ -28,21 +28,32 @@ import (
 func {{ $.PkgName }}_{{ .Name }}(ctx context.Context, p *clientMethodParam) (any, error) {
 	svc := {{ $.PkgName }}.NewFromConfig(p.awsCfg)
 	var in {{ .Input }}
-	{{ if .InputReaderLengthField }}
+	{{- if .InputReaderLengthField }}
 	p.mustInject("{{ .InputReaderLengthField }}", p.InputReaderLength)
-	{{ end }}
-
+	{{- end }}
 	if err := json.Unmarshal(p.InputBytes, &in); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal request: %w", err)
 	}
-	if p.InputReader != nil {
-	{{- if .InputReaderField }}
-		in.{{ .InputReaderField }} = p.InputReader
-	{{- else }}
-		return nil, fmt.Errorf("{{ $.PkgName }}.{{ .Name }}Input has no io.Reader field")
-	{{- end }}
+	if err := p.validate("{{ $.PkgName }}.{{ .Name }}", "{{ .InputReaderField }}", "{{ .OutputReadCloserField }}"); err != nil {
+		return nil, err
 	}
+	{{- if .InputReaderField }}
+	if p.InputReader != nil {
+		in.{{ .InputReaderField }} = p.InputReader
+	}
+	{{- end }}
+	{{- if .OutputReadCloserField }}
+	if out, err := svc.{{ .Name }}(ctx, &in); err != nil {
+		return nil, err
+	} else {
+		if err := p.Output(out.{{ .OutputReadCloserField }}); err != nil {
+			return nil, err
+		}
+		return out, nil
+	}
+	{{- else }}
 	return svc.{{ .Name }}(ctx, &in)
+	{{- end }}
 }
 
 {{ end }}
@@ -99,24 +110,26 @@ func gen(pkgName string, clientType reflect.Type, genNames []string) error {
 				}
 			}
 		}
+
+		var outputReadCloserField string
+		output := method.Type.Out(0).Elem()
+		for j := 0; j < output.NumField(); j++ {
+			field := output.Field(j)
+			if t := field.Type.String(); t == "io.ReadCloser" {
+				log.Printf("found %s field in %s.%sOutput %s %s", t, pkgName, method.Name, field.Name, t)
+				if outputReadCloserField != "" {
+					return fmt.Errorf("found multiple io.ReadCloser fields in %s.%sOutput", pkgName, method.Name)
+				}
+				outputReadCloserField = field.Name
+			}
+		}
 		methods = append(methods, map[string]string{
 			"Name":                   method.Name,
 			"Input":                  strings.TrimPrefix(params[2], "*"),
 			"InputReaderField":       inputReaderField,
 			"InputReaderLengthField": inputReaderLengthField,
+			"OutputReadCloserField":  outputReadCloserField,
 		})
-		/*
-			output := method.Type.Out(0)
-			if output.Kind() == reflect.Ptr {
-				output = output.Elem()
-			}
-			for j := 0; j < output.NumField(); j++ {
-				field := output.Field(j)
-				if t := field.Type.String(); strings.Contains(t, "io.") {
-					log.Printf("found %s field in %s.%sOutput %s %s", t, pkgName, method.Name, field.Name, t)
-				}
-			}
-		*/
 	}
 
 	tmpl, err := template.New("clientGen").Parse(templateStr)

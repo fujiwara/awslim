@@ -27,10 +27,12 @@ type CLI struct {
 	Method  string `arg:"" help:"method name" default:""`
 	Input   string `arg:"" help:"input JSON" default:"{}"`
 
-	InputStream string `short:"i" help:"bind input filename or '-' to io.Reader field in the input struct"`
-	Compact     bool   `short:"c" help:"compact JSON output"`
-	Query       string `short:"q" help:"JMESPath query to apply to output"`
-	Version     bool   `short:"v" help:"show version"`
+	InputStream  string `short:"i" help:"bind input filename or '-' to io.Reader field in the input struct"`
+	OutputStream string `short:"o" help:"bind output filename or '-' to io.ReadCloser field in the output struct"`
+	NoAPIOutput  bool   `short:"n" help:"do not output API response into stdout"`
+	Compact      bool   `short:"c" help:"compact JSON output"`
+	Query        string `short:"q" help:"JMESPath query to apply to output"`
+	Version      bool   `short:"v" help:"show version"`
 
 	w io.Writer
 }
@@ -82,6 +84,10 @@ func (c *CLI) CallMethod(ctx context.Context) error {
 		return err
 	}
 
+	if c.NoAPIOutput {
+		return nil
+	}
+
 	if c.Query != "" {
 		out, err = jmespath.Search(c.Query, out)
 		if err != nil {
@@ -110,9 +116,10 @@ func (c *CLI) clientMethodParam(ctx context.Context) (*clientMethodParam, error)
 		return nil, err
 	}
 	p := &clientMethodParam{
-		awsCfg:      awsCfg,
-		InputBytes:  json.RawMessage(c.Input),
-		InputReader: nil,
+		awsCfg:       awsCfg,
+		InputBytes:   json.RawMessage(c.Input),
+		InputReader:  nil,
+		OutputWriter: nil,
 	}
 
 	switch c.InputStream {
@@ -140,6 +147,21 @@ func (c *CLI) clientMethodParam(ctx context.Context) (*clientMethodParam, error)
 		}
 		p.InputReaderLength = aws.Int64(st.Size())
 	}
+
+	switch c.OutputStream {
+	case "":
+		// do nothing
+	case "-": // stdout
+		p.OutputWriter = os.Stdout
+	default:
+		f, err := os.Create(c.OutputStream)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create output file: %w", err)
+		}
+		p.OutputWriter = f
+		p.cleanup = append(p.cleanup, f.Close)
+	}
+
 	return p, nil
 }
 
