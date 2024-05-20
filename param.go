@@ -38,7 +38,6 @@ func (p *clientMethodParam) mustInject(field string, value *int64) {
 	} else {
 		q = fmt.Sprintf(".%s = %d", field, *value)
 	}
-	log.Printf("[debug] inject by %s", q)
 	query, err := gojq.Parse(q)
 	if err != nil {
 		panic(fmt.Sprintf("failed to parse query %s: %v", q, err))
@@ -56,7 +55,6 @@ func (p *clientMethodParam) mustInject(field string, value *int64) {
 				panic(err)
 			}
 			p.InputBytes, _ = json.Marshal(v)
-			log.Println("[debug] injected", string(p.InputBytes))
 			return
 		}
 	}

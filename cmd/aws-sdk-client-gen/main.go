@@ -39,6 +39,10 @@ func {{ $.PkgName }}_{{ .Name }}(ctx context.Context, p *clientMethodParam) (any
 	if p.InputReader != nil {
 		in.{{ .InputReaderField }} = p.InputReader
 	}
+	{{- else }}
+		if p.InputReader != nil {
+			return nil, fmt.Errorf("{{ $.PkgName }}.{{ .Name }}Input has no io.Reader field")
+		}
 	{{- end }}
 	return svc.{{ .Name }}(ctx, &in)
 }
