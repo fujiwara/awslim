@@ -26,9 +26,24 @@ $ brew install fujiwara/tap/aws-sdk-client-go
 
 You can build the client yourself, including only the needed services and methods. The optimized binary is small and boots up quickly.
 
-The client is built by a configuration file `gen.yaml`.
+The client is built by a configuration file `gen.yaml` or `AWS_SDK_CLIENT_GO_GEN` environment variable.
+
+### `AWS_SDK_CLIENT_GO_GEN` environment variable
+
+Set the environment variable `AWS_SDK_CLIENT_GO_GEN` to list the services joined by commas.
+
+For example, to build the client for ECS, Firehose, and S3:
+
+```console
+$ export AWS_SDK_CLIENT_GO_GEN="ecs,firehose,s3"
+```
+
+All methods of the specified services are generated. To build only specified methods, use the `gen.yaml` configuration file.
+
+### `gen.yaml` configuration file
 
 ```yaml
+# gen.yaml
 services:
   ecs:
     - DescribeClusters
@@ -36,11 +51,13 @@ services:
   firehose:
     - DescribeDeliveryStream
     - ListDeliveryStreams
-  kinesis:
+  s3:
     # all methods of the service
 ```
 
 Keys of `services` are AWS service names (`github.com/aws/aws-sdk-go-v2/service/*`), and values are method names of the service client (for example, `s3` is [s3.Client](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#Client)). If you don't specify the method names, all methods of the service client are generated.
+
+### Build the client
 
 To build the client, run the following commands (or simply run `make`):
 
@@ -52,6 +69,7 @@ $ go build -o your-client ./cmd/aws-sdk-client-go/main.go
 1. `go generate ./cmd/aws-sdk-client-gen .` generates the generator by `gen.yaml`.
 2. `go build -o your-client ./cmd/aws-sdk-client-go/main.go` builds your client.
 
+If you change the configuration, run `make clean` before `make` to purge the generated files.
 
 ## Performance comparison
 
