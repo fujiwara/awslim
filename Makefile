@@ -24,3 +24,11 @@ test:
 
 packages:
 	goreleaser build --skip=validate --clean
+
+docker-build-and-push: Dockerfile
+	docker buildx build \
+	--platform=linux/amd64,linux/arm64 \
+	-t ghcr.io/fujiwara/aws-sdk-client-go:builder \
+	-f Dockerfile \
+	--push \
+	.

@@ -57,7 +57,7 @@ services:
 
 Keys of `services` are AWS service names (`github.com/aws/aws-sdk-go-v2/service/*`), and values are method names of the service client (for example, `s3` is [s3.Client](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#Client)). If you don't specify the method names, all methods of the service client are generated.
 
-### Build the client
+### Build on your machine
 
 To build the client, run the following commands (or simply run `make`):
 
@@ -70,6 +70,34 @@ $ go build -o your-client ./cmd/aws-sdk-client-go/main.go
 2. `go build -o your-client ./cmd/aws-sdk-client-go/main.go` builds your client.
 
 If you change the configuration, run `make clean` before `make` to purge the generated files.
+
+### Build with Docker
+
+`ghcr.io/fujiwara/aws-sdk-client-go:builder` is a Docker image that contains the Go environment. You can build the client in the container.
+
+Environment variables:
+- `GIT_REF`: Git reference to checkout the repository. Default is `main`. You can specify a branch, tag, or commit hash.
+
+Example of use `AWS_SDK_CLIENT_GO_GEN` environment variable:
+```console
+$ docker run -it -e AWS_SDK_CLIENT_GO_GEN=ecs,firehose,s3 ghcr.io/fujiwara/aws-sdk-client-go:builder
+...
+```
+
+Example of `gen.yaml` configuration file:
+```console
+$ docker run -it -v $(pwd)/gen.yaml:/app/gen.yaml ghcr.io/fujiwara/aws-sdk-client-go:builder
+...
+Completed. Please extract /app/aws-sdk-client-go from this container!
+For example, run the following command:
+docker cp $(docker ps -lq):/app/aws-sdk-client-go .
+```
+
+After the build is completed, the built binary is in the container. You can copy it to your host machine with `docker cp` command.
+
+```console
+$ docker cp $(docker ps -lq):/app/aws-sdk-client-go .
+```
 
 ## Performance comparison
 
