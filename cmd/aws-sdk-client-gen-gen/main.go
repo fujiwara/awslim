@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"log"
 	"os"
+	"strings"
 	"text/template"
 
 	"github.com/goccy/go-yaml"
@@ -41,16 +42,27 @@ type GenerateConfig struct {
 func main() {
 	log.Println("generating gen.go")
 
-	f, err := os.Open("../../gen.yaml")
-	if err != nil {
-		log.Fatalf("failed to open gen.yaml: %v", err)
-	}
-	defer f.Close()
-
 	cfg := GenerateConfig{}
-	if err := yaml.NewDecoder(f).Decode(&cfg); err != nil {
-		log.Fatalf("failed to decode gen.yaml: %v", err)
+	e := os.Getenv("AWS_SDK_CLIENT_GO_GEN")
+	if e != "" {
+		log.Printf("AWS_SDK_CLIENT_GO_GEN is set, generating services: %s", e)
+		services := strings.Split(e, ",")
+		cfg.Services = make(map[string][]string, len(services))
+		for _, service := range services {
+			cfg.Services[service] = nil
+		}
+	} else {
+		log.Printf("AWS_SDK_CLIENT_GO_GEN is not set, reading gen.yaml")
+		f, err := os.Open("../../gen.yaml")
+		if err != nil {
+			log.Fatalf("failed to open gen.yaml: %v", err)
+		}
+		defer f.Close()
+		if err := yaml.NewDecoder(f).Decode(&cfg); err != nil {
+			log.Fatalf("failed to decode gen.yaml: %v", err)
+		}
 	}
+
 	tmpl, err := template.New("gen").Parse(templateStr)
 	if err != nil {
 		log.Fatalf("failed to parse template: %v", err)
