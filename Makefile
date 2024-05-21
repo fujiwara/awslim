@@ -1,4 +1,4 @@
-VERSION := $(shell git describe --abbrev=0 --tags)
+VERSION := $(shell git describe --tags)
 .PHONY: clean test gen
 
 build: gen aws-sdk-client-go
