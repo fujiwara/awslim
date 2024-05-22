@@ -23,6 +23,8 @@ var clientMethods = make(map[string]ClientMethod)
 
 type ClientMethod func(context.Context, *clientMethodParam) (any, error)
 
+var ErrDryRun = fmt.Errorf("dry-run mode")
+
 type CLI struct {
 	Service string `arg:"" help:"service name" default:""`
 	Method  string `arg:"" help:"method name" default:""`
@@ -35,6 +37,7 @@ type CLI struct {
 	Query        string            `short:"q" help:"JMESPath query to apply to output"`
 	ExtStr       map[string]string `help:"external variables for Jsonnet"`
 	ExtCode      map[string]string `help:"external code for Jsonnet"`
+	Strict       bool              `name:"strict" help:"strict input JSON unmarshaling" default:"true" negatable:"true"`
 
 	DryRun  bool `short:"n" help:"dry-run mode"`
 	Version bool `short:"v" help:"show version"`
@@ -85,14 +88,13 @@ func (c *CLI) CallMethod(ctx context.Context) error {
 	}
 	defer p.Cleanup()
 
-	if c.DryRun {
-		fmt.Fprintf(c.w, "Dry-run: %s.%s() will be called with\n%s", c.Service, method, string(p.InputBytes))
-		return nil
-	}
-
 	out, err := fn(ctx, p)
 	if err != nil {
-		return err
+		if err == ErrDryRun {
+			fmt.Fprintf(c.w, "dry-run: %s will be called with:\n%s", key, string(p.InputBytes))
+			return nil
+		}
+		return fmt.Errorf("failed to call %s: %w", key, err)
 	}
 	return c.output(ctx, out)
 }
@@ -166,6 +168,8 @@ func (c *CLI) clientMethodParam(ctx context.Context) (*clientMethodParam, error)
 		InputBytes:   input,
 		InputReader:  nil,
 		OutputWriter: nil,
+		DryRun:       c.DryRun,
+		Strict:       c.Strict,
 	}
 
 	switch c.InputStream {

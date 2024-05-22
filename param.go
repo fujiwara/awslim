@@ -1,6 +1,7 @@
 package sdkclient
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -16,6 +17,8 @@ type clientMethodParam struct {
 	InputReader       io.Reader
 	InputReaderLength *int64
 	OutputWriter      io.Writer
+	DryRun            bool
+	Strict            bool
 
 	awsCfg  aws.Config
 	cleanup []func() error
@@ -29,6 +32,17 @@ func (p *clientMethodParam) Cleanup() {
 	}
 }
 
+func UnmarshalJSON[T any](b []byte, v T, strict bool) error {
+	dec := json.NewDecoder(bytes.NewReader(b))
+	if strict {
+		dec.DisallowUnknownFields()
+	}
+	if err := dec.Decode(v); err != nil {
+		return fmt.Errorf("failed to unmarshal to %T: %w", v, err)
+	}
+	return nil
+}
+
 func (p *clientMethodParam) Output(src io.ReadCloser) error {
 	if p.OutputWriter == nil {
 		return nil
@@ -38,7 +52,7 @@ func (p *clientMethodParam) Output(src io.ReadCloser) error {
 	return err
 }
 
-func (p *clientMethodParam) validate(name, inputReaderField, outputReadCloserField string) error {
+func (p *clientMethodParam) Validate(name, inputReaderField, outputReadCloserField string) error {
 	if p.InputReader != nil && inputReaderField == "" {
 		return fmt.Errorf("%sInput has not io.Reader field", name)
 	}
