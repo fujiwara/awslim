@@ -159,16 +159,21 @@ $ aws-sdk-client-go ecs
 
 #### Call method of the service
 
+The third argument is [JSON](https://json.org) or [Jsonnet](https://jsonnet.org/) input for the method. If the method does not require input, you can omit the third argument (implicitly `{}` passed).
+
 ```console
-$ aws-sdk-client-go ecs DescribeClusters '{"Cluster":"default"}'
+$ aws-sdk-client-go ecs DescribeClusters '{"Cluster":"default"}' # JSON
 ```
 
-The third argument is [JSON](https://json.org) or [Jsonnet](https://jsonnet.org/) input for the method. If the method does not require input, you can omit the third argument (implicitly `{}` passed).
+```console
+$ aws-sdk-client-go ecs DescribeClusters "{Cluster:'default'}"   # Jsonnet
+```
 
 If the method name is "kebab-case", it automatically converts to "PascalCase" (for example, `describe-clusters` -> `DescribeClusters`).
 
 ```console
 $ aws-sdk-client-go ecs describe-clusters '{"Cluster":"default"}'
+
 ```
 
 The third argument can be a filename that contains JSON or Jsonnet input.
