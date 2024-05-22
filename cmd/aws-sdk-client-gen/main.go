@@ -18,8 +18,6 @@ package sdkclient
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/service/{{ .PkgName }}"
 )
@@ -31,11 +29,14 @@ func {{ $.PkgName }}_{{ .Name }}(ctx context.Context, p *clientMethodParam) (any
 	{{- if .InputReaderLengthField }}
 	p.MustInject(map[string]any{"{{ .InputReaderLengthField }}": p.InputReaderLength})
 	{{- end }}
-	if err := json.Unmarshal(p.InputBytes, &in); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal request: %w", err)
-	}
-	if err := p.validate("{{ $.PkgName }}.{{ .Name }}", "{{ .InputReaderField }}", "{{ .OutputReadCloserField }}"); err != nil {
+	if err := UnmarshalJSON(p.InputBytes, &in, p.Strict); err != nil {
 		return nil, err
+	}
+	if err := p.Validate("{{ $.PkgName }}.{{ .Name }}", "{{ .InputReaderField }}", "{{ .OutputReadCloserField }}"); err != nil {
+		return nil, err
+	}
+	if p.DryRun {
+		return nil, ErrDryRun
 	}
 	{{- if .InputReaderField }}
 	if p.InputReader != nil {
