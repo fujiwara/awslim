@@ -134,6 +134,7 @@ Flags:
   -q, --query=STRING              JMESPath query to apply to output
       --ext-str=KEY=VALUE;...     external variables for Jsonnet
       --ext-code=KEY=VALUE;...    external code for Jsonnet
+      --[no-]strict               strict input JSON unmarshaling
   -n, --dry-run                   dry-run mode
   -v, --version                   show version
 ```
@@ -181,6 +182,8 @@ The third argument can be a filename that contains JSON or Jsonnet input.
 ```console
 $ aws-sdk-client-go ecs DescribeClusters my.jsonnet
 ```
+
+Note: By default, the input JSON is unmarshaled strictly. Unknown fields for the input struct in the input JSON cause an error. If you want to unmarshal the input JSON non-strictly, use `--no-strict` option.
 
 #### `--ext-str` and `--ext-code` options
 
