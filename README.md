@@ -134,6 +134,7 @@ Flags:
   -q, --query=STRING              JMESPath query to apply to output
       --ext-str=KEY=VALUE;...     external variables for Jsonnet
       --ext-code=KEY=VALUE;...    external code for Jsonnet
+  -n, --dry-run                   dry-run mode
   -v, --version                   show version
 ```
 
@@ -226,7 +227,7 @@ $ aws-sdk-client-go s3 get-object '{"Bucket": "my-bucket", "Key": "my.txt"}' --o
 
 When the output struct has only one field of `io.ReadCloser`, `aws-sdk-client-go` copies it to the file automatically. (Currently, all SDK output structs have at most one io.ReadCloser field.)
 
-If `--output-stream` is "-", `aws-sdk-client-go` writes into stdout. The result of the API also writes to stdout by default. If you don't want to output the result, use `--no-api-output` (`-n`).
+If `--output-stream` is "-", `aws-sdk-client-go` writes into stdout. The result of the API also writes to stdout by default. If you don't want to output the result, use `--no-api-output`.
 
 #### Query output by JMESPath
 
