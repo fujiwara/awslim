@@ -13,6 +13,7 @@ import (
 	"github.com/alecthomas/kong"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/google/go-jsonnet"
 	"github.com/jmespath/go-jmespath"
 )
 
@@ -25,14 +26,16 @@ type ClientMethod func(context.Context, *clientMethodParam) (any, error)
 type CLI struct {
 	Service string `arg:"" help:"service name" default:""`
 	Method  string `arg:"" help:"method name" default:""`
-	Input   string `arg:"" help:"input JSON" default:"{}"`
+	Input   string `arg:"" help:"input JSON/Jsonnet struct or filename" default:"{}"`
 
-	InputStream  string `short:"i" help:"bind input filename or '-' to io.Reader field in the input struct"`
-	OutputStream string `short:"o" help:"bind output filename or '-' to io.ReadCloser field in the output struct"`
-	NoAPIOutput  bool   `short:"n" help:"do not output API response into stdout"`
-	Compact      bool   `short:"c" help:"compact JSON output"`
-	Query        string `short:"q" help:"JMESPath query to apply to output"`
-	Version      bool   `short:"v" help:"show version"`
+	InputStream  string            `short:"i" help:"bind input filename or '-' to io.Reader field in the input struct"`
+	OutputStream string            `short:"o" help:"bind output filename or '-' to io.ReadCloser field in the output struct"`
+	APIOutput    bool              `help:"output API response into stdout" default:"true" negatable:"true"`
+	Compact      bool              `short:"c" help:"compact JSON output"`
+	Query        string            `short:"q" help:"JMESPath query to apply to output"`
+	ExtStr       map[string]string `help:"external variables for Jsonnet"`
+	ExtCode      map[string]string `help:"external code for Jsonnet"`
+	Version      bool              `short:"v" help:"show version"`
 
 	w io.Writer
 }
@@ -65,14 +68,15 @@ func (c *CLI) SetWriter(w io.Writer) {
 func (c *CLI) CallMethod(ctx context.Context) error {
 	method := kebabToCamel(c.Method)
 	key := buildKey(c.Service, method)
-	if c.Input == "help" {
-		fmt.Fprintf(c.w, "See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/%s\n", key)
-		return nil
-	}
 	fn := clientMethods[key]
 	if fn == nil {
 		return fmt.Errorf("unknown function %s", key)
 	}
+	if c.Input == "help" {
+		fmt.Fprintf(c.w, "See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/%s\n", key)
+		return nil
+	}
+
 	p, err := c.clientMethodParam(ctx)
 	if err != nil {
 		return err
@@ -83,11 +87,14 @@ func (c *CLI) CallMethod(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	return c.output(ctx, out)
+}
 
-	if c.NoAPIOutput {
+func (c *CLI) output(_ context.Context, out any) error {
+	if !c.APIOutput {
 		return nil
 	}
-
+	var err error
 	if c.Query != "" {
 		out, err = jmespath.Search(c.Query, out)
 		if err != nil {
@@ -110,14 +117,46 @@ func (c *CLI) CallMethod(ctx context.Context) error {
 	return nil
 }
 
+func (c *CLI) loadInput(_ context.Context) ([]byte, error) {
+	var input []byte
+	vm := jsonnet.MakeVM()
+	for k, v := range c.ExtStr {
+		vm.ExtVar(k, v)
+	}
+	for k, v := range c.ExtCode {
+		vm.ExtCode(k, v)
+	}
+	if strings.HasPrefix(c.Input, "{") {
+		// string is JSON or Jsonnet
+		s, err := vm.EvaluateAnonymousSnippet("input", c.Input)
+		if err != nil {
+			return nil, fmt.Errorf("failed to evaluate Jsonnet: %w", err)
+		}
+		input = []byte(s)
+	} else {
+		// string is filename
+		s, err := vm.EvaluateFile(c.Input)
+		if err != nil {
+			return nil, fmt.Errorf("failed to evaluate Jsonnet: %w", err)
+		}
+		input = []byte(s)
+	}
+	return input, nil
+}
+
 func (c *CLI) clientMethodParam(ctx context.Context) (*clientMethodParam, error) {
 	awsCfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
 		return nil, err
 	}
+	input, err := c.loadInput(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	p := &clientMethodParam{
 		awsCfg:       awsCfg,
-		InputBytes:   json.RawMessage(c.Input),
+		InputBytes:   input,
 		InputReader:  nil,
 		OutputWriter: nil,
 	}

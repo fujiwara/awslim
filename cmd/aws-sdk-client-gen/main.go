@@ -29,7 +29,7 @@ func {{ $.PkgName }}_{{ .Name }}(ctx context.Context, p *clientMethodParam) (any
 	svc := {{ $.PkgName }}.NewFromConfig(p.awsCfg)
 	var in {{ .Input }}
 	{{- if .InputReaderLengthField }}
-	p.mustInject("{{ .InputReaderLengthField }}", p.InputReaderLength)
+	p.MustInject(map[string]any{"{{ .InputReaderLengthField }}": p.InputReaderLength})
 	{{- end }}
 	if err := json.Unmarshal(p.InputBytes, &in); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal request: %w", err)

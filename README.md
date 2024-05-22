@@ -123,16 +123,18 @@ Usage: aws-sdk-client-go [<service> [<method> [<input>]]] [flags]
 Arguments:
   [<service>]    service name
   [<method>]     method name
-  [<input>]      input JSON
+  [<input>]      input JSON/Jsonnet struct or filename
 
 Flags:
-  -h, --help                    Show context-sensitive help.
-  -i, --input-stream=STRING     bind input filename or '-' to io.Reader field in the input struct
-  -o, --output-stream=STRING    bind output filename or '-' to io.ReadCloser field in the output struct
-  -n, --no-api-output           do not output API response into stdout
-  -c, --compact                 compact JSON output
-  -q, --query=STRING            JMESPath query to apply to output
-  -v, --version                 show version
+  -h, --help                      Show context-sensitive help.
+  -i, --input-stream=STRING       bind input filename or '-' to io.Reader field in the input struct
+  -o, --output-stream=STRING      bind output filename or '-' to io.ReadCloser field in the output struct
+      --[no-]api-output           output API response into stdout
+  -c, --compact                   compact JSON output
+  -q, --query=STRING              JMESPath query to apply to output
+      --ext-str=KEY=VALUE;...     external variables for Jsonnet
+      --ext-code=KEY=VALUE;...    external code for Jsonnet
+  -v, --version                   show version
 ```
 
 - `service`: AWS service name.
@@ -157,16 +159,43 @@ $ aws-sdk-client-go ecs
 
 #### Call method of the service
 
+The third argument is [JSON](https://json.org) or [Jsonnet](https://jsonnet.org/) input for the method. If the method does not require input, you can omit the third argument (implicitly `{}` passed).
+
 ```console
-$ aws-sdk-client-go ecs DescribeClusters '{"Cluster":"default"}'
+$ aws-sdk-client-go ecs DescribeClusters '{"Cluster":"default"}' # JSON
 ```
 
-The third argument is JSON input for the method. If the method does not require input, you can omit the third argument (implicitly `{}` passed).
+```console
+$ aws-sdk-client-go ecs DescribeClusters "{Cluster:'default'}"   # Jsonnet
+```
 
 If the method name is "kebab-case", it automatically converts to "PascalCase" (for example, `describe-clusters` -> `DescribeClusters`).
 
 ```console
 $ aws-sdk-client-go ecs describe-clusters '{"Cluster":"default"}'
+```
+
+The third argument can be a filename that contains JSON or Jsonnet input.
+
+```console
+$ aws-sdk-client-go ecs DescribeClusters my.jsonnet
+```
+
+#### `--ext-str` and `--ext-code` options
+
+`--ext-str` and `--ext-code` options allow you to pass external variables to Jsonnet.
+
+This is useful when you want to use variables in Jsonnet.
+
+```console
+$ aws-sdk-client-go ecs DescribeClusters my.jsonnet --ext-str Cluster=default
+```
+
+```jsonnet
+// my.jsonnet
+{
+  Cluster: std.extVar("Cluster"),
+}
 ```
 
 #### `--input-stream` option
