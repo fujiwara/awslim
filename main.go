@@ -35,7 +35,9 @@ type CLI struct {
 	Query        string            `short:"q" help:"JMESPath query to apply to output"`
 	ExtStr       map[string]string `help:"external variables for Jsonnet"`
 	ExtCode      map[string]string `help:"external code for Jsonnet"`
-	Version      bool              `short:"v" help:"show version"`
+
+	DryRun  bool `short:"n" help:"dry-run mode"`
+	Version bool `short:"v" help:"show version"`
 
 	w io.Writer
 }
@@ -82,6 +84,11 @@ func (c *CLI) CallMethod(ctx context.Context) error {
 		return err
 	}
 	defer p.Cleanup()
+
+	if c.DryRun {
+		fmt.Fprintf(c.w, "Dry-run: %s.%s() will be called with\n%s", c.Service, method, string(p.InputBytes))
+		return nil
+	}
 
 	out, err := fn(ctx, p)
 	if err != nil {
