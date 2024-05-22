@@ -173,7 +173,6 @@ If the method name is "kebab-case", it automatically converts to "PascalCase" (f
 
 ```console
 $ aws-sdk-client-go ecs describe-clusters '{"Cluster":"default"}'
-
 ```
 
 The third argument can be a filename that contains JSON or Jsonnet input.
