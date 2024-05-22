@@ -33,6 +33,7 @@ type CLI struct {
 	InputStream  string            `short:"i" help:"bind input filename or '-' to io.Reader field in the input struct"`
 	OutputStream string            `short:"o" help:"bind output filename or '-' to io.ReadCloser field in the output struct"`
 	APIOutput    bool              `help:"output API response into stdout" default:"true" negatable:"true"`
+	RawOutput    bool              `short:"r" help:"output raw strings, not JSON texts"`
 	Compact      bool              `short:"c" help:"compact JSON output"`
 	Query        string            `short:"q" help:"JMESPath query to apply to output"`
 	ExtStr       map[string]string `help:"external variables for Jsonnet"`
@@ -108,6 +109,19 @@ func (c *CLI) output(_ context.Context, out any) error {
 		out, err = jmespath.Search(c.Query, out)
 		if err != nil {
 			return fmt.Errorf("failed to apply JMESPath query: %w", err)
+		}
+	}
+
+	if c.RawOutput {
+		switch t := out.(type) {
+		case string:
+			fmt.Fprintln(c.w, t)
+			return nil
+		case *string:
+			fmt.Fprintln(c.w, aws.ToString(t))
+			return nil
+		default:
+			// do nothing. output as JSON
 		}
 	}
 
