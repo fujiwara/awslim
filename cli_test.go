@@ -104,6 +104,16 @@ var TestCases = []TestCase{
 		Args:   []string{"baz", "Echo", `{"Example": ["a","b","c"]}`, "--query", "Example[0]", "-c"},
 		Expect: `"a"`,
 	},
+	{
+		Name:   "call baz#Client.Echo raw string",
+		Args:   []string{"baz", "Echo", `{"Example": "value"}`, "-q", "Example", "--raw-output"},
+		Expect: "value\n",
+	},
+	{
+		Name:   "call baz#Client.Echo raw object",
+		Args:   []string{"baz", "Echo", `{"Example": "value"}`, "-r"},
+		Expect: "{\n  \"Example\": \"value\"\n}\n",
+	},
 }
 
 func TestRun(t *testing.T) {

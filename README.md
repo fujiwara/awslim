@@ -130,6 +130,7 @@ Flags:
   -i, --input-stream=STRING       bind input filename or '-' to io.Reader field in the input struct
   -o, --output-stream=STRING      bind output filename or '-' to io.ReadCloser field in the output struct
       --[no-]api-output           output API response into stdout
+  -r, --raw-output                output raw strings, not JSON texts
   -c, --compact                   compact JSON output
   -q, --query=STRING              JMESPath query to apply to output
       --ext-str=KEY=VALUE;...     external variables for Jsonnet
@@ -145,7 +146,7 @@ Flags:
 
 The output is JSON format.
 
-### Examples
+### Example usage
 
 #### Show supported services
 
@@ -183,7 +184,7 @@ The third argument can be a filename that contains JSON or Jsonnet input.
 $ aws-sdk-client-go ecs DescribeClusters my.jsonnet
 ```
 
-Note: By default, the input JSON is unmarshaled strictly. Unknown fields for the input struct in the input JSON cause an error. If you want to unmarshal the input JSON non-strictly, use `--no-strict` option.
+**Note**: By default, the input JSON is unmarshaled strictly. Unknown fields for the input struct in the input JSON cause an error. If you want to unmarshal the input JSON non-strictly, use `--no-strict` option.
 
 #### `--ext-str` and `--ext-code` options
 
