@@ -89,6 +89,21 @@ var TestCases = []TestCase{
 		Args:   []string{"baz", "Echo", `{"Example": "value"}`},
 		Expect: "{\n  \"Example\": \"value\"\n}\n",
 	},
+	{
+		Name:   "call baz#Client.Echo Jsonnet",
+		Args:   []string{"baz", "Echo", `{Example: std.extVar("value")}`, "--ext-str", "value=foo"},
+		Expect: "{\n  \"Example\": \"foo\"\n}\n",
+	},
+	{
+		Name:   "call baz#Client.Echo Jsonnet file",
+		Args:   []string{"baz", "Echo", "tests/echo.jsonnet", "--ext-code", "a=1;b=2", "-c"},
+		Expect: `{"Sum":3}`,
+	},
+	{
+		Name:   "call baz#Client.Echo JMESPath",
+		Args:   []string{"baz", "Echo", `{"Example": ["a","b","c"]}`, "--query", "Example[0]", "-c"},
+		Expect: `"a"`,
+	},
 }
 
 func TestRun(t *testing.T) {

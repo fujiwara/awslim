@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/itchyny/gojq"
@@ -47,17 +48,24 @@ func (p *clientMethodParam) validate(name, inputReaderField, outputReadCloserFie
 	return nil
 }
 
-func (p *clientMethodParam) mustInject(field string, value *int64) {
+func (p *clientMethodParam) MustInject(in map[string]any) {
 	v := make(map[string]any)
 	if err := json.Unmarshal(p.InputBytes, &v); err != nil {
 		panic(fmt.Sprintf("failed to marshal %s:", err))
 	}
-	var q string
-	if value == nil {
-		q = fmt.Sprintf("del(.%s)", field)
-	} else {
-		q = fmt.Sprintf(".%s = %d", field, *value)
+	var qs []string
+	for field, value := range in {
+		if value == nil {
+			qs = append(qs, fmt.Sprintf("del(.%s)", field))
+		} else {
+			jv, err := json.Marshal(value)
+			if err != nil {
+				panic(fmt.Sprintf("failed to marshal %s:", err))
+			}
+			qs = append(qs, fmt.Sprintf(".%s = %s", field, string(jv)))
+		}
 	}
+	q := strings.Join(qs, " | ")
 	query, err := gojq.Parse(q)
 	if err != nil {
 		panic(fmt.Sprintf("failed to parse query %s: %v", q, err))
