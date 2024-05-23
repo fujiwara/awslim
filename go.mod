@@ -1,4 +1,4 @@
-module github.com/fujiwara/aws-sdk-client-go
+module github.com/fujiwara/awslim
 
 go 1.21.0
 

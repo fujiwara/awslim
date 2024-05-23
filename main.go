@@ -56,7 +56,7 @@ func Run(ctx context.Context) error {
 
 func (c *CLI) Dispatch(ctx context.Context) error {
 	if c.Version {
-		fmt.Fprintf(c.w, "aws-sdk-client-go %s\n", Version)
+		fmt.Fprintf(c.w, "awslim %s\n", Version)
 		return nil
 	}
 	if c.Service == "" {
@@ -296,4 +296,4 @@ func kebabToCamel(kebab string) string {
 	return strings.Join(results, "")
 }
 
-//go:generate go run cmd/aws-sdk-client-gen/main.go cmd/aws-sdk-client-gen/gen.go
+//go:generate go run cmd/awslim-gen/main.go cmd/awslim-gen/gen.go

@@ -1,6 +1,6 @@
-# aws-sdk-client-go
+# awslim
 
-aws-sdk-client-go is a CLI for AWS services by [Go](https://go.dev/).
+awslim is a CLI for AWS services by [Go](https://go.dev/).
 
 This CLI is generated from the [AWS SDK Go v2](https://github.com/aws/aws-sdk-go-v2) service client.
 
@@ -30,12 +30,12 @@ It’s best to build your optimized binary if you don't need to access all AWS s
 
 ### Release binary
 
-Download the binary from the [release page](https://github.com/fujiwara/aws-sdk-client-go/releases).
+Download the binary from the [release page](https://github.com/fujiwara/awslim/releases).
 
 ### Homebrew
 
 ```console
-$ brew install fujiwara/tap/aws-sdk-client-go
+$ brew install fujiwara/tap/awslim
 ```
 
 ## Build
@@ -78,57 +78,57 @@ Keys of `services` are AWS service names (`github.com/aws/aws-sdk-go-v2/service/
 To build the client, run the following commands (or simply run `make`):
 
 ```console
-$ go generate ./cmd/aws-sdk-client-gen .
-$ go build -o your-client ./cmd/aws-sdk-client-go/main.go
+$ go generate ./cmd/awslim-gen .
+$ go build -o your-client ./cmd/awslim/main.go
 ```
 
-1. `go generate ./cmd/aws-sdk-client-gen .` generates the generator by `gen.yaml`.
-2. `go build -o your-client ./cmd/aws-sdk-client-go/main.go` builds your client.
+1. `go generate ./cmd/awslim-gen .` generates the generator by `gen.yaml`.
+2. `go build -o your-client ./cmd/awslim/main.go` builds your client.
 
 If you change the configuration, run `make clean` before `make` to purge the generated files.
 
 ### Build with Docker
 
-`ghcr.io/fujiwara/aws-sdk-client-go:builder` is a Docker image that contains the Go environment. You can build the client in the container.
+`ghcr.io/fujiwara/awslim:builder` is a Docker image that contains the Go environment. You can build the client in the container.
 
 Environment variables:
 - `GIT_REF`: Git reference to checkout the repository. Default is `main`. You can specify a branch, tag, or commit hash.
 
 Example of use `AWS_SDK_CLIENT_GO_GEN` environment variable:
 ```console
-$ docker run -it -e AWS_SDK_CLIENT_GO_GEN=ecs,firehose,s3 ghcr.io/fujiwara/aws-sdk-client-go:builder
+$ docker run -it -e AWS_SDK_CLIENT_GO_GEN=ecs,firehose,s3 ghcr.io/fujiwara/awslim:builder
 ...
 ```
 
 Example of `gen.yaml` configuration file:
 ```console
-$ docker run -it -v $(pwd)/gen.yaml:/app/gen.yaml ghcr.io/fujiwara/aws-sdk-client-go:builder
+$ docker run -it -v $(pwd)/gen.yaml:/app/gen.yaml ghcr.io/fujiwara/awslim:builder
 ...
-Completed. Please extract /app/aws-sdk-client-go from this container!
+Completed. Please extract /app/awslim from this container!
 For example, run the following command:
-docker cp $(docker ps -lq):/app/aws-sdk-client-go .
+docker cp $(docker ps -lq):/app/awslim .
 ```
 
 After the build is completed, the built binary is in the container. You can copy it to your host machine with `docker cp` command.
 
 ```console
-$ docker cp $(docker ps -lq):/app/aws-sdk-client-go .
+$ docker cp $(docker ps -lq):/app/awslim .
 ```
 
 ### Docker Multi-stage build
 
-`ghcr.io/fujiwara/aws-sdk-client-go:builder` can use as a builder image in a multi-stage build.
+`ghcr.io/fujiwara/awslim:builder` can use as a builder image in a multi-stage build.
 
 Run `./build-in-docker.sh` in the container to build the client. The built binary is in the `/app` directory. You can copy it to the final image.
 
 ```Dockerfile
-FROM ghcr.io/fujiwara/aws-sdk-client-go:builder AS builder
+FROM ghcr.io/fujiwara/awslim:builder AS builder
 ENV AWS_SDK_CLIENT_GO_GEN=ecs,firehose,s3
 ENV GIT_REF=v0.0.13
 RUN ./build-in-docker.sh
 
 FROM debian:bookworm-slim
-COPY --from=builder /app/aws-sdk-client-go /usr/local/bin/aws-sdk-client-go
+COPY --from=builder /app/awslim /usr/local/bin/awslim
 ```
 
 ## Performance comparison
@@ -139,18 +139,18 @@ Example of execution `sts get-caller-identity` on 0.25vCPU Fargate(AMD64).
 | command | CPU time(user, sys)| Elapsed time(s) | Max memory(MB) |
 | ---- | ---- | ---- | --- |
 | aws               | 0.67 + 0.10 = 0.77 | 3.11 | 64.2 |
-| aws-sdk-client-go(all) | 0.08 + 0.03 = 0.11 | 0.43 | 101.5 |
-| aws-sdk-client-go(40) | 0.02 + 0.01 = 0.03 | 0.05 | 30.2 |
+| awslim(all) | 0.08 + 0.03 = 0.11 | 0.43 | 101.5 |
+| awslim(40) | 0.02 + 0.01 = 0.03 | 0.05 | 30.2 |
 
-- `aws-sdk-client-go`(built for all AWS services): 7.0x faster than `aws`
-- `aws-sdk-client-go`(built for 40 AWS services): 62.0x faster than `aws`
+- `awslim`(built for all AWS services): 7.0x faster than `aws`
+- `awslim`(built for 40 AWS services): 62.0x faster than `aws`
 
-`aws-cli/2.15.51 Python/3.11.8`, `aws-sdk-client-go 0.0.10`
+`aws-cli/2.15.51 Python/3.11.8`, `awslim 0.0.10`
 
 ## Usage
 
 ```
-Usage: aws-sdk-client-go [<service> [<method> [<input>]]] [flags]
+Usage: awslim [<service> [<method> [<input>]]] [flags]
 
 Arguments:
   [<service>]    service name
@@ -184,13 +184,13 @@ The output is JSON format.
 #### Show supported services
 
 ```console
-$ aws-sdk-client-go
+$ awslim
 ```
 
 #### Show methods of the service
 
 ```console
-$ aws-sdk-client-go ecs
+$ awslim ecs
 ```
 
 #### Call method of the service
@@ -198,23 +198,23 @@ $ aws-sdk-client-go ecs
 The third argument is [JSON](https://json.org) or [Jsonnet](https://jsonnet.org/) input for the method. If the method does not require input, you can omit the third argument (implicitly `{}` passed).
 
 ```console
-$ aws-sdk-client-go ecs DescribeClusters '{"Cluster":"default"}' # JSON
+$ awslim ecs DescribeClusters '{"Cluster":"default"}' # JSON
 ```
 
 ```console
-$ aws-sdk-client-go ecs DescribeClusters "{Cluster:'default'}"   # Jsonnet
+$ awslim ecs DescribeClusters "{Cluster:'default'}"   # Jsonnet
 ```
 
 If the method name is "kebab-case", it automatically converts to "PascalCase" (for example, `describe-clusters` -> `DescribeClusters`).
 
 ```console
-$ aws-sdk-client-go ecs describe-clusters '{"Cluster":"default"}'
+$ awslim ecs describe-clusters '{"Cluster":"default"}'
 ```
 
 The third argument can be a filename that contains JSON or Jsonnet input.
 
 ```console
-$ aws-sdk-client-go ecs DescribeClusters my.jsonnet
+$ awslim ecs DescribeClusters my.jsonnet
 ```
 
 **Note**: By default, the input JSON is unmarshaled strictly. Unknown fields for the input struct in the input JSON cause an error. If you want to unmarshal the input JSON non-strictly, use `--no-strict` option.
@@ -226,7 +226,7 @@ $ aws-sdk-client-go ecs DescribeClusters my.jsonnet
 This is useful when you want to use variables in Jsonnet.
 
 ```console
-$ aws-sdk-client-go ecs DescribeClusters my.jsonnet --ext-str Cluster=default
+$ awslim ecs DescribeClusters my.jsonnet --ext-str Cluster=default
 ```
 
 ```jsonnet
@@ -241,30 +241,30 @@ $ aws-sdk-client-go ecs DescribeClusters my.jsonnet --ext-str Cluster=default
 `--input-stream` (`-i`) option allows you to bind a file or stdin to the input struct.
 
 ```console
-$ aws-sdk-client-go s3 put-object '{"Bucket": "my-bucket", "Key": "my.txt"}' --input-stream my.txt
+$ awslim s3 put-object '{"Bucket": "my-bucket", "Key": "my.txt"}' --input-stream my.txt
 ```
 
 [s3#PutObjectInput](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#PutObjectInput) has `Body` field of `io.Reader`. `--input-stream` option binds the file to the field.
 
-When the input struct has only one field of `io.Reader`, `aws-sdk-client-go` reads the file and binds it to the field automatically. (Currently, all SDK input structs have at most one io.Reader field.)
+When the input struct has only one field of `io.Reader`, `awslim` reads the file and binds it to the field automatically. (Currently, all SDK input structs have at most one io.Reader field.)
 
-When the input struct has a "\*Length" field for the size of the content, `aws-sdk-client-go` sets the size of the content to the field automatically. For example, [s3#PutObjectInput](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#PutObjectInput) has `ContentLength` field.
+When the input struct has a "\*Length" field for the size of the content, `awslim` sets the size of the content to the field automatically. For example, [s3#PutObjectInput](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#PutObjectInput) has `ContentLength` field.
 
-If `--input-stream` is "-", `aws-sdk-client-go` reads from stdin. In this case, `aws-sdk-client-go` reads all contents into memory, so it is not suitable for large files. Consider using a file for large content.
+If `--input-stream` is "-", `awslim` reads from stdin. In this case, `awslim` reads all contents into memory, so it is not suitable for large files. Consider using a file for large content.
 
 #### `--output-stream` option
 
 `--output-stream` (`-o`) option allows you to bind the `io.ReadCloser` of the API output to a file or stdout.
 
 ```console
-$ aws-sdk-client-go s3 get-object '{"Bucket": "my-bucket", "Key": "my.txt"}' --output-stream my.txt
+$ awslim s3 get-object '{"Bucket": "my-bucket", "Key": "my.txt"}' --output-stream my.txt
 ```
 
 [s3#GetObjectOutput](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#PutObjectOutput) has `Body` field of `io.ReadeCloser`. `--output-stream` option binds the file to the field.
 
-When the output struct has only one field of `io.ReadCloser`, `aws-sdk-client-go` copies it to the file automatically. (Currently, all SDK output structs have at most one io.ReadCloser field.)
+When the output struct has only one field of `io.ReadCloser`, `awslim` copies it to the file automatically. (Currently, all SDK output structs have at most one io.ReadCloser field.)
 
-If `--output-stream` is "-", `aws-sdk-client-go` writes into stdout. The result of the API also writes to stdout by default. If you don't want to output the result, use `--no-api-output`.
+If `--output-stream` is "-", `awslim` writes into stdout. The result of the API also writes to stdout by default. If you don't want to output the result, use `--no-api-output`.
 
 #### `--raw-output` option
 
@@ -281,14 +281,14 @@ For example, [s3#ListObjectsV2Output](https://pkg.go.dev/github.com/aws/aws-sdk-
 `{FieldInOutput}={FieldInInput}` format is used for `--follow-next` option.
 
 ```console
-$ aws-sdk-client-go s3 list-objects-v2 '{"Bucket": "my-bucket"}' \
+$ awslim s3 list-objects-v2 '{"Bucket": "my-bucket"}' \
   --follow-next NextContinuationToken=ContinuationToken
 ```
 
 If the same field name is used in the output and input, you can omit the input field name.
 
 ```console
-$ aws-sdk-client-go ecs list-tasks '{"Cluster":"default"}' \
+$ awslim ecs list-tasks '{"Cluster":"default"}' \
   --follow-next NextToken
 ```
 
@@ -297,16 +297,16 @@ $ aws-sdk-client-go ecs list-tasks '{"Cluster":"default"}' \
 `--query` option allows you to query the output by JMESPath like the AWS CLI.
 
 ```console
-$ aws-sdk-client-go ecs DescribeClusters '{"Cluster":"default"}' \
+$ awslim ecs DescribeClusters '{"Cluster":"default"}' \
   --query 'Clusters[0].ClusterArn'
 ```
 
 #### Show help
 
-aws-sdk-client-go is a simple wrapper of the AWS SDK Go v2 service client. Its usage is the same as that of the AWS SDK Go v2. If the third argument is "help", it shows the URL of the method documentation.
+awslim is a simple wrapper of the AWS SDK Go v2 service client. Its usage is the same as that of the AWS SDK Go v2. If the third argument is "help", it shows the URL of the method documentation.
 
 ```console
-$ aws-sdk-client-go ecs DescribeClusters help
+$ awslim ecs DescribeClusters help
 See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/ecs#Client.DescribeClusters
 ```
 
