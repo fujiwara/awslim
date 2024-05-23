@@ -11,6 +11,10 @@ import (
 	sdkclient "github.com/fujiwara/aws-sdk-client-go"
 )
 
+type PagingOutput struct {
+	Next string `json:"Next,omitempty"`
+}
+
 func init() {
 	sdkclient.SetClientMethod("foo#Client.List", func(_ context.Context, _ *sdkclient.ClientMethodParam) (any, error) {
 		return []string{"a", "b", "c"}, nil
@@ -28,6 +32,19 @@ func init() {
 		var v any
 		err := json.Unmarshal(p.InputBytes, &v)
 		return v, err
+	})
+	sdkclient.SetClientMethod("baz#Client.Paging", func(_ context.Context, p *sdkclient.ClientMethodParam) (any, error) {
+		var v map[string]string
+		json.Unmarshal(p.InputBytes, &v)
+		switch v["Start"] {
+		case "":
+			return PagingOutput{Next: "1"}, nil
+		case "1":
+			return PagingOutput{Next: "2"}, nil
+		case "2":
+			return PagingOutput{Next: "3"}, nil
+		}
+		return PagingOutput{}, nil
 	})
 }
 
@@ -57,7 +74,7 @@ var TestCases = []TestCase{
 	{
 		Name:   "list methods of baz",
 		Args:   []string{"baz"},
-		Expect: "Echo\n",
+		Expect: "Echo\nPaging\n",
 	},
 	{
 		Name:   "call foo#Client.List",
@@ -113,6 +130,11 @@ var TestCases = []TestCase{
 		Name:   "call baz#Client.Echo raw object",
 		Args:   []string{"baz", "Echo", `{"Example": "value"}`, "-r"},
 		Expect: "{\n  \"Example\": \"value\"\n}\n",
+	},
+	{
+		Name:   "call baz#Client.Paging",
+		Args:   []string{"baz", "Paging", `{}`, "--follow-next", "Next=Start", "-c"},
+		Expect: `{"Next":"1"}{"Next":"2"}{"Next":"3"}{}`,
 	},
 }
 

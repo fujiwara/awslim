@@ -136,6 +136,7 @@ Flags:
       --ext-str=KEY=VALUE;...     external variables for Jsonnet
       --ext-code=KEY=VALUE;...    external code for Jsonnet
       --[no-]strict               strict input JSON unmarshaling
+  -f, --follow-next=""            OutputField=InputField format. follow the next token.
   -n, --dry-run                   dry-run mode
   -v, --version                   show version
 ```
@@ -232,6 +233,32 @@ $ aws-sdk-client-go s3 get-object '{"Bucket": "my-bucket", "Key": "my.txt"}' --o
 When the output struct has only one field of `io.ReadCloser`, `aws-sdk-client-go` copies it to the file automatically. (Currently, all SDK output structs have at most one io.ReadCloser field.)
 
 If `--output-stream` is "-", `aws-sdk-client-go` writes into stdout. The result of the API also writes to stdout by default. If you don't want to output the result, use `--no-api-output`.
+
+#### `--raw-output` option
+
+`--raw-output` (`-r`) option allows you to output raw strings, not JSON texts.
+
+This option is like `jq -r`.
+
+#### `--follow-next` option
+
+`--follow-next` (`-f`) option set the output/input field name of the next token. This option is useful for paginated APIs.
+
+For example, [s3#ListObjectsV2Output](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#ListObjectsV2Output) has `NextContinuationToken` field, and [s3#ListObjectsV2Input](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#ListObjectsV2Input) has `ContinuationToken` field. You can follow the next token by the following command.
+
+`{FieldInOutput}={FieldInInput}` format is used for `--follow-next` option.
+
+```console
+$ aws-sdk-client-go s3 list-objects-v2 '{"Bucket": "my-bucket"}' \
+  --follow-next NextContinuationToken=ContinuationToken
+```
+
+If the same field name is used in the output and input, you can omit the input field name.
+
+```console
+$ aws-sdk-client-go ecs list-tasks '{"Cluster":"default"}' \
+  --follow-next NextToken
+```
 
 #### Query output by JMESPath
 

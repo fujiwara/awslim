@@ -39,6 +39,7 @@ type CLI struct {
 	ExtStr       map[string]string `help:"external variables for Jsonnet"`
 	ExtCode      map[string]string `help:"external code for Jsonnet"`
 	Strict       bool              `name:"strict" help:"strict input JSON unmarshaling" default:"true" negatable:"true"`
+	FollowNext   string            `short:"f" help:"OutputField=InputField format. follow the next token." default:""`
 
 	DryRun  bool `short:"n" help:"dry-run mode"`
 	Version bool `short:"v" help:"show version"`
@@ -89,15 +90,25 @@ func (c *CLI) CallMethod(ctx context.Context) error {
 	}
 	defer p.Cleanup()
 
-	out, err := fn(ctx, p)
-	if err != nil {
-		if err == ErrDryRun {
-			fmt.Fprintf(c.w, "dry-run: %s will be called with:\n%s", key, string(p.InputBytes))
-			return nil
+	cont := true
+	for cont {
+		out, err := fn(ctx, p)
+		if err != nil {
+			if err == ErrDryRun {
+				fmt.Fprintf(c.w, "dry-run: %s will be called with:\n%s", key, string(p.InputBytes))
+				return nil
+			}
+			return fmt.Errorf("failed to call %s: %w", key, err)
 		}
-		return fmt.Errorf("failed to call %s: %w", key, err)
+		if err := c.output(ctx, out); err != nil {
+			return err
+		}
+		cont, err = p.FollowNext(out)
+		if err != nil {
+			return fmt.Errorf("failed to follow next token: %w", err)
+		}
 	}
-	return c.output(ctx, out)
+	return nil
 }
 
 func (c *CLI) output(_ context.Context, out any) error {
@@ -185,6 +196,7 @@ func (c *CLI) clientMethodParam(ctx context.Context) (*clientMethodParam, error)
 		DryRun:       c.DryRun,
 		Strict:       c.Strict,
 	}
+	p.SetNextToken(c.FollowNext)
 
 	switch c.InputStream {
 	case "":
