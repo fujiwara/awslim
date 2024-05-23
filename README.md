@@ -99,6 +99,22 @@ After the build is completed, the built binary is in the container. You can copy
 $ docker cp $(docker ps -lq):/app/aws-sdk-client-go .
 ```
 
+### Docker Multi-stage build
+
+`ghcr.io/fujiwara/aws-sdk-client-go:builder` can use as a builder image in a multi-stage build.
+
+Run `./build-in-docker.sh` in the container to build the client. The built binary is in the `/app` directory. You can copy it to the final image.
+
+```Dockerfile
+FROM ghcr.io/fujiwara/aws-sdk-client-go:builder AS builder
+ENV AWS_SDK_CLIENT_GO_GEN=ecs,firehose,s3
+ENV GIT_REF=v0.0.13
+RUN ./build-in-docker.sh
+
+FROM debian:bookworm-slim
+COPY --from=builder /app/aws-sdk-client-go /usr/local/bin/aws-sdk-client-go
+```
+
 ## Performance comparison
 
 Example of execution `sts get-caller-identity` on 0.25vCPU Fargate(AMD64).
