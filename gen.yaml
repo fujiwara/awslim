@@ -2,6 +2,7 @@ services:
   ecs:
     - DescribeClusters
     - DescribeTasks
+    - ListTasks
   firehose:
     - DescribeDeliveryStream
     - ListDeliveryStreams

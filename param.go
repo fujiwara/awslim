@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/itchyny/gojq"
+	"github.com/jmespath/go-jmespath"
 )
 
 type clientMethodParam struct {
@@ -19,7 +19,10 @@ type clientMethodParam struct {
 	OutputWriter      io.Writer
 	DryRun            bool
 	Strict            bool
-
+	NextToken         struct {
+		OutputField string
+		InputField  string
+	}
 	awsCfg  aws.Config
 	cleanup []func() error
 }
@@ -30,17 +33,6 @@ func (p *clientMethodParam) Cleanup() {
 			log.Printf("[warn] failed to cleanup: %v", err)
 		}
 	}
-}
-
-func UnmarshalJSON[T any](b []byte, v T, strict bool) error {
-	dec := json.NewDecoder(bytes.NewReader(b))
-	if strict {
-		dec.DisallowUnknownFields()
-	}
-	if err := dec.Decode(v); err != nil {
-		return fmt.Errorf("failed to unmarshal to %T: %w", v, err)
-	}
-	return nil
 }
 
 func (p *clientMethodParam) Output(src io.ReadCloser) error {
@@ -62,42 +54,75 @@ func (p *clientMethodParam) Validate(name, inputReaderField, outputReadCloserFie
 	return nil
 }
 
-func (p *clientMethodParam) MustInject(in map[string]any) {
+func (p *clientMethodParam) Inject(field string, value any) error {
 	v := make(map[string]any)
 	if err := json.Unmarshal(p.InputBytes, &v); err != nil {
-		panic(fmt.Sprintf("failed to marshal %s:", err))
+		return fmt.Errorf("failed to unmarshal %s: %w", p.InputBytes, err)
 	}
-	var qs []string
-	for field, value := range in {
-		if value == nil {
-			qs = append(qs, fmt.Sprintf("del(.%s)", field))
-		} else {
-			jv, err := json.Marshal(value)
-			if err != nil {
-				panic(fmt.Sprintf("failed to marshal %s:", err))
-			}
-			qs = append(qs, fmt.Sprintf(".%s = %s", field, string(jv)))
+	v[field] = value
+	if b, err := json.Marshal(v); err != nil {
+		return fmt.Errorf("failed to marshal %v: %w", v, err)
+	} else {
+		p.InputBytes = b
+	}
+	return nil
+}
+
+func (p *clientMethodParam) MustInject(m map[string]any) {
+	for k, v := range m {
+		if err := p.Inject(k, v); err != nil {
+			panic(err)
 		}
 	}
-	q := strings.Join(qs, " | ")
-	query, err := gojq.Parse(q)
+}
+
+func (p *clientMethodParam) SetNextToken(s string) {
+	nt := strings.SplitN(s, "=", 2)
+	switch len(nt) {
+	case 0:
+		return
+	case 1:
+		p.NextToken.OutputField = nt[0]
+		p.NextToken.InputField = nt[0]
+	case 2:
+		p.NextToken.OutputField = nt[0]
+		p.NextToken.InputField = nt[1]
+	}
+}
+
+func (p *clientMethodParam) FollowNext(out any) (bool, error) {
+	if p.NextToken.OutputField == "" {
+		return false, nil
+	}
+
+	token, err := jmespath.Search(p.NextToken.OutputField, out)
 	if err != nil {
-		panic(fmt.Sprintf("failed to parse query %s: %v", q, err))
+		return false, fmt.Errorf("failed to extract %s: %w", p.NextToken.OutputField, err)
 	}
-	iter := query.Run(v)
-	for {
-		if v, ok := iter.Next(); ok {
-			if !ok {
-				break
-			}
-			if err, ok := v.(error); ok {
-				if err, ok := err.(*gojq.HaltError); ok && err.Value() == nil {
-					break
-				}
-				panic(err)
-			}
-			p.InputBytes, _ = json.Marshal(v)
-			return
-		}
+	var tokenValue string
+	switch t := token.(type) {
+	case string:
+		tokenValue = t
+	case *string:
+		tokenValue = aws.ToString(t)
+	default:
 	}
+	if tokenValue == "" {
+		return false, nil
+	}
+	if err := p.Inject(p.NextToken.InputField, tokenValue); err != nil {
+		return false, fmt.Errorf("failed to inject %s=%v: %w", p.NextToken.InputField, tokenValue, err)
+	}
+	return true, nil
+}
+
+func UnmarshalJSON[T any](b []byte, v T, strict bool) error {
+	dec := json.NewDecoder(bytes.NewReader(b))
+	if strict {
+		dec.DisallowUnknownFields()
+	}
+	if err := dec.Decode(v); err != nil {
+		return fmt.Errorf("failed to unmarshal to %T: %w", v, err)
+	}
+	return nil
 }

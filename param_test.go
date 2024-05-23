@@ -18,7 +18,7 @@ var ParamTestCases = []ParamTestCase{
 	{
 		Name: "inject nil",
 		Param: &sdkclient.ClientMethodParam{
-			InputBytes: []byte(`{"foo": "bar"}`),
+			InputBytes: []byte(`{"foo":"bar"}`),
 		},
 		Inject:       map[string]any{},
 		ExpectedJSON: `{"foo":"bar"}`,
