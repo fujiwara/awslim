@@ -43,16 +43,16 @@ func main() {
 	log.Println("generating gen.go")
 
 	cfg := GenerateConfig{}
-	e := os.Getenv("AWS_SDK_CLIENT_GO_GEN")
+	e := os.Getenv("AWSLIM_GEN")
 	if e != "" {
-		log.Printf("AWS_SDK_CLIENT_GO_GEN is set, generating services: %s", e)
+		log.Printf("AWSLIM_GEN is set, generating services: %s", e)
 		services := strings.Split(e, ",")
 		cfg.Services = make(map[string][]string, len(services))
 		for _, service := range services {
 			cfg.Services[service] = nil
 		}
 	} else {
-		log.Printf("AWS_SDK_CLIENT_GO_GEN is not set, reading gen.yaml")
+		log.Printf("AWSLIM_GEN is not set, reading gen.yaml")
 		f, err := os.Open("../../gen.yaml")
 		if err != nil {
 			log.Fatalf("failed to open gen.yaml: %v", err)

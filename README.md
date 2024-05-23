@@ -42,16 +42,16 @@ $ brew install fujiwara/tap/awslim
 
 You can build the client yourself, including only the needed services and methods. The optimized binary is small and boots up quickly.
 
-The client is built by a configuration file `gen.yaml` or `AWS_SDK_CLIENT_GO_GEN` environment variable.
+The client is built by a configuration file `gen.yaml` or `AWSLIM_GEN` environment variable.
 
-### `AWS_SDK_CLIENT_GO_GEN` environment variable
+### `AWSLIM_GEN` environment variable
 
-Set the environment variable `AWS_SDK_CLIENT_GO_GEN` to list the services joined by commas.
+Set the environment variable `AWSLIM_GEN` to list the services joined by commas.
 
 For example, to build the client for ECS, Firehose, and S3:
 
 ```console
-$ export AWS_SDK_CLIENT_GO_GEN="ecs,firehose,s3"
+$ export AWSLIM_GEN="ecs,firehose,s3"
 ```
 
 All methods of the specified services are generated. To build only specified methods, use the `gen.yaml` configuration file.
@@ -94,9 +94,9 @@ If you change the configuration, run `make clean` before `make` to purge the gen
 Environment variables:
 - `GIT_REF`: Git reference to checkout the repository. Default is `main`. You can specify a branch, tag, or commit hash.
 
-Example of use `AWS_SDK_CLIENT_GO_GEN` environment variable:
+Example of use `AWSLIM_GEN` environment variable:
 ```console
-$ docker run -it -e AWS_SDK_CLIENT_GO_GEN=ecs,firehose,s3 ghcr.io/fujiwara/awslim:builder
+$ docker run -it -e AWSLIM_GEN=ecs,firehose,s3 ghcr.io/fujiwara/awslim:builder
 ...
 ```
 
@@ -123,7 +123,7 @@ Run `./build-in-docker.sh` in the container to build the client. The built binar
 
 ```Dockerfile
 FROM ghcr.io/fujiwara/awslim:builder AS builder
-ENV AWS_SDK_CLIENT_GO_GEN=ecs,firehose,s3
+ENV AWSLIM_GEN=ecs,firehose,s3
 ENV GIT_REF=v0.0.13
 RUN ./build-in-docker.sh
 
