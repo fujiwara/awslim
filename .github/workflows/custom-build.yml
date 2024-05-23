@@ -58,7 +58,7 @@ jobs:
 
       - name: Build
         run: |
-          make aws-sdk-client-go
+          make awslim
         env:
           GOOS: ${{ github.event.inputs.os }}
           GOARCH: ${{ github.event.inputs.arch }}
@@ -66,5 +66,5 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: aws-sdk-client-go-${{ github.event.inputs.os }}-${{ github.event.inputs.arch }}
-          path: aws-sdk-client-go
+          name: awslim-${{ github.event.inputs.os }}-${{ github.event.inputs.arch }}
+          path: awslim
