@@ -2,11 +2,25 @@
 
 aws-sdk-client-go is a CLI for AWS services by [Go](https://go.dev/).
 
-This CLI is generated from the AWS SDK Go v2 service client.
+This CLI is generated from the [AWS SDK Go v2](https://github.com/aws/aws-sdk-go-v2) service client.
 
 ## Motivation
 
-The [AWS CLI](https://aws.amazon.com/cli/) is very useful, but it requires too many CPU and memory resources to boot up. This cli is a simplified alternative to the AWS CLI for limited use cases.
+The [AWS CLI](https://aws.amazon.com/cli/) is very useful, but it requires too many CPU resources to boot up. This cli is a simplified and fast alternative to the AWS CLI for limited use cases.
+
+This CLI is a simple wrapper of the AWS SDK Go v2, and it is not a full-featured CLI like the AWS CLI.
+
+This CLI can,
+- Call any method(API) of the AWS service client.
+- Use JSON or Jsonnet for input.
+- Output the result in JSON format.
+- Bind a file to the input/output struct of the method.
+- Query the output by JMESPath.
+- Use the AWS CLI configuration file. (for example, `~/.aws/config`)
+
+This CLI cannot,
+- 100% compatible with the AWS CLI.
+- Use the AWS CLI plugins. (for example, `session-manager-plugin`)
 
 ## Install
 
