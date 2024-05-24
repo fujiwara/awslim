@@ -2,6 +2,8 @@
 
 `awslim` is a CLI for AWS services by [Go](https://go.dev/). This CLI is generated from the [AWS SDK Go v2](https://github.com/aws/aws-sdk-go-v2) service client.
 
+(The old name is `aws-sdk-client-go`.)
+
 ## Motivation
 
 While the [AWS CLI](https://aws.amazon.com/cli/) is very useful, it can be resource intensive to boot up. `awslim` offers a simpler and faster alternative for limited use cases. It acts as a simple wrapper around AWS SDK Go v2, providing essential functionality without the full feature set of the AWS CLI.
