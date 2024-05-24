@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/alecthomas/kong"
-	sdkclient "github.com/fujiwara/aws-sdk-client-go"
+	sdkclient "github.com/fujiwara/awslim"
 )
 
 type PagingOutput struct {

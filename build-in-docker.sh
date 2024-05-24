@@ -6,7 +6,7 @@ if [[ $GIT_REF != "" ]]; then
 fi
 make clean
 make
-echo 'Completed. Please extract /app/aws-sdk-client-go from this container!'
+echo 'Completed. Please extract /app/awslim from this container!'
 echo 'For example, run the following command:'
-echo 'docker cp $(docker ps -lq):/app/aws-sdk-client-go .'
+echo 'docker cp $(docker ps -lq):/app/awslim .'
 echo ''

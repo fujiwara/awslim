@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	sdkclient "github.com/fujiwara/aws-sdk-client-go"
+	sdkclient "github.com/fujiwara/awslim"
 )
 
 type ParamTestCase struct {

@@ -26,5 +26,5 @@ jobs:
 
       - name: Build
         run: |
-          go generate ./cmd/aws-sdk-client-gen .
-          go build -o aws-sdk-client-go ./cmd/aws-sdk-client-go/main.go
+          go generate ./cmd/awslim-gen .
+          go build -o awslim ./cmd/awslim/main.go

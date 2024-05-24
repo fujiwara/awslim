@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	app "github.com/fujiwara/aws-sdk-client-go"
+	app "github.com/fujiwara/awslim"
 )
 
 func main() {
