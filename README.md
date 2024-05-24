@@ -137,7 +137,7 @@ COPY --from=builder /app/awslim /usr/local/bin/awslim
 Example of executing `sts get-caller-identity` on a 0.25 vCPU Fargate(AMD64) using `/usr/bin/time -v` for time measurement.
 
 | command | CPU time(user, sys)| Elapsed time(s) | Max memory(MB) | Size(MB) |
-| ---- | ---- | ---- | --- |
+| ---- | ---- | ---- | --- | --- |
 | aws         | 0.67 + 0.10 = 0.77 | 3.11 | 64.2  | 225 |
 | awslim(all) | 0.08 + 0.03 = 0.11 | 0.43 | 101.5 | 476 |
 | awslim(40)  | 0.02 + 0.01 = 0.03 | 0.05 | 30.2  |  95 |
