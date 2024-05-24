@@ -3,7 +3,6 @@ services:
   account:
   acm:
   acmpca:
-  alexaforbusiness:
   amp:
   amplify:
   amplifybackend:
@@ -13,6 +12,7 @@ services:
   apigatewayv2:
   appconfig:
   appconfigdata:
+  appfabric:
   appflow:
   appintegrations:
   applicationautoscaling:
@@ -24,42 +24,57 @@ services:
   appstream:
   appsync:
   arczonalshift:
+  artifact:
   athena:
   auditmanager:
   autoscaling:
   autoscalingplans:
+  b2bi:
   backup:
   backupgateway:
   backupstorage:
   batch:
+  bcmdataexports:
+  bedrock:
+  bedrockagent:
+  bedrockagentruntime:
+  bedrockruntime:
   billingconductor:
   braket:
   budgets:
+  chatbot:
   chime:
   chimesdkidentity:
   chimesdkmediapipelines:
   chimesdkmeetings:
   chimesdkmessaging:
   chimesdkvoice:
+  cleanrooms:
+  cleanroomsml:
   cloud9:
   cloudcontrol:
   clouddirectory:
   cloudformation:
   cloudfront:
+  cloudfrontkeyvaluestore:
   cloudhsm:
   cloudhsmv2:
   cloudsearch:
   cloudsearchdomain:
   cloudtrail:
+  cloudtraildata:
   cloudwatch:
   cloudwatchevents:
   cloudwatchlogs:
   codeartifact:
   codebuild:
+  codecatalyst:
   codecommit:
+  codeconnections:
   codedeploy:
   codeguruprofiler:
   codegurureviewer:
+  codegurusecurity:
   codepipeline:
   codestar:
   codestarconnections:
@@ -76,16 +91,20 @@ services:
   connectcases:
   connectcontactlens:
   connectparticipant:
+  controlcatalog:
   controltower:
   costandusagereportservice:
   costexplorer:
+  costoptimizationhub:
   customerprofiles:
   databasemigrationservice:
   databrew:
   dataexchange:
   datapipeline:
   datasync:
+  datazone:
   dax:
+  deadline:
   detective:
   devicefarm:
   devopsguru:
@@ -93,6 +112,7 @@ services:
   directoryservice:
   dlm:
   docdb:
+  docdbelastic:
   drs:
   dynamodb:
   dynamodbstreams:
@@ -104,6 +124,7 @@ services:
   ecs:
   efs:
   eks:
+  eksauth:
   elasticache:
   elasticbeanstalk:
   elasticinference:
@@ -114,6 +135,7 @@ services:
   emr:
   emrcontainers:
   emrserverless:
+  entityresolution:
   eventbridge:
   evidently:
   finspace:
@@ -124,9 +146,9 @@ services:
   forecast:
   forecastquery:
   frauddetector:
+  freetier:
   fsx:
   gamelift:
-  gamesparks:
   glacier:
   globalaccelerator:
   glue:
@@ -137,12 +159,13 @@ services:
   guardduty:
   health:
   healthlake:
-  honeycode:
   iam:
   identitystore:
   imagebuilder:
   inspector:
   inspector2:
+  inspectorscan:
+  internetmonitor:
   iot:
   iot1clickdevicesservice:
   iot1clickprojects:
@@ -154,7 +177,6 @@ services:
   iotfleethub:
   iotfleetwise:
   iotjobsdataplane:
-  iotroborunner:
   iotsecuretunneling:
   iotsitewise:
   iotthingsgraph:
@@ -162,9 +184,11 @@ services:
   iotwireless:
   ivs:
   ivschat:
+  ivsrealtime:
   kafka:
   kafkaconnect:
   kendra:
+  kendraranking:
   keyspaces:
   kinesis:
   kinesisanalytics:
@@ -173,14 +197,17 @@ services:
   kinesisvideoarchivedmedia:
   kinesisvideomedia:
   kinesisvideosignaling:
+  kinesisvideowebrtcstorage:
   kms:
   lakeformation:
   lambda:
+  launchwizard:
   lexmodelbuildingservice:
   lexmodelsv2:
   lexruntimeservice:
   lexruntimev2:
   licensemanager:
+  licensemanagerlinuxsubscriptions:
   licensemanagerusersubscriptions:
   lightsail:
   location:
@@ -189,21 +216,26 @@ services:
   lookoutvision:
   m2:
   machinelearning:
-  macie:
   macie2:
+  mailmanager:
   managedblockchain:
+  managedblockchainquery:
+  marketplaceagreement:
   marketplacecatalog:
   marketplacecommerceanalytics:
+  marketplacedeployment:
   marketplaceentitlementservice:
   marketplacemetering:
   mediaconnect:
   mediaconvert:
   medialive:
   mediapackage:
+  mediapackagev2:
   mediapackagevod:
   mediastore:
   mediastoredata:
   mediatailor:
+  medicalimaging:
   memorydb:
   mgn:
   migrationhub:
@@ -216,16 +248,25 @@ services:
   mturk:
   mwaa:
   neptune:
+  neptunedata:
+  neptunegraph:
   networkfirewall:
   networkmanager:
+  networkmonitor:
   nimble:
   oam:
+  omics:
   opensearch:
+  opensearchserverless:
   opsworks:
   opsworkscm:
   organizations:
+  osis:
   outposts:
   panorama:
+  paymentcryptography:
+  paymentcryptographydata:
+  pcaconnectorad:
   personalize:
   personalizeevents:
   personalizeruntime:
@@ -234,10 +275,13 @@ services:
   pinpointemail:
   pinpointsmsvoice:
   pinpointsmsvoicev2:
+  pipes:
   polly:
   pricing:
   privatenetworks:
   proton:
+  qbusiness:
+  qconnect:
   qldb:
   qldbsession:
   quicksight:
@@ -249,6 +293,7 @@ services:
   redshiftdata:
   redshiftserverless:
   rekognition:
+  repostspace:
   resiliencehub:
   resourceexplorer2:
   resourcegroups:
@@ -257,6 +302,7 @@ services:
   rolesanywhere:
   route53:
   route53domains:
+  route53profiles:
   route53recoverycluster:
   route53recoverycontrolconfig:
   route53recoveryreadiness:
@@ -269,12 +315,15 @@ services:
   sagemakera2iruntime:
   sagemakeredge:
   sagemakerfeaturestoreruntime:
+  sagemakergeospatial:
+  sagemakermetrics:
   sagemakerruntime:
   savingsplans:
   scheduler:
   schemas:
   secretsmanager:
   securityhub:
+  securitylake:
   serverlessapplicationrepository:
   servicecatalog:
   servicecatalogappregistry:
@@ -285,6 +334,7 @@ services:
   sfn:
   shield:
   signer:
+  simspaceweaver:
   sms:
   snowball:
   snowdevicemanagement:
@@ -299,18 +349,24 @@ services:
   ssooidc:
   storagegateway:
   sts:
+  supplychain:
   support:
   supportapp:
   swf:
   synthetics:
   textract:
+  timestreaminfluxdb:
   timestreamquery:
   timestreamwrite:
+  tnb:
   transcribe:
   transcribestreaming:
   transfer:
   translate:
+  trustedadvisor:
+  verifiedpermissions:
   voiceid:
+  vpclattice:
   waf:
   wafregional:
   wafv2:
@@ -321,5 +377,6 @@ services:
   workmail:
   workmailmessageflow:
   workspaces:
+  workspacesthinclient:
   workspacesweb:
   xray:
