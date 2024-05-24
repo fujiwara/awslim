@@ -95,7 +95,7 @@ Use the `ghcr.io/fujiwara/awslim:builder` builder image to build the client insi
 Environment variables:
 - `GIT_REF`: Git reference to checkout the repository. Default is `main`. You can specify a branch, tag, or commit hash.
 
-Example using the `AWS_SDK_CLIENT_GO_GEN` environment variable:
+Example using the `AWSLIM_GEN` environment variable:
 ```console
 $ docker run -it -e AWSLIM_GEN=ecs,firehose,s3 ghcr.io/fujiwara/awslim:builder
 ...
