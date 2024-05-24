@@ -19,8 +19,6 @@ import (
 
 var Version = "HEAD"
 
-var clientMethods = make(map[string]map[string]ClientMethod, 500)
-
 type ClientMethod func(context.Context, *clientMethodParam) (any, error)
 
 var ErrDryRun = fmt.Errorf("dry-run mode")
@@ -247,14 +245,12 @@ func (c *CLI) clientMethodParam(ctx context.Context) (*clientMethodParam, error)
 
 func (c *CLI) ListMethods(_ context.Context) error {
 	methods := make([]string, 0)
-	for name := range clientMethods {
-		if name != c.Service {
-			continue
-		}
-		for method := range clientMethods[name] {
+	if m, ok := clientMethods[c.Service]; !ok {
+		return fmt.Errorf("unknown service %s", c.Service)
+	} else {
+		for method := range m {
 			methods = append(methods, method)
 		}
-		break
 	}
 	sort.Strings(methods)
 	for _, name := range methods {

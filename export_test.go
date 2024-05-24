@@ -1,5 +1,7 @@
 package sdkclient
 
+var clientMethods = map[string]map[string]ClientMethod{}
+
 func SetClientMethod(service, method string, fn ClientMethod) {
 	sv := clientMethods[service]
 	if sv == nil {
