@@ -136,16 +136,16 @@ COPY --from=builder /app/awslim /usr/local/bin/awslim
 
 Example of executing `sts get-caller-identity` on a 0.25 vCPU Fargate(AMD64) using `/usr/bin/time -v` for time measurement.
 
-| command | CPU time(user, sys)| Elapsed time(s) | Max memory(MB) |
+| command | CPU time(user, sys)| Elapsed time(s) | Max memory(MB) | Size(MB) |
 | ---- | ---- | ---- | --- |
-| aws               | 0.67 + 0.10 = 0.77 | 3.11 | 64.2 |
-| awslim(all) | 0.08 + 0.03 = 0.11 | 0.43 | 101.5 |
-| awslim(40) | 0.02 + 0.01 = 0.03 | 0.05 | 30.2 |
+| aws         | 0.67 + 0.10 = 0.77 | 3.11 | 64.2  | 225 |
+| awslim(all) | 0.08 + 0.03 = 0.11 | 0.43 | 101.5 | 476 |
+| awslim(40)  | 0.02 + 0.01 = 0.03 | 0.05 | 30.2  |  95 |
 
 - `awslim`(built for all AWS services): 7.0x faster than `aws`
 - `awslim`(built for 40 AWS services): 62.0x faster than `aws`
 
-`aws-cli/2.15.51 Python/3.11.8`, `awslim 0.0.10`
+`aws-cli/2.15.51 Python/3.11.8`, `awslim 0.1.0`
 
 ## Usage
 
