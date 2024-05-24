@@ -1,32 +1,31 @@
 # aws-sdk-client-go
 
-aws-sdk-client-go is a CLI for AWS services by [Go](https://go.dev/).
-
-This CLI is generated from the [AWS SDK Go v2](https://github.com/aws/aws-sdk-go-v2) service client.
+`aws-sdk-client-go` is a CLI for AWS services by [Go](https://go.dev/). This CLI is generated from the [AWS SDK Go v2](https://github.com/aws/aws-sdk-go-v2) service client.
 
 ## Motivation
 
-The [AWS CLI](https://aws.amazon.com/cli/) is very useful, but it requires too many CPU resources to boot up. This cli is a simplified and fast alternative to the AWS CLI for limited use cases.
+While the [AWS CLI](https://aws.amazon.com/cli/) is very usefull, it can be resource intensive to boot up. `aws-sdk-client-go` offers a simpler and faster alternative for limited use cases. It acts as a simple wrapper around AWS SDK Go v2, providing essential functionality without the full feature set of the AWS CLI.
 
-This CLI is a simple wrapper of the AWS SDK Go v2, and it is not a full-featured CLI like the AWS CLI.
 
-This CLI can,
+### Features
+
 - Call any method(API) of the AWS service client.
 - Use JSON or Jsonnet for input.
 - Output the result in JSON format.
 - Bind a file to the input/output struct of the method.
 - Query the output by JMESPath.
-- Use the AWS CLI configuration file. (for example, `~/.aws/config`)
+- Use the AWS CLI configuration file. (i.e., `~/.aws/config`)
 
-This CLI cannot,
-- 100% compatible with the AWS CLI.
-- Use the AWS CLI plugins. (for example, `session-manager-plugin`)
+### Limitations
 
-## Install
+- Not 100% compatible with the AWS CLI.
+- No support for AWS CLI plugins. (i.e., `session-manager-plugin`)
 
-**Note:** The release binaries are large (about 500MB after being extracted) and slow a bit to boot up (about 100ms), because they contain codes for access to **[all AWS services](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service)**.
+## Installation
 
-It’s best to build your optimized binary if you don't need to access all AWS services(a most use case). You can build the binary yourself easily. See [Build](#build) section.
+**Note:** The release binaries are large (about 500MB after being extracted) and have a slight startup delay (about 100ms), due to the inclusion of code to access **[all AWS services](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service)**. However, it is still [faster](#performance-comparison) than the AWS CLI.
+
+For optimized performance, build your own binary tailored to the specific services you need. See the [Build](#build) section for details.
 
 ### Release binary
 
@@ -40,13 +39,13 @@ $ brew install fujiwara/tap/aws-sdk-client-go
 
 ## Build
 
-You can build the client yourself, including only the needed services and methods. The optimized binary is small and boots up quickly.
+You can build the client yourself, including only the needed services and methods. This produces a smaller, faster binary.
 
-The client is built by a configuration file `gen.yaml` or `AWS_SDK_CLIENT_GO_GEN` environment variable.
+The client is built by using a `AWS_SDK_CLIENT_GO_GEN` environment variable or a `gen.yaml` configuration file.
 
 ### `AWS_SDK_CLIENT_GO_GEN` environment variable
 
-Set the environment variable `AWS_SDK_CLIENT_GO_GEN` to list the services joined by commas.
+Set the `AWS_SDK_CLIENT_GO_GEN` environment variable to specify the services you want to include, separated by commas.
 
 For example, to build the client for ECS, Firehose, and S3:
 
@@ -54,7 +53,7 @@ For example, to build the client for ECS, Firehose, and S3:
 $ export AWS_SDK_CLIENT_GO_GEN="ecs,firehose,s3"
 ```
 
-All methods of the specified services are generated. To build only specified methods, use the `gen.yaml` configuration file.
+This will generate all methods for the specified services. If you want to generate only specific methods, use the gen.yaml configuration file.
 
 ### `gen.yaml` configuration file
 
@@ -71,7 +70,7 @@ services:
     # all methods of the service
 ```
 
-Keys of `services` are AWS service names (`github.com/aws/aws-sdk-go-v2/service/*`), and values are method names of the service client (for example, `s3` is [s3.Client](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#Client)). If you don't specify the method names, all methods of the service client are generated.
+Keys under `services` are AWS service names (`github.com/aws/aws-sdk-go-v2/service/*`), and values are method names of the service client (for example, `s3` is [s3.Client](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#Client)). If you don't specify the method names, all methods of the service client are generated.
 
 ### Build on your machine
 
@@ -89,18 +88,18 @@ If you change the configuration, run `make clean` before `make` to purge the gen
 
 ### Build with Docker
 
-`ghcr.io/fujiwara/aws-sdk-client-go:builder` is a Docker image that contains the Go environment. You can build the client in the container.
+Use the `ghcr.io/fujiwara/aws-sdk-client-go:builder` builder image to build the client inside a container.
 
 Environment variables:
 - `GIT_REF`: Git reference to checkout the repository. Default is `main`. You can specify a branch, tag, or commit hash.
 
-Example of use `AWS_SDK_CLIENT_GO_GEN` environment variable:
+Example using the `AWS_SDK_CLIENT_GO_GEN` environment variable:
 ```console
 $ docker run -it -e AWS_SDK_CLIENT_GO_GEN=ecs,firehose,s3 ghcr.io/fujiwara/aws-sdk-client-go:builder
 ...
 ```
 
-Example of `gen.yaml` configuration file:
+Example using the `gen.yaml` configuration file:
 ```console
 $ docker run -it -v $(pwd)/gen.yaml:/app/gen.yaml ghcr.io/fujiwara/aws-sdk-client-go:builder
 ...
@@ -109,7 +108,7 @@ For example, run the following command:
 docker cp $(docker ps -lq):/app/aws-sdk-client-go .
 ```
 
-After the build is completed, the built binary is in the container. You can copy it to your host machine with `docker cp` command.
+After the build is complete, copy the binary to your host machine with the `docker cp` command.
 
 ```console
 $ docker cp $(docker ps -lq):/app/aws-sdk-client-go .
@@ -117,9 +116,9 @@ $ docker cp $(docker ps -lq):/app/aws-sdk-client-go .
 
 ### Docker Multi-stage build
 
-`ghcr.io/fujiwara/aws-sdk-client-go:builder` can use as a builder image in a multi-stage build.
+It is also possible to use the `ghcr.io/fujiwara/aws-sdk-client-go:builder` builder image in a multi-stage build.
 
-Run `./build-in-docker.sh` in the container to build the client. The built binary is in the `/app` directory. You can copy it to the final image.
+Run `./build-in-docker.sh` in the container to build the client. The built binary will be located in the `/app` directory. You can then copy it to the final image.
 
 ```Dockerfile
 FROM ghcr.io/fujiwara/aws-sdk-client-go:builder AS builder
@@ -133,8 +132,7 @@ COPY --from=builder /app/aws-sdk-client-go /usr/local/bin/aws-sdk-client-go
 
 ## Performance comparison
 
-Example of execution `sts get-caller-identity` on 0.25vCPU Fargate(AMD64).
-`/usr/bin/time -v` is used for measurement.
+Example of executing `sts get-caller-identity` on a 0.25 vCPU Fargate(AMD64) using `/usr/bin/time -v` for time measurement.
 
 | command | CPU time(user, sys)| Elapsed time(s) | Max memory(MB) |
 | ---- | ---- | ---- | --- |
@@ -195,7 +193,7 @@ $ aws-sdk-client-go ecs
 
 #### Call method of the service
 
-The third argument is [JSON](https://json.org) or [Jsonnet](https://jsonnet.org/) input for the method. If the method does not require input, you can omit the third argument (implicitly `{}` passed).
+The third argument is a [JSON](https://json.org) or [Jsonnet](https://jsonnet.org/) input for the method. This can be omitted if the method requires no input (`{}` is passed implicitly).
 
 ```console
 $ aws-sdk-client-go ecs DescribeClusters '{"Cluster":"default"}' # JSON
@@ -205,7 +203,7 @@ $ aws-sdk-client-go ecs DescribeClusters '{"Cluster":"default"}' # JSON
 $ aws-sdk-client-go ecs DescribeClusters "{Cluster:'default'}"   # Jsonnet
 ```
 
-If the method name is "kebab-case", it automatically converts to "PascalCase" (for example, `describe-clusters` -> `DescribeClusters`).
+If the method name is "kebab-case", it automatically converts to "PascalCase" (i.e., `describe-clusters` -> `DescribeClusters`).
 
 ```console
 $ aws-sdk-client-go ecs describe-clusters '{"Cluster":"default"}'
@@ -221,7 +219,7 @@ $ aws-sdk-client-go ecs DescribeClusters my.jsonnet
 
 #### `--ext-str` and `--ext-code` options
 
-`--ext-str` and `--ext-code` options allow you to pass external variables to Jsonnet.
+Pass external variables to Jsonnet.
 
 This is useful when you want to use variables in Jsonnet.
 
@@ -236,9 +234,9 @@ $ aws-sdk-client-go ecs DescribeClusters my.jsonnet --ext-str Cluster=default
 }
 ```
 
-#### `--input-stream` option
+#### `--input-stream (-i)` option
 
-`--input-stream` (`-i`) option allows you to bind a file or stdin to the input struct.
+Bind a file or stdin to the input struct.
 
 ```console
 $ aws-sdk-client-go s3 put-object '{"Bucket": "my-bucket", "Key": "my.txt"}' --input-stream my.txt
@@ -252,9 +250,9 @@ When the input struct has a "\*Length" field for the size of the content, `aws-s
 
 If `--input-stream` is "-", `aws-sdk-client-go` reads from stdin. In this case, `aws-sdk-client-go` reads all contents into memory, so it is not suitable for large files. Consider using a file for large content.
 
-#### `--output-stream` option
+#### `--output-stream (-o)` option
 
-`--output-stream` (`-o`) option allows you to bind the `io.ReadCloser` of the API output to a file or stdout.
+Bind the `io.ReadCloser` of the API output to a file or stdout.
 
 ```console
 $ aws-sdk-client-go s3 get-object '{"Bucket": "my-bucket", "Key": "my.txt"}' --output-stream my.txt
@@ -266,17 +264,17 @@ When the output struct has only one field of `io.ReadCloser`, `aws-sdk-client-go
 
 If `--output-stream` is "-", `aws-sdk-client-go` writes into stdout. The result of the API also writes to stdout by default. If you don't want to output the result, use `--no-api-output`.
 
-#### `--raw-output` option
+#### `--raw-output (-r)` option
 
-`--raw-output` (`-r`) option allows you to output raw strings, not JSON texts.
+Output raw strings, not JSON texts.
 
 This option is like `jq -r`.
 
-#### `--follow-next` option
+#### `--follow-next (-f)` option
 
-`--follow-next` (`-f`) option set the output/input field name of the next token. This option is useful for paginated APIs.
+Set the output/input field name of the next token. This option is useful for paginated APIs.
 
-For example, [s3#ListObjectsV2Output](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#ListObjectsV2Output) has `NextContinuationToken` field, and [s3#ListObjectsV2Input](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#ListObjectsV2Input) has `ContinuationToken` field. You can follow the next token by the following command.
+For example, [s3#ListObjectsV2Output](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#ListObjectsV2Output) has a `NextContinuationToken` field, and [s3#ListObjectsV2Input](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#ListObjectsV2Input) has a `ContinuationToken` field. You can follow the next token by the following command.
 
 `{FieldInOutput}={FieldInInput}` format is used for `--follow-next` option.
 
@@ -294,7 +292,7 @@ $ aws-sdk-client-go ecs list-tasks '{"Cluster":"default"}' \
 
 #### Query output by JMESPath
 
-`--query` option allows you to query the output by JMESPath like the AWS CLI.
+Query the output by JMESPath like the AWS CLI.
 
 ```console
 $ aws-sdk-client-go ecs DescribeClusters '{"Cluster":"default"}' \
@@ -303,7 +301,7 @@ $ aws-sdk-client-go ecs DescribeClusters '{"Cluster":"default"}' \
 
 #### Show help
 
-aws-sdk-client-go is a simple wrapper of the AWS SDK Go v2 service client. Its usage is the same as that of the AWS SDK Go v2. If the third argument is "help", it shows the URL of the method documentation.
+For method-specific documentation, use the `help` argument to display the URL of the method's documentation. Since `aws-sdk-client-go` is a simple wrapper for the AWS SDK Go v2 service client, its usage mirros that of the SDK.
 
 ```console
 $ aws-sdk-client-go ecs DescribeClusters help
