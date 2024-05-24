@@ -4,13 +4,13 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
-    main: cmd/aws-sdk-client-go/main.go
-    binary: aws-sdk-client-go
+    main: cmd/awslim/main.go
+    binary: awslim
     ldflags:
       - -s
       - -w
       - -extldflags "-static"
-      - -X github.com/fujiwara/aws-sdk-client-go.Version={{.Version}}
+      - -X github.com/fujiwara/awslim.Version={{.Version}}
     tags:
       - osusergo
       - netgo
