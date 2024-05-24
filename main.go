@@ -19,7 +19,7 @@ import (
 
 var Version = "HEAD"
 
-var clientMethods = make(map[string]ClientMethod)
+var clientMethods = map[string]map[string]ClientMethod{} // to be defined in main_gen.go
 
 type ClientMethod func(context.Context, *clientMethodParam) (any, error)
 
@@ -73,10 +73,14 @@ func (c *CLI) SetWriter(w io.Writer) {
 }
 
 func (c *CLI) CallMethod(ctx context.Context) error {
-	method := kebabToCamel(c.Method)
+	method := kebabToPascal(c.Method)
 	key := buildKey(c.Service, method)
-	fn := clientMethods[key]
-	if fn == nil {
+	ms, ok := clientMethods[c.Service]
+	if !ok {
+		return fmt.Errorf("unknown service %s", c.Service)
+	}
+	fn, ok := ms[method]
+	if !ok {
 		return fmt.Errorf("unknown function %s", key)
 	}
 	if c.Input == "help" {
@@ -243,9 +247,10 @@ func (c *CLI) clientMethodParam(ctx context.Context) (*clientMethodParam, error)
 
 func (c *CLI) ListMethods(_ context.Context) error {
 	methods := make([]string, 0)
-	for name := range clientMethods {
-		service, method := parseKey(name)
-		if service == c.Service {
+	if m, ok := clientMethods[c.Service]; !ok {
+		return fmt.Errorf("unknown service %s", c.Service)
+	} else {
+		for method := range m {
 			methods = append(methods, method)
 		}
 	}
@@ -257,13 +262,8 @@ func (c *CLI) ListMethods(_ context.Context) error {
 }
 
 func (c *CLI) ListServices(_ context.Context) error {
-	services := make(map[string]struct{})
+	var names []string
 	for name := range clientMethods {
-		service, _ := parseKey(name)
-		services[service] = struct{}{}
-	}
-	names := make([]string, 0)
-	for name := range services {
 		names = append(names, name)
 	}
 	sort.Strings(names)
@@ -273,18 +273,11 @@ func (c *CLI) ListServices(_ context.Context) error {
 	return nil
 }
 
-func parseKey(key string) (string, string) {
-	parts := strings.Split(key, "#")
-	service := parts[0]
-	method := strings.SplitN(parts[1], ".", 2)[1]
-	return service, method
-}
-
 func buildKey(service, method string) string {
 	return fmt.Sprintf("%s#Client.%s", service, method)
 }
 
-func kebabToCamel(kebab string) string {
+func kebabToPascal(kebab string) string {
 	parts := strings.Split(kebab, "-")
 	results := make([]string, 0, len(parts))
 	for _, p := range parts {
