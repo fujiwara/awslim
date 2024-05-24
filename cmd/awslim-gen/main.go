@@ -91,6 +91,7 @@ func gen(pkgName string, clientType reflect.Type, genNames []string) error {
 		var inputReaderField, inputReaderLengthField string
 		for j := 0; j < inputParam.Elem().NumField(); j++ {
 			field := inputParam.Elem().Field(j)
+			// detect io.Reader field refs https://github.com/fujiwara/awslim/pull/6 @mattn
 			if t := field.Type.String(); t == "io.Reader" {
 				log.Printf("found %s field in %s.%sInput %s %s", t, pkgName, method.Name, field.Name, t)
 				if inputReaderField != "" {
