@@ -43,11 +43,11 @@ $ brew install fujiwara/tap/awslim
 
 You can build the client yourself, including only the needed services and methods. This produces a smaller, faster binary.
 
-The client is built by using a `AWS_SDK_CLIENT_GO_GEN` environment variable or a `gen.yaml` configuration file.
+The client is built by using a `AWSLIM_GEN` environment variable or a `gen.yaml` configuration file.
 
 ### `AWSLIM_GEN` environment variable
 
-Set the `AWS_SDK_CLIENT_GO_GEN` environment variable to specify the services you want to include, separated by commas.
+Set the `AWSLIM_GEN` environment variable to specify the services you want to include, separated by commas.
 
 For example, to build the client for ECS, Firehose, and S3:
 
