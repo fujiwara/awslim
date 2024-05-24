@@ -19,7 +19,7 @@ import (
 
 var Version = "HEAD"
 
-// var clientMethods = map[string]map[string]ClientMethod{} // to be defined in main_gen.go
+var clientMethods = map[string]map[string]ClientMethod{} // to be defined in main_gen.go
 
 type ClientMethod func(context.Context, *clientMethodParam) (any, error)
 
