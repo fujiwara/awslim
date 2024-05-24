@@ -16,24 +16,24 @@ type PagingOutput struct {
 }
 
 func init() {
-	sdkclient.SetClientMethod("foo#Client.List", func(_ context.Context, _ *sdkclient.ClientMethodParam) (any, error) {
+	sdkclient.SetClientMethod("foo", "List", func(_ context.Context, _ *sdkclient.ClientMethodParam) (any, error) {
 		return []string{"a", "b", "c"}, nil
 	})
-	sdkclient.SetClientMethod("foo#Client.Get", func(_ context.Context, _ *sdkclient.ClientMethodParam) (any, error) {
+	sdkclient.SetClientMethod("foo", "Get", func(_ context.Context, _ *sdkclient.ClientMethodParam) (any, error) {
 		return struct{ Name string }{Name: "foo"}, nil
 	})
-	sdkclient.SetClientMethod("bar#Client.List", func(_ context.Context, _ *sdkclient.ClientMethodParam) (any, error) {
+	sdkclient.SetClientMethod("bar", "List", func(_ context.Context, _ *sdkclient.ClientMethodParam) (any, error) {
 		return []string{"x", "y", "z"}, nil
 	})
-	sdkclient.SetClientMethod("bar#Client.Get", func(_ context.Context, _ *sdkclient.ClientMethodParam) (any, error) {
+	sdkclient.SetClientMethod("bar", "Get", func(_ context.Context, _ *sdkclient.ClientMethodParam) (any, error) {
 		return struct{ Name string }{Name: "bar"}, nil
 	})
-	sdkclient.SetClientMethod("baz#Client.Echo", func(_ context.Context, p *sdkclient.ClientMethodParam) (any, error) {
+	sdkclient.SetClientMethod("baz", "Echo", func(_ context.Context, p *sdkclient.ClientMethodParam) (any, error) {
 		var v any
 		err := json.Unmarshal(p.InputBytes, &v)
 		return v, err
 	})
-	sdkclient.SetClientMethod("baz#Client.Paging", func(_ context.Context, p *sdkclient.ClientMethodParam) (any, error) {
+	sdkclient.SetClientMethod("baz", "Paging", func(_ context.Context, p *sdkclient.ClientMethodParam) (any, error) {
 		var v map[string]string
 		json.Unmarshal(p.InputBytes, &v)
 		switch v["Start"] {

@@ -27,7 +27,9 @@ func {{ $.PkgName }}_{{ .Name }}(ctx context.Context, p *clientMethodParam) (any
 	svc := {{ $.PkgName }}.NewFromConfig(p.awsCfg)
 	var in {{ .Input }}
 	{{- if .InputReaderLengthField }}
-	p.MustInject(map[string]any{"{{ .InputReaderLengthField }}": p.InputReaderLength})
+	if err := p.Inject("{{ .InputReaderLengthField }}", p.InputReaderLength); err != nil {
+		return nil, err
+	}
 	{{- end }}
 	if err := UnmarshalJSON(p.InputBytes, &in, p.Strict); err != nil {
 		return nil, err
@@ -59,10 +61,14 @@ func {{ $.PkgName }}_{{ .Name }}(ctx context.Context, p *clientMethodParam) (any
 
 {{ end }}
 
-func init() {
+var {{ .PkgName }}Methods = map[string]ClientMethod{
 {{- range .Methods }}
-	clientMethods["{{ $.PkgName }}#Client.{{ .Name }}"] = {{ $.PkgName }}_{{ .Name }}
+	"{{ .Name }}": {{ $.PkgName }}_{{ .Name }},
 {{- end }}
+}
+
+func init() {
+	clientMethods["{{ .PkgName }}"] = {{ .PkgName }}Methods
 }
 `
 
