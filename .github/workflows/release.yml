@@ -39,6 +39,6 @@ jobs:
         uses: goreleaser/goreleaser-action@v5
         with:
           version: '~> v1'
-          args: release --clean --skip=validate
+          args: release --clean --skip=validate --timeout=60m
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
