@@ -75,6 +75,13 @@ services:
 
 Keys under `services` are AWS service names (`github.com/aws/aws-sdk-go-v2/service/*`), and values are method names of the service client (for example, `s3` is [s3.Client](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#Client)). If you don't specify the method names, all methods of the service client are generated.
 
+### Build biary for specified OS/Architecture
+
+Set the `AWSLIM_OS` and `AWSLIM_ARCH` environment variables to specify the OS and architecture for the build.
+If these variables are not set, awslim will build based on the architecture of the build environment.
+These variables can also be specified when building with Docker.
+The values that can be set for AWSLIM_OS and AWSLIM_ARCH are the same as for GOOS and GOARCH.
+
 ### Build on your machine
 
 To build the client, run the following commands (or simply run `make`):
@@ -99,6 +106,13 @@ Environment variables:
 Example using the `AWSLIM_GEN` environment variable:
 ```console
 $ docker run -it -e AWSLIM_GEN=ecs,firehose,s3 ghcr.io/fujiwara/awslim:builder
+...
+```
+
+Example to specify build for OS and Architecture:
+
+```console
+$ docker run -it -e AWSLIM_GEN=ecs,firehose,s3 -e AWSLIM_OS=linux -e AWSLIM_ARCHI=arm64 ghcr.io/fujiwara/awslim:builder
 ...
 ```
 
