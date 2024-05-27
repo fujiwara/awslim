@@ -1,4 +1,8 @@
 VERSION := $(shell git describe --tags)
+AWSLIM_OS ?= $(shell uname -s | tr '[A-Z]' '[a-z]')
+AWSLIM_ARCH ?= $(shell uname -m | sed \
+			   -e 's/^x86_64$$/amd64/' \
+			   -e 's/^aarch64$$/arm64/')
 .PHONY: clean test gen
 
 build: gen awslim
@@ -6,6 +10,8 @@ build: gen awslim
 
 awslim: go.* *.go
 	CGO_ENABLED=0 \
+	GOOS=${AWSLIM_OS} \
+	GOARCH=${AWSLIM_ARCH} \
 		go build -o $@ \
 		-tags netgo \
 		-ldflags '-s -w -extldflags "-static" -X github.com/fujiwara/awslim.Version=$(VERSION)' \
