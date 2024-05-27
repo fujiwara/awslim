@@ -22,6 +22,7 @@ While the [AWS CLI](https://aws.amazon.com/cli/) is very useful, it can be resou
 
 - Not 100% compatible with the AWS CLI.
 - No support for AWS CLI plugins. (i.e., `session-manager-plugin`)
+- Some service names and different from the AWS CLI. (i.e., `logs` -> `cloudwatchlogs`, `ce` -> `costexplorer`)
 
 ## Installation
 
