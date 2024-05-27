@@ -6,6 +6,8 @@ build: gen awslim
 
 awslim: go.* *.go
 	CGO_ENABLED=0 \
+	GOOS=${AWSLIM_OS} \
+	GOARCH=${AWSLIM_ARCH} \
 		go build -o $@ \
 		-tags netgo \
 		-ldflags '-s -w -extldflags "-static" -X github.com/fujiwara/awslim.Version=$(VERSION)' \
