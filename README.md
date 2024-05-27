@@ -140,7 +140,7 @@ Run `./build-in-docker.sh` in the container to build the client. The built binar
 ```Dockerfile
 FROM ghcr.io/fujiwara/awslim:builder AS builder
 ENV AWSLIM_GEN=ecs,firehose,s3
-ENV GIT_REF=v0.1.0
+ENV GIT_REF=v0.1.2
 RUN ./build-in-docker.sh
 
 FROM debian:bookworm-slim
