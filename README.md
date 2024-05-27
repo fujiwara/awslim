@@ -112,7 +112,7 @@ $ docker run -it -e AWSLIM_GEN=ecs,firehose,s3 ghcr.io/fujiwara/awslim:builder
 Example to specify build for OS and Architecture:
 
 ```console
-$ docker run -it -e AWSLIM_GEN=ecs,firehose,s3 -e AWSLIM_OS=linux -e AWSLIM_ARCHI=arm64 ghcr.io/fujiwara/awslim:builder
+$ docker run -it -e AWSLIM_GEN=ecs,firehose,s3 -e AWSLIM_OS=linux -e AWSLIM_ARCH=arm64 ghcr.io/fujiwara/awslim:builder
 ...
 ```
 
