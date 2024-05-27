@@ -1,8 +1,4 @@
 VERSION := $(shell git describe --tags)
-AWSLIM_OS ?= $(shell uname -s | tr '[A-Z]' '[a-z]')
-AWSLIM_ARCH ?= $(shell uname -m | sed \
-			   -e 's/^x86_64$$/amd64/' \
-			   -e 's/^aarch64$$/arm64/')
 .PHONY: clean test gen
 
 build: gen awslim
