@@ -19,6 +19,7 @@ services:
   applicationcostprofiler:
   applicationdiscoveryservice:
   applicationinsights:
+  applicationsignals:
   appmesh:
   apprunner:
   appstream:
@@ -354,6 +355,7 @@ services:
   supportapp:
   swf:
   synthetics:
+  taxsettings:
   textract:
   timestreaminfluxdb:
   timestreamquery:
