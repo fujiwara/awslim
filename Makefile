@@ -34,3 +34,8 @@ docker-build-and-push: Dockerfile
 	-f Dockerfile \
 	--push \
 	.
+
+.PHONY: all-services.yaml
+all-services.yaml:
+	echo "services:" > all-services.yaml
+	ls ../../aws/aws-sdk-go-v2/service/ | awk '!/^internal$$/{print "  " $$1 ":"}' >> all-services.yaml
