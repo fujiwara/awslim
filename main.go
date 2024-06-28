@@ -40,6 +40,7 @@ type CLI struct {
 	ExtCode      map[string]string `help:"external code for Jsonnet"`
 	Strict       bool              `name:"strict" help:"strict input JSON unmarshaling" default:"true" negatable:"true"`
 	FollowNext   string            `short:"f" help:"OutputField=InputField format. follow the next token." default:""`
+	CamelCase    bool              `name:"camel" help:"convert keys to camelCase"`
 
 	DryRun  bool `short:"n" help:"dry-run mode"`
 	Version bool `short:"v" help:"show version"`
@@ -140,7 +141,7 @@ func (c *CLI) output(_ context.Context, out any) error {
 		}
 	}
 
-	b, err := json.Marshal(out)
+	b, err := marshalJSON(out, c.CamelCase)
 	if err != nil {
 		return fmt.Errorf("failed to marshal response: %w", err)
 	}

@@ -184,6 +184,7 @@ Flags:
       --ext-code=KEY=VALUE;...    external code for Jsonnet
       --[no-]strict               strict input JSON unmarshaling
   -f, --follow-next=""            OutputField=InputField format. follow the next token.
+      --camel                     convert keys to camelCase
   -n, --dry-run                   dry-run mode
   -v, --version                   show version
 ```
@@ -306,6 +307,44 @@ If the same field name is used in the output and input, you can omit the input f
 $ awslim ecs list-tasks '{"Cluster":"default"}' \
   --follow-next NextToken
 ```
+
+#### `--camel` option
+
+Convert JSON keys to camelCase.
+
+By default, the output JSON keys are the same as the SDK struct field names (equivalent to PascalCase).
+
+In the JSON output produced by AWS CLI, the key naming conventions are either PascalCase or camelCase, determined by the service. For example, `aws ecs` uses camelCase, while `aws lambda` uses PascalCase.
+
+If you want to convert the keys to camelCase, use the `--camel` option.
+
+```console
+$ awslim ecs describe-clusters '{Clusters:["default"]}' --camel
+{
+  "clusters": [
+    {
+      "activeServicesCount": 1,
+      "capacityProviders": [],
+      "clusterArn": "arn:aws:ecs:ap-northeast-1:123456789012:cluster/default",
+      "clusterName": "default",
+      "defaultCapacityProviderStrategy": [],
+      "pendingTasksCount": 0,
+      "registeredContainerInstancesCount": 0,
+      "runningTasksCount": 0,
+      "settings": [],
+      "statistics": [],
+      "status": "ACTIVE",
+      "tags": []
+    }
+  ],
+  "failures": [],
+  "resultMetadata": {}
+}
+```
+
+This conversion is performed mechanically, so objects for which any key can be specified (such as the dockerLabels element in an ECS task definition) are also subject to conversion.
+
+It is not guaranteed that the results will match those in the AWS CLI output.
 
 #### Query output by JMESPath
 

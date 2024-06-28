@@ -3,6 +3,7 @@ services:
     - DescribeClusters
     - DescribeTasks
     - ListTasks
+    - ListClusters
   firehose:
     - DescribeDeliveryStream
     - ListDeliveryStreams

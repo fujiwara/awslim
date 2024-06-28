@@ -1,5 +1,9 @@
 package sdkclient
 
+var (
+	MarshalJSON = marshalJSON
+)
+
 func SetClientMethod(service, method string, fn ClientMethod) {
 	sv := clientMethods[service]
 	if sv == nil {
