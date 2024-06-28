@@ -364,6 +364,23 @@ $ awslim ecs DescribeClusters help
 See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/ecs#Client.DescribeClusters
 ```
 
+### Runtime Configurations
+
+`awslim` reads the configuration file (`~/.config/awslim/config.(json|jsonnet|yaml|yml)`). The configuration file can contain the following fields:
+
+```yaml
+open: /usr/bin/open
+aliases:
+  whoami: sts get-caller-identity
+  regions: ec2 describe-regions --query Regions[].RegionName
+```
+
+- `open`: The command to open the URL to the documentation.
+- `aliases`: The alias of the cli arguments.
+  For example, `awslim whoami` is equivalent to `awslim sts get-caller-identity`.
+
+`XDG_CONFIG_HOME` environment variable is used for the configuration file path. If `XDG_CONFIG_HOME` is not set, `~/.config` is used.
+
 ## LICENSE
 
 MIT
