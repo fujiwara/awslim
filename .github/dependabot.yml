@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: gomod
+    directory: "/"
+    schedule:
+      interval: monthly
+    groups:
+      aws-sdk-go-v2:
+        patterns:
+          - "github.com/aws/aws-sdk-go-v2*"
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
