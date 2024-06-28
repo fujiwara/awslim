@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -25,6 +26,8 @@ type ClientMethod func(context.Context, *clientMethodParam) (any, error)
 
 var ErrDryRun = fmt.Errorf("dry-run mode")
 
+var ErrAborted = errors.New("Aborted")
+
 type CLI struct {
 	Service string `arg:"" help:"service name" default:""`
 	Method  string `arg:"" help:"method name" default:""`
@@ -40,6 +43,10 @@ type CLI struct {
 	ExtCode      map[string]string `help:"external code for Jsonnet"`
 	Strict       bool              `name:"strict" help:"strict input JSON unmarshaling" default:"true" negatable:"true"`
 	FollowNext   string            `short:"f" help:"OutputField=InputField format. follow the next token." default:""`
+
+	Interactive   bool   `short:"I" help:"interactive mode"`
+	FilterCommand string `short:"F" help:"filter command to select an item" env:"AWSLIM_FILTER"`
+	EditorCommand string `short:"E" help:"editor command to edit input JSON" env:"AWSLIM_EDITOR"`
 
 	DryRun  bool `short:"n" help:"dry-run mode"`
 	Version bool `short:"v" help:"show version"`
@@ -83,8 +90,15 @@ func (c *CLI) CallMethod(ctx context.Context) error {
 	if !ok {
 		return fmt.Errorf("unknown function %s", key)
 	}
+	helpURL := fmt.Sprintf("https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/%s", key)
+
+	if c.Interactive {
+		if err := c.editInput(ctx, helpURL); err != nil {
+			return err
+		}
+	}
 	if c.Input == "help" {
-		fmt.Fprintf(c.w, "See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/%s\n", key)
+		fmt.Fprintln(c.w, "See "+helpURL)
 		return nil
 	}
 
@@ -245,7 +259,7 @@ func (c *CLI) clientMethodParam(ctx context.Context) (*clientMethodParam, error)
 	return p, nil
 }
 
-func (c *CLI) ListMethods(_ context.Context) error {
+func (c *CLI) ListMethods(ctx context.Context) error {
 	methods := make([]string, 0)
 	if m, ok := clientMethods[c.Service]; !ok {
 		return fmt.Errorf("unknown service %s", c.Service)
@@ -255,22 +269,42 @@ func (c *CLI) ListMethods(_ context.Context) error {
 		}
 	}
 	sort.Strings(methods)
+	buf := bytes.NewBuffer(nil)
 	for _, name := range methods {
-		fmt.Fprintln(c.w, name)
+		fmt.Fprintln(buf, name)
 	}
-	return nil
+	if c.Interactive {
+		name, err := c.runFilter(ctx, buf, "method")
+		if err != nil {
+			return err
+		}
+		c.Method = name
+		return c.CallMethod(ctx)
+	}
+	_, err := io.Copy(c.w, buf)
+	return err
 }
 
-func (c *CLI) ListServices(_ context.Context) error {
+func (c *CLI) ListServices(ctx context.Context) error {
 	var names []string
 	for name := range clientMethods {
 		names = append(names, name)
 	}
 	sort.Strings(names)
+	buf := bytes.NewBuffer(nil)
 	for _, name := range names {
-		fmt.Fprintln(c.w, name)
+		fmt.Fprintln(buf, name)
 	}
-	return nil
+	if c.Interactive {
+		name, err := c.runFilter(ctx, buf, "service")
+		if err != nil {
+			return err
+		}
+		c.Service = name
+		return c.ListMethods(ctx)
+	}
+	_, err := io.Copy(c.w, buf)
+	return err
 }
 
 func buildKey(service, method string) string {
