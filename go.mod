@@ -10,6 +10,7 @@ require (
 	github.com/google/go-cmp v0.5.9
 	github.com/google/go-jsonnet v0.20.0
 	github.com/jmespath/go-jmespath v0.4.0
+	github.com/mattn/go-shellwords v1.0.12
 )
 
 require (
