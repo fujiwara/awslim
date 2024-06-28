@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
+	"os/exec"
 	"sort"
 	"strings"
 
@@ -16,6 +18,16 @@ import (
 	"github.com/google/go-jsonnet"
 	"github.com/jmespath/go-jmespath"
 )
+
+var LogLevel = new(slog.LevelVar)
+
+func init() {
+	opts := &slog.HandlerOptions{Level: LogLevel}
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, opts)))
+	if os.Getenv("DEBUG") != "" {
+		LogLevel.Set(slog.LevelDebug)
+	}
+}
 
 var Version = "HEAD"
 
@@ -45,13 +57,34 @@ type CLI struct {
 	DryRun  bool `short:"n" help:"dry-run mode"`
 	Version bool `short:"v" help:"show version"`
 
-	w io.Writer
+	w  io.Writer
+	rc *RuntimeConfig
 }
 
 func Run(ctx context.Context) error {
 	var c CLI
+	if rc, err := loadRuntimeConfig(); err != nil {
+		return fmt.Errorf("failed to load runtime config: %w", err)
+	} else {
+		c.rc = rc
+	}
+	slog.Debug("runtime config", "config", c.rc)
+
 	c.w = os.Stdout
-	kong.Parse(&c)
+	args, err := c.resolveAliases(os.Args[1:])
+	if err != nil {
+		return err
+	}
+	slog.Debug("resolved args", "args", args)
+
+	k, err := kong.New(&c, kong.Vars{"version": Version})
+	if err != nil {
+		return err
+	}
+	if _, err := k.Parse(args); err != nil {
+		return err
+	}
+
 	return c.Dispatch(ctx)
 }
 
@@ -120,7 +153,14 @@ func (c *CLI) CallMethod(ctx context.Context) error {
 }
 
 func (c *CLI) showHelp(key string) {
-	fmt.Fprintf(c.w, "See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/%s\n", key)
+	u := fmt.Sprintf("https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/%s", key)
+	fmt.Fprintf(c.w, "See %s\n", u)
+	if c.rc != nil && c.rc.Open != "" {
+		slog.Info("run open command", "url", u)
+		if err := exec.Command(c.rc.Open, u).Run(); err != nil {
+			slog.Error("failed to open command", "error", err)
+		}
+	}
 }
 
 func (c *CLI) output(_ context.Context, out any) error {

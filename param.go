@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -30,7 +30,7 @@ type clientMethodParam struct {
 func (p *clientMethodParam) Cleanup() {
 	for _, f := range p.cleanup {
 		if err := f(); err != nil {
-			log.Printf("[warn] failed to cleanup: %v", err)
+			slog.Warn("failed to cleanup: %v", err)
 		}
 	}
 }
