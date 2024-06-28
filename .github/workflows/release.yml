@@ -36,7 +36,7 @@ jobs:
           make gen
 
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v5
+        uses: goreleaser/goreleaser-action@v6
         with:
           version: '~> v1'
           args: release --clean --skip=validate --timeout=60m
