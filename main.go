@@ -85,7 +85,7 @@ func (c *CLI) CallMethod(ctx context.Context) error {
 		return fmt.Errorf("unknown function %s", key)
 	}
 	if c.Input == "help" {
-		fmt.Fprintf(c.w, "See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/%s\n", key)
+		c.showHelp(key)
 		return nil
 	}
 
@@ -102,6 +102,9 @@ func (c *CLI) CallMethod(ctx context.Context) error {
 			if err == ErrDryRun {
 				fmt.Fprintf(c.w, "dry-run: %s will be called with:\n%s", key, string(p.InputBytes))
 				return nil
+			} else if strings.Contains(err.Error(), "json: unknown field") {
+				c.showHelp(key)
+				return err
 			}
 			return fmt.Errorf("failed to call %s: %w", key, err)
 		}
@@ -114,6 +117,10 @@ func (c *CLI) CallMethod(ctx context.Context) error {
 		}
 	}
 	return nil
+}
+
+func (c *CLI) showHelp(key string) {
+	fmt.Fprintf(c.w, "See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/%s\n", key)
 }
 
 func (c *CLI) output(_ context.Context, out any) error {
