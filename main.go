@@ -155,7 +155,7 @@ func (c *CLI) CallMethod(ctx context.Context) error {
 func (c *CLI) showHelp(key string) {
 	u := fmt.Sprintf("https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/%s", key)
 	fmt.Fprintf(c.w, "See %s\n", u)
-	if c.rc.Open != "" {
+	if c.rc != nil && c.rc.Open != "" {
 		slog.Info("run open command", "url", u)
 		if err := exec.Command(c.rc.Open, u).Run(); err != nil {
 			slog.Error("failed to open command", "error", err)
