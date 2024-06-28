@@ -241,6 +241,10 @@ awslim supports Jsonnet functions for the input JSON.
 
 ```console
 $ awslim ecs describe-clusters '{Cluster: _(0)}' foo
+
+$ CLUSTER=foo awslim ecs describe-clusters '{Cluster: env("CLUSTER","default")}'
+
+$ CLUSTER=foo awslim ecs describe-clusters '{Cluster: must_env("CLUSTER")}'
 ```
 
 - `_(n)` returns the n-th argument.
