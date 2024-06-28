@@ -18,14 +18,14 @@ const (
 )
 
 type RuntimeConfig struct {
-	Open    string            `json:"open" yaml:"open"`
-	Aliases map[string]*Alias `json:"aliases" yaml:"aliases"`
+	Open    string           `json:"open" yaml:"open"`
+	Aliases map[string]Alias `json:"aliases" yaml:"aliases"`
 }
 
 type Alias string
 
-func (a *Alias) Parse() ([]string, error) {
-	return shellwords.Parse(string(*a))
+func (a Alias) Parse() ([]string, error) {
+	return shellwords.Parse(string(a))
 }
 
 func RuntimeConfigDir() string {
@@ -90,4 +90,25 @@ func loadRuntimeConfig() (*RuntimeConfig, error) {
 		}
 	}
 	return &out, nil
+}
+
+func (c *CLI) resolveAliases(args []string) ([]string, error) {
+	if len(args) == 0 {
+		return args, nil
+	}
+	first := args[0]
+	rest := args[1:]
+	if alias, ok := c.rc.Aliases[first]; ok {
+		slog.Debug(fmt.Sprintf("alias found %s -> %s", first, alias))
+		parsed, err := alias.Parse()
+		if err != nil {
+			return nil, err
+		}
+		switch len(args) {
+		case 0:
+			return nil, fmt.Errorf("alias %s is empty", c.Service)
+		}
+		return append(parsed, rest...), nil
+	}
+	return args, nil
 }

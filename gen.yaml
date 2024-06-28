@@ -1,4 +1,5 @@
 services:
+  sts:
   ecs:
     - DescribeClusters
     - DescribeTasks
@@ -24,3 +25,5 @@ services:
     - SelectObjectContent
     - UploadPart
     - UploadPartCopy
+  ec2:
+    - DescribeRegions

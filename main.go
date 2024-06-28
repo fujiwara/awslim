@@ -19,6 +19,16 @@ import (
 	"github.com/jmespath/go-jmespath"
 )
 
+var LogLevel = new(slog.LevelVar)
+
+func init() {
+	opts := &slog.HandlerOptions{Level: LogLevel}
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, opts)))
+	if os.Getenv("DEBUG") != "" {
+		LogLevel.Set(slog.LevelDebug)
+	}
+}
+
 var Version = "HEAD"
 
 var clientMethods = map[string]map[string]ClientMethod{} // to be defined in main_gen.go
@@ -53,15 +63,27 @@ type CLI struct {
 
 func Run(ctx context.Context) error {
 	var c CLI
-	c.w = os.Stdout
-	kong.Parse(&c)
-
 	if rc, err := loadRuntimeConfig(); err != nil {
 		return fmt.Errorf("failed to load runtime config: %w", err)
 	} else {
 		c.rc = rc
 	}
 	slog.Debug("runtime config", "config", c.rc)
+
+	c.w = os.Stdout
+	args, err := c.resolveAliases(os.Args[1:])
+	if err != nil {
+		return err
+	}
+	slog.Debug("resolved args", "args", args)
+
+	k, err := kong.New(&c, kong.Vars{"version": Version})
+	if err != nil {
+		return err
+	}
+	if _, err := k.Parse(args); err != nil {
+		return err
+	}
 
 	return c.Dispatch(ctx)
 }
