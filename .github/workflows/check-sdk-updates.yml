@@ -1,0 +1,38 @@
+name: Check SDK updates
+on:
+  schedule:
+    - cron: "14 23 * * *"
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  check:
+    name: Check SDK updates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Checkout AWS SDK Go v2
+        run: |
+          git clone --depth=1 https://github.com/aws/aws-sdk-go-v2.git
+
+      - name: Check SDK updates
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AWS_SDK_GO_V2_DIR: ./aws-sdk-go-v2
+        run: |
+          set +e
+          make all-services.yaml
+          git diff --exit-code all-services.yaml
+          if [[ $? -eq 0 ]]; then
+            echo "No changes detected"
+            exit 0
+          fi
+          git switch -c update-aws-sdk-go-v2-$(date +%Y-%m-%d-%H-%M-%S)
+          git add all-services.yaml
+          git commit -m "Update all-services.yaml"
+          gh pr create --title "Update all-services.yaml" --body "Update all-services.yaml" --base main

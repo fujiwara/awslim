@@ -1,4 +1,5 @@
 VERSION := $(shell git describe --tags)
+AWS_SDK_GO_V2_DIR ?= ../../aws/aws-sdk-go-v2
 .PHONY: clean test gen
 
 build: gen awslim
@@ -38,4 +39,4 @@ docker-build-and-push: Dockerfile
 .PHONY: all-services.yaml
 all-services.yaml:
 	echo "services:" > all-services.yaml
-	ls ../../aws/aws-sdk-go-v2/service/ | awk '!/^internal$$/{print "  " $$1 ":"}' >> all-services.yaml
+	ls $(AWS_SDK_GO_V2_DIR)/service/ | awk '!/^internal$$/{print "  " $$1 ":"}' >> all-services.yaml
