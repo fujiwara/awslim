@@ -187,6 +187,7 @@ Flags:
       --camel                     convert keys to camelCase
   -n, --dry-run                   dry-run mode
   -v, --version                   show version
+      --debug                     turn on debug logging
 ```
 
 - `service`: AWS service name.
