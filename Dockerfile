@@ -1,4 +1,4 @@
-FROM golang:1.22.3-bookworm AS builder
+FROM golang:1.22.5-bookworm AS builder
 WORKDIR /app
 RUN git clone https://github.com/fujiwara/awslim.git .
 RUN rm -f gen.yaml
