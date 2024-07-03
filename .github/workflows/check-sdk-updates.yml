@@ -34,5 +34,7 @@ jobs:
           fi
           git switch -c update-aws-sdk-go-v2-$(date +%Y-%m-%d-%H-%M-%S)
           git add all-services.yaml
+          git config --global user.email "${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
+          git config --global user.name "${GITHUB_ACTOR}"
           git commit -m "Update all-services.yaml"
           gh pr create --title "Update all-services.yaml" --body "Update all-services.yaml" --base main
