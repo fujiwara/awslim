@@ -25,9 +25,6 @@ var LogLevel = new(slog.LevelVar)
 func init() {
 	opts := &slog.HandlerOptions{Level: LogLevel}
 	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, opts)))
-	if os.Getenv("DEBUG") != "" {
-		LogLevel.Set(slog.LevelDebug)
-	}
 }
 
 var Version = "HEAD"
@@ -58,12 +55,23 @@ type CLI struct {
 
 	DryRun  bool `short:"n" help:"dry-run mode"`
 	Version bool `short:"v" help:"show version"`
+	Debug   bool `help:"turn on debug logging"`
 
 	w  io.Writer
 	rc *RuntimeConfig
 }
 
+func enableDebug(args []string) {
+	for _, arg := range args {
+		if arg == "--debug" {
+			LogLevel.Set(slog.LevelDebug)
+			return
+		}
+	}
+}
+
 func Run(ctx context.Context) error {
+	enableDebug(os.Args[1:])
 	var c CLI
 	if rc, err := loadRuntimeConfig(); err != nil {
 		return fmt.Errorf("failed to load runtime config: %w", err)

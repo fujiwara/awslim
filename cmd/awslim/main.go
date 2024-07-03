@@ -2,7 +2,8 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
+	"os"
 
 	app "github.com/fujiwara/awslim"
 )
@@ -10,7 +11,8 @@ import (
 func main() {
 	ctx := context.TODO()
 	if err := run(ctx); err != nil {
-		log.Fatal(err)
+		slog.Error(err.Error())
+		os.Exit(1)
 	}
 }
 
