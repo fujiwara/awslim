@@ -53,6 +53,7 @@ type TestCase struct {
 	Args    []string
 	Expect  string
 	IsError bool
+	Env     map[string]string
 }
 
 var TestCases = []TestCase{
@@ -136,19 +137,51 @@ var TestCases = []TestCase{
 		Args:   []string{"baz", "Paging", `{}`, "--follow-next", "Next=Start", "-c"},
 		Expect: `{"Next":"1"}{"Next":"2"}{"Next":"3"}{}`,
 	},
+	{
+		Name:   "call baz#Client.Echo with args",
+		Args:   []string{"baz", "Echo", `{"Examples":[_(0), _(1), std.parseInt(_(2))]}`, "example1", "example2", "3", "-c"},
+		Expect: `{"Examples":["example1","example2",3]}`,
+	},
+	{
+		Name:   "call baz#Client.Echo with env",
+		Args:   []string{"baz", "Echo", `{"Examples":[env('MYENV','default'),env('NOENV','default')]}`, "-c"},
+		Expect: `{"Examples":["example1","default"]}`,
+		Env:    map[string]string{"MYENV": "example1"}, // NOENV is not set
+	},
+	{
+		Name:   "call baz#Client.Echo with must_env",
+		Args:   []string{"baz", "Echo", `{"Example":must_env('MYENV')}`, "-c"},
+		Expect: `{"Example":"example1"}`,
+		Env:    map[string]string{"MYENV": "example1"},
+	},
+	{
+		Name:    "call baz#Client.Echo with must_env is not set",
+		Args:    []string{"baz", "Echo", `{"Example":must_env('MYENV')}`, "-c"},
+		Env:     map[string]string{},
+		IsError: true,
+	},
 }
 
 func TestRun(t *testing.T) {
 	for _, tc := range TestCases {
 		ctx := context.Background()
 		t.Run(tc.Name, func(t *testing.T) {
+			for k, v := range tc.Env {
+				t.Setenv(k, v)
+			}
 			buf := &bytes.Buffer{}
 			c, err := newCLI(tc.Args, buf)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := c.Dispatch(ctx); err != nil {
-				t.Fatal(err)
+			err = c.Dispatch(ctx)
+			if err != nil {
+				t.Log(err)
+			}
+			if tc.IsError && err == nil {
+				t.Fatal("expected error, but got nil")
+			} else if !tc.IsError && err != nil {
+				t.Fatalf("unexpected error: %v", err)
 			}
 			if got := buf.String(); got != tc.Expect {
 				t.Errorf("unexpected output: got %q, expect %q", got, tc.Expect)
