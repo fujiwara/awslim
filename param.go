@@ -54,6 +54,22 @@ func (p *clientMethodParam) Validate(name, inputReaderField, outputReadCloserFie
 	return nil
 }
 
+func (p *clientMethodParam) InjectMap(in map[string]any) error {
+	v := make(map[string]any)
+	if err := json.Unmarshal(p.InputBytes, &v); err != nil {
+		return fmt.Errorf("failed to unmarshal %s: %w", p.InputBytes, err)
+	}
+	for field, value := range in {
+		v[field] = value
+	}
+	if b, err := json.Marshal(v); err != nil {
+		return fmt.Errorf("failed to marshal %v: %w", v, err)
+	} else {
+		p.InputBytes = b
+	}
+	return nil
+}
+
 func (p *clientMethodParam) Inject(field string, value any) error {
 	v := make(map[string]any)
 	if err := json.Unmarshal(p.InputBytes, &v); err != nil {

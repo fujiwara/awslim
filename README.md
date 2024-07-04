@@ -140,7 +140,7 @@ Run `./build-in-docker.sh` in the container to build the client. The built binar
 ```Dockerfile
 FROM ghcr.io/fujiwara/awslim:builder AS builder
 ENV AWSLIM_GEN=ecs,firehose,s3
-ENV GIT_REF=v0.1.2
+ENV GIT_REF=v0.3.0
 RUN ./build-in-docker.sh
 
 FROM debian:bookworm-slim
@@ -165,12 +165,13 @@ Example of executing `sts get-caller-identity` on a 0.25 vCPU Fargate(AMD64) usi
 ## Usage
 
 ```
-Usage: awslim [<service> [<method> [<input>]]] [flags]
+Usage: awslim [<service> [<method> [<input> [<args> ...]]]] [flags]
 
 Arguments:
-  [<service>]    service name
-  [<method>]     method name
-  [<input>]      input JSON/Jsonnet struct or filename
+  [<service>]     service name
+  [<method>]      method name
+  [<input>]       input JSON/Jsonnet struct or filename
+  [<args> ...]    additional flags/args
 
 Flags:
   -h, --help                      Show context-sensitive help.
@@ -215,23 +216,33 @@ $ awslim ecs
 The third argument is a [JSON](https://json.org) or [Jsonnet](https://jsonnet.org/) input for the method. This can be omitted if the method requires no input (`{}` is passed implicitly).
 
 ```console
-$ awslim ecs DescribeClusters '{"Cluster":"default"}' # JSON
+$ awslim ecs ListTasks '{Cluster:"default"}'   # JSON
+
+$ awslim ecs ListTasks '{Cluster:"default"}'   # Jsonnet
 ```
 
+If the method name is "kebab-case", it automatically converts to "PascalCase" (i.e., `list-tasks` -> `ListTasks`).
+
 ```console
-$ awslim ecs DescribeClusters "{Cluster:'default'}"   # Jsonnet
+$ awslim ecs list-tasks '{Cluster:"default"}'
 ```
 
-If the method name is "kebab-case", it automatically converts to "PascalCase" (i.e., `describe-clusters` -> `DescribeClusters`).
+In v0.3.0, flag arguments can be specified, like the AWS CLI!
 
 ```console
-$ awslim ecs describe-clusters '{"Cluster":"default"}'
+$ awslim ecs list-tasks --cluster default
+```
+
+**Note**: Currently, flag arguments do not support setting non-string fields (array, object, number, and boolean). Use JSON or Jsonnet for such fields.
+
+```console
+$ awslim ecs list-tasks '{MaxResults:10}' --cluster default
 ```
 
 The third argument can be a filename that contains JSON or Jsonnet input.
 
 ```console
-$ awslim ecs DescribeClusters my.jsonnet
+$ awslim ecs list-tasks input.jsonnet
 ```
 
 **Note**: By default, the input JSON is unmarshaled strictly. Unknown fields for the input struct in the input JSON cause an error. If you want to unmarshal the input JSON non-strictly, use `--no-strict` option.
@@ -241,11 +252,11 @@ $ awslim ecs DescribeClusters my.jsonnet
 awslim supports Jsonnet functions for the input JSON.
 
 ```console
-$ awslim ecs describe-clusters '{Cluster: _(0)}' foo
+$ awslim ecs list-tasks '{Cluster: _(0)}' foo
 
-$ CLUSTER=foo awslim ecs describe-clusters '{Cluster: env("CLUSTER","default")}'
+$ CLUSTER=foo awslim ecs list-tasks '{Cluster: env("CLUSTER","default")}'
 
-$ CLUSTER=foo awslim ecs describe-clusters '{Cluster: must_env("CLUSTER")}'
+$ CLUSTER=foo awslim ecs list-tasks '{Cluster: must_env("CLUSTER")}'
 ```
 
 - `_(n)` returns the n-th argument.
@@ -270,7 +281,7 @@ Pass external variables to Jsonnet.
 This is useful when you want to use variables in Jsonnet.
 
 ```console
-$ awslim ecs DescribeClusters my.jsonnet --ext-str Cluster=default
+$ awslim ecs list-tasks my.jsonnet --ext-str Cluster=default
 ```
 
 ```jsonnet
@@ -285,7 +296,7 @@ $ awslim ecs DescribeClusters my.jsonnet --ext-str Cluster=default
 Bind a file or stdin to the input struct.
 
 ```console
-$ awslim s3 put-object '{"Bucket": "my-bucket", "Key": "my.txt"}' --input-stream my.txt
+$ awslim s3 put-object '{Bucket:"my-bucket",Key:"my.txt"}' --input-stream my.txt
 ```
 
 [s3#PutObjectInput](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#PutObjectInput) has `Body` field of `io.Reader`. `--input-stream` option binds the file to the field.
@@ -301,7 +312,7 @@ If `--input-stream` is "-", `awslim` reads from stdin. In this case, `awslim` re
 Bind the `io.ReadCloser` of the API output to a file or stdout.
 
 ```console
-$ awslim s3 get-object '{"Bucket": "my-bucket", "Key": "my.txt"}' --output-stream my.txt
+$ awslim s3 get-object '{Bucket:"my-bucket",Key:"my.txt"}' --output-stream my.txt
 ```
 
 [s3#GetObjectOutput](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#PutObjectOutput) has `Body` field of `io.ReadeCloser`. `--output-stream` option binds the file to the field.
@@ -325,14 +336,14 @@ For example, [s3#ListObjectsV2Output](https://pkg.go.dev/github.com/aws/aws-sdk-
 `{FieldInOutput}={FieldInInput}` format is used for `--follow-next` option.
 
 ```console
-$ awslim s3 list-objects-v2 '{"Bucket": "my-bucket"}' \
+$ awslim s3 list-objects-v2 '{Bucket:"my-bucket"}' \
   --follow-next NextContinuationToken=ContinuationToken
 ```
 
 If the same field name is used in the output and input, you can omit the input field name.
 
 ```console
-$ awslim ecs list-tasks '{"Cluster":"default"}' \
+$ awslim ecs list-tasks '{Cluster:"default"}' \
   --follow-next NextToken
 ```
 
@@ -379,13 +390,13 @@ It is not guaranteed that the results will match those in the AWS CLI output.
 Query the output by JMESPath like the AWS CLI.
 
 ```console
-$ awslim ecs DescribeClusters '{"Cluster":"default"}' \
-  --query 'Clusters[0].ClusterArn'
+$ awslim sts get-caller-identity --query 'Account'
+"012345678901"
 ```
 
 #### Show help
 
-For method-specific documentation, use the `help` argument to display the URL of the method's documentation. Since `awslim` is a simple wrapper for the AWS SDK Go v2 service client, its usage mirros that of the SDK.
+Use the `help` argument to display the URL of the method's documentation. Since `awslim` is a simple wrapper for the AWS SDK Go v2 service client, its usage is the same as the SDK.
 
 ```console
 $ awslim ecs DescribeClusters help
