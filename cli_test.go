@@ -4,10 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"io"
 	"testing"
 
-	"github.com/alecthomas/kong"
 	sdkclient "github.com/fujiwara/awslim"
 )
 
@@ -160,9 +158,15 @@ var TestCases = []TestCase{
 		Env:     map[string]string{},
 		IsError: true,
 	},
+	{
+		Name:   "call baz#Client.Echo with dynamic flags",
+		Args:   []string{"baz", "Echo", "--foo-Foo", "FOO", `{Baz:"baz"}`, "-c", "--bar=BAR"},
+		Expect: `{"Bar":"BAR","Baz":"baz","FooFoo":"FOO"}`,
+	},
 }
 
 func TestRun(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", "testdata") // don't use real config
 	for _, tc := range TestCases {
 		ctx := context.Background()
 		t.Run(tc.Name, func(t *testing.T) {
@@ -170,7 +174,7 @@ func TestRun(t *testing.T) {
 				t.Setenv(k, v)
 			}
 			buf := &bytes.Buffer{}
-			c, err := newCLI(tc.Args, buf)
+			c, err := newCLI(ctx, tc.Args, buf)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -190,16 +194,11 @@ func TestRun(t *testing.T) {
 	}
 }
 
-func newCLI(args []string, w io.Writer) (*sdkclient.CLI, error) {
-	c := &sdkclient.CLI{}
-	c.SetWriter(w)
-	p, err := kong.New(c)
+func newCLI(ctx context.Context, args []string, out *bytes.Buffer) (*sdkclient.CLI, error) {
+	c, err := sdkclient.NewCLI(ctx, args)
 	if err != nil {
 		return nil, err
 	}
-	_, err = p.Parse(args)
-	if err != nil {
-		return nil, err
-	}
+	c.SetWriter(out)
 	return c, nil
 }

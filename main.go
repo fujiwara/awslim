@@ -39,7 +39,7 @@ type CLI struct {
 	Service string   `arg:"" help:"service name" default:""`
 	Method  string   `arg:"" help:"method name" default:""`
 	Input   string   `arg:"" help:"input JSON/Jsonnet struct or filename" default:"{}"`
-	Args    []string `arg:"" optional:"" help:"additional arguments"`
+	Args    []string `arg:"" optional:"" help:"additional flags/args"`
 
 	InputStream  string            `short:"i" help:"bind input filename or '-' to io.Reader field in the input struct"`
 	OutputStream string            `short:"o" help:"bind output filename or '-' to io.ReadCloser field in the output struct"`
@@ -57,8 +57,9 @@ type CLI struct {
 	Version bool `short:"v" help:"show version"`
 	Debug   bool `help:"turn on debug logging"`
 
-	w  io.Writer
-	rc *RuntimeConfig
+	w            io.Writer
+	rc           *RuntimeConfig
+	dynamicFlags map[string]any
 }
 
 func enableDebug(args []string) {
@@ -71,32 +72,45 @@ func enableDebug(args []string) {
 }
 
 func Run(ctx context.Context) error {
+	c, err := NewCLI(ctx, os.Args[1:])
+	if err != nil {
+		return err
+	}
+	return c.Dispatch(ctx)
+}
+
+func NewCLI(ctx context.Context, args []string) (*CLI, error) {
 	enableDebug(os.Args[1:])
 	var c CLI
+
 	if rc, err := loadRuntimeConfig(); err != nil {
-		return fmt.Errorf("failed to load runtime config: %w", err)
+		return nil, fmt.Errorf("failed to load runtime config: %w", err)
 	} else {
 		c.rc = rc
 	}
 	slog.Debug("runtime config", "config", c.rc)
 
 	c.w = os.Stdout
-	args, err := c.resolveAliases(os.Args[1:])
+	args, err := c.resolveAliases(args)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	slog.Debug("resolved args", "args", args)
 
 	k, err := kong.New(&c, kong.Vars{"version": Version})
 	if err != nil {
-		return err
+		return nil, err
+	}
+	args, c.dynamicFlags, err = parseDynamicFlags(k, args, kebabToPascal)
+	if err != nil {
+		return nil, err
 	}
 	if _, err := k.Parse(args); err != nil {
-		return err
+		return nil, err
 	}
-	slog.Debug("extra args", "args", c.Args)
+	slog.Debug("extra args", "args", c.Args, "dynamicFlags", c.dynamicFlags)
 
-	return c.Dispatch(ctx)
+	return &c, nil
 }
 
 func (c *CLI) Dispatch(ctx context.Context) error {
@@ -302,6 +316,10 @@ func (c *CLI) clientMethodParam(ctx context.Context) (*clientMethodParam, error)
 		}
 		p.OutputWriter = f
 		p.cleanup = append(p.cleanup, f.Close)
+	}
+
+	if err := p.InjectMap(c.dynamicFlags); err != nil {
+		return nil, err
 	}
 
 	return p, nil
