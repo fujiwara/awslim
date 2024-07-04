@@ -227,7 +227,7 @@ If the method name is "kebab-case", it automatically converts to "PascalCase" (i
 $ awslim ecs list-tasks '{Cluster:"default"}'
 ```
 
-In v0.3.0, flag arguments can be specified like as the AWS CLI!
+In v0.3.0, flag arguments can be specified, like the AWS CLI!
 
 ```console
 $ awslim ecs list-tasks --cluster default
