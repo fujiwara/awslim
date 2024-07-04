@@ -140,7 +140,7 @@ Run `./build-in-docker.sh` in the container to build the client. The built binar
 ```Dockerfile
 FROM ghcr.io/fujiwara/awslim:builder AS builder
 ENV AWSLIM_GEN=ecs,firehose,s3
-ENV GIT_REF=v0.1.2
+ENV GIT_REF=v0.3.0
 RUN ./build-in-docker.sh
 
 FROM debian:bookworm-slim
@@ -165,12 +165,13 @@ Example of executing `sts get-caller-identity` on a 0.25 vCPU Fargate(AMD64) usi
 ## Usage
 
 ```
-Usage: awslim [<service> [<method> [<input>]]] [flags]
+Usage: awslim [<service> [<method> [<input> [<args> ...]]]] [flags]
 
 Arguments:
-  [<service>]    service name
-  [<method>]     method name
-  [<input>]      input JSON/Jsonnet struct or filename
+  [<service>]     service name
+  [<method>]      method name
+  [<input>]       input JSON/Jsonnet struct or filename
+  [<args> ...]    additional flags/args
 
 Flags:
   -h, --help                      Show context-sensitive help.
@@ -215,23 +216,33 @@ $ awslim ecs
 The third argument is a [JSON](https://json.org) or [Jsonnet](https://jsonnet.org/) input for the method. This can be omitted if the method requires no input (`{}` is passed implicitly).
 
 ```console
-$ awslim ecs DescribeClusters '{"Cluster":"default"}' # JSON
+$ awslim lambda ListTasks '{Cluster:"default"}'   # JSON
+
+$ awslim lambda ListTasks '{Cluster:"default"}'   # Jsonnet
 ```
 
+If the method name is "kebab-case", it automatically converts to "PascalCase" (i.e., `list-tasks` -> `ListTasks`).
+
 ```console
-$ awslim ecs DescribeClusters "{Cluster:'default'}"   # Jsonnet
+$ awslim ecs list-tasks '{Cluster:"default"}'
 ```
 
-If the method name is "kebab-case", it automatically converts to "PascalCase" (i.e., `describe-clusters` -> `DescribeClusters`).
+In v0.3.0, flag arguments can be specified like as the AWS CLI!
 
 ```console
-$ awslim ecs describe-clusters '{"Cluster":"default"}'
+$ awslim ecs list-tasks --cluster default
+```
+
+**Note**: Currently, flag arguments do not support setting non-string fields (array, object, number, and boolean). Use JSON or Jsonnet for such fields.
+
+```console
+$ awslim ecs list-tasks '{MaxResults:10}' --cluster default
 ```
 
 The third argument can be a filename that contains JSON or Jsonnet input.
 
 ```console
-$ awslim ecs DescribeClusters my.jsonnet
+$ awslim ecs list-tasks input.jsonnet
 ```
 
 **Note**: By default, the input JSON is unmarshaled strictly. Unknown fields for the input struct in the input JSON cause an error. If you want to unmarshal the input JSON non-strictly, use `--no-strict` option.
@@ -385,7 +396,7 @@ $ awslim ecs DescribeClusters '{"Cluster":"default"}' \
 
 #### Show help
 
-For method-specific documentation, use the `help` argument to display the URL of the method's documentation. Since `awslim` is a simple wrapper for the AWS SDK Go v2 service client, its usage mirros that of the SDK.
+Use the `help` argument to display the URL of the method's documentation. Since `awslim` is a simple wrapper for the AWS SDK Go v2 service client, its usage is the same as the SDK.
 
 ```console
 $ awslim ecs DescribeClusters help
