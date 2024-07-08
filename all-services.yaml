@@ -282,6 +282,7 @@ services:
   pricing:
   privatenetworks:
   proton:
+  qapps:
   qbusiness:
   qconnect:
   qldb:
