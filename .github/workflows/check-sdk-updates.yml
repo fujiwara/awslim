@@ -21,6 +21,7 @@ jobs:
           git clone --depth=1 https://github.com/aws/aws-sdk-go-v2.git
 
       - name: Check SDK updates
+        id: check-sdk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AWS_SDK_GO_V2_DIR: ./aws-sdk-go-v2
@@ -32,6 +33,7 @@ jobs:
             echo "No changes detected"
             exit 0
           fi
+          echo "updated=true" >> "$GITHUB_OUTPUT"
           git switch -c update-aws-sdk-go-v2-$(date +%Y%m%d-%H%M%S)
           git add all-services.yaml
           git config --global user.email "${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
@@ -39,3 +41,8 @@ jobs:
           git commit -m "Update all-services.yaml"
           git push --set-upstream origin update-aws-sdk-go-v2-$(date +%Y%m%d-%H%M%S)
           gh pr create --title "Update all-services.yaml" --body "Update all-services.yaml" --base main
+      - name: make all services
+        if: ${{ steps.check-sdk.outputs.updated == 'true' }}
+        run: |
+          cp all-services.yaml gen.yaml
+          make
