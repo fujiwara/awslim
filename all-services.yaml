@@ -345,6 +345,7 @@ services:
   ssm:
   ssmcontacts:
   ssmincidents:
+  ssmquicksetup:
   ssmsap:
   sso:
   ssoadmin:
