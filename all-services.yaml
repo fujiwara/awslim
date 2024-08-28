@@ -267,6 +267,7 @@ services:
   paymentcryptographydata:
   pcaconnectorad:
   pcaconnectorscep:
+  pcs:
   personalize:
   personalizeevents:
   personalizeruntime:
