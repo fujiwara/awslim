@@ -110,6 +110,7 @@ services:
   devopsguru:
   directconnect:
   directoryservice:
+  directoryservicedata:
   dlm:
   docdb:
   docdbelastic:
