@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.3.6](https://github.com/fujiwara/awslim/compare/v0.3.5...v0.3.6) - 2024-10-03
+- Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/51
+- Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/54
+- Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/53
+- Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/57
+
 ## [v0.3.5](https://github.com/fujiwara/awslim/compare/v0.3.4...v0.3.5) - 2024-09-02
 - Bump the aws-sdk-go-v2 group with 2 updates by @dependabot in https://github.com/fujiwara/awslim/pull/49
 
