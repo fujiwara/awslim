@@ -227,6 +227,7 @@ services:
   marketplacedeployment:
   marketplaceentitlementservice:
   marketplacemetering:
+  marketplacereporting:
   mediaconnect:
   mediaconvert:
   medialive:
