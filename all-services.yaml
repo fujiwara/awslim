@@ -343,6 +343,7 @@ services:
   snowball:
   snowdevicemanagement:
   sns:
+  socialmessaging:
   sqs:
   ssm:
   ssmcontacts:
