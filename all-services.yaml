@@ -254,7 +254,6 @@ services:
   networkfirewall:
   networkmanager:
   networkmonitor:
-  nimble:
   oam:
   omics:
   opensearch:
