@@ -150,6 +150,9 @@ services:
   freetier:
   fsx:
   gamelift:
+  geomaps:
+  geoplaces:
+  georoutes:
   glacier:
   globalaccelerator:
   glue:
