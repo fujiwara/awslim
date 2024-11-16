@@ -89,6 +89,7 @@ services:
   configservice:
   connect:
   connectcampaigns:
+  connectcampaignsv2:
   connectcases:
   connectcontactlens:
   connectparticipant:
