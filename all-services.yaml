@@ -259,6 +259,8 @@ services:
   networkfirewall:
   networkmanager:
   networkmonitor:
+  notifications:
+  notificationscontacts:
   oam:
   omics:
   opensearch:
