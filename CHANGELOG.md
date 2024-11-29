@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.3.8](https://github.com/fujiwara/awslim/compare/v0.3.7...v0.3.8) - 2024-11-28
+- Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/68
+- Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/70
+- Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/71
+- Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/72
+- Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/73
+
 ## [v0.3.7](https://github.com/fujiwara/awslim/compare/v0.3.6...v0.3.7) - 2024-11-13
 - Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/59
 - Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/61
