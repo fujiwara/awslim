@@ -173,6 +173,7 @@ services:
   inspector2:
   inspectorscan:
   internetmonitor:
+  invoicing:
   iot:
   iot1clickdevicesservice:
   iot1clickprojects:
@@ -258,6 +259,7 @@ services:
   neptunedata:
   neptunegraph:
   networkfirewall:
+  networkflowmonitor:
   networkmanager:
   networkmonitor:
   notifications:
@@ -336,6 +338,7 @@ services:
   schemas:
   secretsmanager:
   securityhub:
+  securityir:
   securitylake:
   serverlessapplicationrepository:
   servicecatalog:
