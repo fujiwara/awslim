@@ -118,6 +118,7 @@ services:
   docdb:
   docdbelastic:
   drs:
+  dsql:
   dynamodb:
   dynamodbstreams:
   ebs:
@@ -173,6 +174,7 @@ services:
   inspector2:
   inspectorscan:
   internetmonitor:
+  invoicing:
   iot:
   iot1clickdevicesservice:
   iot1clickprojects:
@@ -258,6 +260,7 @@ services:
   neptunedata:
   neptunegraph:
   networkfirewall:
+  networkflowmonitor:
   networkmanager:
   networkmonitor:
   notifications:
@@ -324,6 +327,7 @@ services:
   s3:
   s3control:
   s3outposts:
+  s3tables:
   sagemaker:
   sagemakera2iruntime:
   sagemakeredge:
@@ -336,6 +340,7 @@ services:
   schemas:
   secretsmanager:
   securityhub:
+  securityir:
   securitylake:
   serverlessapplicationrepository:
   servicecatalog:
