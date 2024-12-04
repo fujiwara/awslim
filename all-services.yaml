@@ -40,6 +40,8 @@ services:
   bedrock:
   bedrockagent:
   bedrockagentruntime:
+  bedrockdataautomation:
+  bedrockdataautomationruntime:
   bedrockruntime:
   billing:
   billingconductor:
