@@ -34,6 +34,7 @@ services:
   b2bi:
   backup:
   backupgateway:
+  backupsearch:
   batch:
   bcmdataexports:
   bcmpricingcalculator:
