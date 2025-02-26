@@ -135,7 +135,6 @@ services:
   eksauth:
   elasticache:
   elasticbeanstalk:
-  elasticinference:
   elasticloadbalancing:
   elasticloadbalancingv2:
   elasticsearchservice:
