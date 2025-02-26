@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.3.11](https://github.com/fujiwara/awslim/compare/v0.3.10...v0.3.11) - 2025-02-26
+- Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/84
+- Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/86
+- Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/90
+- Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/95
+- Bump the aws-sdk-go-v2 group across 1 directory with 2 updates by @dependabot in https://github.com/fujiwara/awslim/pull/93
+
 ## [v0.3.10](https://github.com/fujiwara/awslim/compare/v0.3.9...v0.3.10) - 2024-12-04
 - set --parallelism 2 by @fujiwara in https://github.com/fujiwara/awslim/pull/80
 - Bump the aws-sdk-go-v2 group across 1 directory with 2 updates by @dependabot in https://github.com/fujiwara/awslim/pull/76
