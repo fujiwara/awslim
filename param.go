@@ -30,7 +30,7 @@ type clientMethodParam struct {
 func (p *clientMethodParam) Cleanup() {
 	for _, f := range p.cleanup {
 		if err := f(); err != nil {
-			slog.Warn("failed to cleanup: %v", err)
+			slog.Warn("failed to cleanup", "error", err.Error())
 		}
 	}
 }
