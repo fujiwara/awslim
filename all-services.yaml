@@ -186,6 +186,7 @@ services:
   iotfleethub:
   iotfleetwise:
   iotjobsdataplane:
+  iotmanagedintegrations:
   iotsecuretunneling:
   iotsitewise:
   iotthingsgraph:
