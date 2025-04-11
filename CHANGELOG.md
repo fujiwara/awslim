@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.4.0](https://github.com/fujiwara/awslim/compare/v0.3.11...v0.4.0) - 2025-04-11
+- Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/100
+- Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/102
+- update aws-sdk-go-v2. by @fujiwara in https://github.com/fujiwara/awslim/pull/105
+- Bump the aws-sdk-go-v2 group with 2 updates by @dependabot in https://github.com/fujiwara/awslim/pull/98
+- Bump github.com/alecthomas/kong from 0.9.0 to 1.10.0 by @dependabot in https://github.com/fujiwara/awslim/pull/104
+- Bump github.com/google/go-cmp from 0.6.0 to 0.7.0 by @dependabot in https://github.com/fujiwara/awslim/pull/99
+- Bump github.com/goccy/go-yaml from 1.12.0 to 1.17.1 by @dependabot in https://github.com/fujiwara/awslim/pull/103
+- release docker image at released newer versions. by @fujiwara in https://github.com/fujiwara/awslim/pull/106
+
 ## [v0.3.11](https://github.com/fujiwara/awslim/compare/v0.3.10...v0.3.11) - 2025-02-26
 - Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/84
 - Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/86
