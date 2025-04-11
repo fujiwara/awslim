@@ -43,7 +43,7 @@ type CLI struct {
 
 	InputStream  string            `short:"i" help:"bind input filename or '-' to io.Reader field in the input struct"`
 	OutputStream string            `short:"o" help:"bind output filename or '-' to io.ReadCloser field in the output struct"`
-	APIOutput    bool              `help:"output API response into stdout" default:"true" negatable:"true"`
+	APIOutput    bool              `help:"output API response into stdout" default:"true" negatable:""`
 	RawOutput    bool              `short:"r" help:"output raw strings, not JSON texts"`
 	Compact      bool              `short:"c" help:"compact JSON output"`
 	Query        string            `short:"q" help:"JMESPath query to apply to output"`
