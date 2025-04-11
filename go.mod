@@ -1,6 +1,7 @@
 module github.com/fujiwara/awslim
 
-go 1.21.0
+go 1.22.0
+
 require (
 	github.com/alecthomas/kong v0.9.0
 	github.com/aws/aws-sdk-go-v2 v1.36.3
