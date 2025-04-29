@@ -363,6 +363,7 @@ services:
   sqs:
   ssm:
   ssmcontacts:
+  ssmguiconnect:
   ssmincidents:
   ssmquicksetup:
   ssmsap:
