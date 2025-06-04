@@ -145,6 +145,7 @@ services:
   entityresolution:
   eventbridge:
   evidently:
+  evs:
   finspace:
   finspacedata:
   firehose:
