@@ -256,6 +256,7 @@ services:
   migrationhuborchestrator:
   migrationhubrefactorspaces:
   migrationhubstrategy:
+  mpa:
   mq:
   mturk:
   mwaa:
