@@ -3,6 +3,7 @@ services:
   account:
   acm:
   acmpca:
+  aiops:
   amp:
   amplify:
   amplifybackend:
