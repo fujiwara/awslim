@@ -9,7 +9,7 @@ require (
 	github.com/goccy/go-yaml v1.17.1
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-jsonnet v0.20.0
-	github.com/jmespath/go-jmespath v0.4.0
+	github.com/jmespath-community/go-jmespath v1.1.1
 	github.com/mattn/go-shellwords v1.0.12
 )
 
@@ -25,6 +25,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.30.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.33.17 // indirect
 	github.com/aws/smithy-go v1.22.2 // indirect
+	golang.org/x/exp v0.0.0-20230314191032-db074128a8ec // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 	sigs.k8s.io/yaml v1.1.0 // indirect
 )
