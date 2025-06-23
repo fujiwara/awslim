@@ -402,6 +402,7 @@ services:
   workmail:
   workmailmessageflow:
   workspaces:
+  workspacesinstances:
   workspacesthinclient:
   workspacesweb:
   xray:
