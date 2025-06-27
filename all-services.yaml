@@ -203,6 +203,7 @@ services:
   kendra:
   kendraranking:
   keyspaces:
+  keyspacesstreams:
   kinesis:
   kinesisanalytics:
   kinesisanalyticsv2:
