@@ -273,6 +273,7 @@ services:
   notificationscontacts:
   oam:
   observabilityadmin:
+  odb:
   omics:
   opensearch:
   opensearchserverless:
