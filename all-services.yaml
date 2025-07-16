@@ -41,6 +41,8 @@ services:
   bcmpricingcalculator:
   bedrock:
   bedrockagent:
+  bedrockagentcore:
+  bedrockagentcorecontrol:
   bedrockagentruntime:
   bedrockdataautomation:
   bedrockdataautomationruntime:
