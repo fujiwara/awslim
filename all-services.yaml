@@ -26,6 +26,7 @@ services:
   appstream:
   appsync:
   apptest:
+  arcregionswitch:
   arczonalshift:
   artifact:
   athena:
