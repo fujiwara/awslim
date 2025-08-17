@@ -17,7 +17,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/google/go-jsonnet"
 	"github.com/google/go-jsonnet/ast"
-	"github.com/jmespath/go-jmespath"
+	"github.com/jmespath-community/go-jmespath"
 )
 
 var LogLevel = new(slog.LevelVar)
