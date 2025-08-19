@@ -38,6 +38,7 @@ services:
   backupgateway:
   backupsearch:
   batch:
+  bcmdashboards:
   bcmdataexports:
   bcmpricingcalculator:
   bcmrecommendedactions:
