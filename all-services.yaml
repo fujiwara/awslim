@@ -282,8 +282,6 @@ services:
   omics:
   opensearch:
   opensearchserverless:
-  opsworks:
-  opsworkscm:
   organizations:
   osis:
   outposts:
