@@ -363,7 +363,6 @@ services:
   shield:
   signer:
   simspaceweaver:
-  sms:
   snowball:
   snowdevicemanagement:
   sns:
