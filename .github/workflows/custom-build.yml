@@ -36,13 +36,13 @@ jobs:
 
     steps:
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6
         with:
           go-version: "1.24"
         id: go
 
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: generate
         run: |
@@ -64,7 +64,7 @@ jobs:
           GOARCH: ${{ github.event.inputs.arch }}
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: awslim-${{ github.event.inputs.os }}-${{ github.event.inputs.arch }}
           path: awslim
