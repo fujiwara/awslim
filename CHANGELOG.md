@@ -1,5 +1,23 @@
 # Changelog
 
+## [v0.4.1](https://github.com/fujiwara/awslim/compare/v0.4.0...v0.4.1) - 2025-09-19
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/107
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/110
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/114
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/115
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/116
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/117
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/118
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/121
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/122
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/123
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/126
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/127
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/128
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/129
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/131
+- Immutable release by @fujiwara in https://github.com/fujiwara/awslim/pull/132
+
 ## [v0.4.0](https://github.com/fujiwara/awslim/compare/v0.3.11...v0.4.0) - 2025-04-11
 - Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/100
 - Update all-services.yaml by @github-actions in https://github.com/fujiwara/awslim/pull/102
