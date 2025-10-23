@@ -332,6 +332,7 @@ services:
   route53recoverycontrolconfig:
   route53recoveryreadiness:
   route53resolver:
+  rtbfabric:
   rum:
   s3:
   s3control:
