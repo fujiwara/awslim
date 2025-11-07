@@ -25,7 +25,6 @@ services:
   apprunner:
   appstream:
   appsync:
-  apptest:
   arcregionswitch:
   arczonalshift:
   artifact:
@@ -191,7 +190,6 @@ services:
   iotdeviceadvisor:
   iotevents:
   ioteventsdata:
-  iotfleethub:
   iotfleetwise:
   iotjobsdataplane:
   iotmanagedintegrations:
@@ -231,8 +229,6 @@ services:
   lightsail:
   location:
   lookoutequipment:
-  lookoutmetrics:
-  lookoutvision:
   m2:
   machinelearning:
   macie2:
@@ -307,8 +303,6 @@ services:
   qapps:
   qbusiness:
   qconnect:
-  qldb:
-  qldbsession:
   quicksight:
   ram:
   rbin:
@@ -323,7 +317,6 @@ services:
   resourceexplorer2:
   resourcegroups:
   resourcegroupstaggingapi:
-  robomaker:
   rolesanywhere:
   route53:
   route53domains:
