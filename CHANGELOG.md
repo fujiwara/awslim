@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.4.6](https://github.com/fujiwara/awslim/compare/v0.4.5...v0.4.6) - 2025-11-08
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/135
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/138
+
 ## [v0.4.1](https://github.com/fujiwara/awslim/compare/v0.4.0...v0.4.1) - 2025-09-19
 - Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/107
 - Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/110
