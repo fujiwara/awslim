@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/jmespath/go-jmespath"
+	"github.com/jmespath-community/go-jmespath"
 )
 
 type clientMethodParam struct {
