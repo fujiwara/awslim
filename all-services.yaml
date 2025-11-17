@@ -263,6 +263,7 @@ services:
   mq:
   mturk:
   mwaa:
+  mwaaserverless:
   neptune:
   neptunedata:
   neptunegraph:
