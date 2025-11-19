@@ -283,6 +283,7 @@ services:
   osis:
   outposts:
   panorama:
+  partnercentralchannel:
   partnercentralselling:
   paymentcryptography:
   paymentcryptographydata:
@@ -357,6 +358,7 @@ services:
   sfn:
   shield:
   signer:
+  signin:
   simspaceweaver:
   snowball:
   snowdevicemanagement:
