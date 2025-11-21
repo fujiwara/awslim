@@ -95,6 +95,7 @@ services:
   comprehend:
   comprehendmedical:
   computeoptimizer:
+  computeoptimizerautomation:
   configservice:
   connect:
   connectcampaigns:
@@ -341,6 +342,7 @@ services:
   sagemakergeospatial:
   sagemakermetrics:
   sagemakerruntime:
+  sagemakerruntimehttp2:
   savingsplans:
   scheduler:
   schemas:
