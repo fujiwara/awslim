@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.5.0](https://github.com/fujiwara/awslim/compare/v0.4.5...v0.5.0) - 2025-11-21
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/135
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/138
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/139
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/140
+- update to github.com/aws/aws-sdk-go-v2 v1.40.0 by @fujiwara in https://github.com/fujiwara/awslim/pull/142
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/141
+
 ## [v0.4.1](https://github.com/fujiwara/awslim/compare/v0.4.0...v0.4.1) - 2025-09-19
 - Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/107
 - Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/110
