@@ -284,6 +284,8 @@ services:
   osis:
   outposts:
   panorama:
+  partnercentralaccount:
+  partnercentralbenefits:
   partnercentralchannel:
   partnercentralselling:
   paymentcryptography:
@@ -323,6 +325,7 @@ services:
   rolesanywhere:
   route53:
   route53domains:
+  route53globalresolver:
   route53profiles:
   route53recoverycluster:
   route53recoverycontrolconfig:
