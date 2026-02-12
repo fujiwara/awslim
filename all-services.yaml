@@ -149,7 +149,6 @@ services:
   emrserverless:
   entityresolution:
   eventbridge:
-  evidently:
   evs:
   finspace:
   finspacedata:
@@ -185,7 +184,6 @@ services:
   internetmonitor:
   invoicing:
   iot:
-  iotanalytics:
   iotdataplane:
   iotdeviceadvisor:
   iotevents:
