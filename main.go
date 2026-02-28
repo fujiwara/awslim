@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"os"
 	"os/exec"
+	"slices"
 	"sort"
 	"strings"
 
@@ -63,11 +64,9 @@ type CLI struct {
 }
 
 func enableDebug(args []string) {
-	for _, arg := range args {
-		if arg == "--debug" {
-			LogLevel.Set(slog.LevelDebug)
-			return
-		}
+	if slices.Contains(args, "--debug") {
+		LogLevel.Set(slog.LevelDebug)
+		return
 	}
 }
 
@@ -357,7 +356,7 @@ func (c *CLI) setNativeFuncs(vm *jsonnet.VM) string {
 	vm.NativeFunction(&jsonnet.NativeFunction{
 		Name:   "args",
 		Params: []ast.Identifier{"n"},
-		Func: func(args []interface{}) (interface{}, error) {
+		Func: func(args []any) (any, error) {
 			n := args[0].(float64)
 			return c.Args[int(n)], nil
 		},
@@ -365,7 +364,7 @@ func (c *CLI) setNativeFuncs(vm *jsonnet.VM) string {
 	vm.NativeFunction(&jsonnet.NativeFunction{
 		Name:   "env",
 		Params: []ast.Identifier{"name", "default"},
-		Func: func(args []interface{}) (interface{}, error) {
+		Func: func(args []any) (any, error) {
 			name := args[0].(string)
 			def := args[1].(string)
 			if v, ok := os.LookupEnv(name); ok {
@@ -377,7 +376,7 @@ func (c *CLI) setNativeFuncs(vm *jsonnet.VM) string {
 	vm.NativeFunction(&jsonnet.NativeFunction{
 		Name:   "must_env",
 		Params: []ast.Identifier{"name"},
-		Func: func(args []interface{}) (interface{}, error) {
+		Func: func(args []any) (any, error) {
 			name := args[0].(string)
 			if v, ok := os.LookupEnv(name); ok {
 				return v, nil
