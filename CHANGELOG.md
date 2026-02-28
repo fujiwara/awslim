@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.6.1](https://github.com/fujiwara/awslim/compare/v0.6.0...v0.6.1) - 2026-02-28
+- Update Go version to 1.25/1.26 by @fujiwara in https://github.com/fujiwara/awslim/pull/165
+
 ## [v0.6.0](https://github.com/fujiwara/awslim/compare/v0.5.0...v0.6.0) - 2026-02-28
 - Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/144
 - Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/146
