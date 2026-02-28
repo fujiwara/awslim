@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"maps"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -59,9 +60,7 @@ func (p *clientMethodParam) InjectMap(in map[string]any) error {
 	if err := json.Unmarshal(p.InputBytes, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal %s: %w", p.InputBytes, err)
 	}
-	for field, value := range in {
-		v[field] = value
-	}
+	maps.Copy(v, in)
 	if b, err := json.Marshal(v); err != nil {
 		return fmt.Errorf("failed to marshal %v: %w", v, err)
 	} else {

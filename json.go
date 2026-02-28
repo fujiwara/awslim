@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func marshalJSON(v interface{}, camelCase bool) ([]byte, error) {
+func marshalJSON(v any, camelCase bool) ([]byte, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -43,7 +43,7 @@ func toCamelCase(s string) string {
 	return strings.ToLower(s[:1]) + s[1:]
 }
 
-func walkMap(m map[string]interface{}, fn func(string) string) {
+func walkMap(m map[string]any, fn func(string) string) {
 	for key, value := range m {
 		delete(m, key)
 		newKey := key
@@ -56,19 +56,19 @@ func walkMap(m map[string]interface{}, fn func(string) string) {
 		switch value := value.(type) {
 		case map[string]any:
 			walkMap(value, fn)
-		case []interface{}:
+		case []any:
 			walkArray(value, fn)
 		default:
 		}
 	}
 }
 
-func walkArray(a []interface{}, fn func(string) string) {
+func walkArray(a []any, fn func(string) string) {
 	for _, value := range a {
 		switch value := value.(type) {
-		case map[string]interface{}:
+		case map[string]any:
 			walkMap(value, fn)
-		case []interface{}:
+		case []any:
 			walkArray(value, fn)
 		default:
 		}
