@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v5
         with:
           ref: ${{ inputs.tag || github.ref }}
-      - uses: Songmu/tagpr@9c294c8b7b1815a5f3b7c61d6ee6aa50ac25b030 # v1
+      - uses: Songmu/tagpr@7191605433b03e11b313dbbc0efb80185170de4b # v1
         id: tagpr
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
