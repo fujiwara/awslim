@@ -1,5 +1,23 @@
 # Changelog
 
+## [v0.6.0](https://github.com/fujiwara/awslim/compare/v0.5.0...v0.6.0) - 2026-02-28
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/144
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/146
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/153
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/154
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/158
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/160
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/161
+- Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/162
+- Generate descriptive PR title/body for SDK update workflow by @fujiwara in https://github.com/fujiwara/awslim/pull/163
+- Update Go to 1.24, apply go fix, and update AWS SDK dependencies by @fujiwara in https://github.com/fujiwara/awslim/pull/164
+- Bump github.com/goccy/go-yaml from 1.17.1 to 1.19.2 by @dependabot[bot] in https://github.com/fujiwara/awslim/pull/157
+- Bump docker/setup-qemu-action from 3.6.0 to 3.7.0 by @dependabot[bot] in https://github.com/fujiwara/awslim/pull/150
+- Bump actions/checkout from 5.0.0 to 6.0.0 by @dependabot[bot] in https://github.com/fujiwara/awslim/pull/149
+- Bump Songmu/tagpr from 1.8.4 to 1.9.0 by @dependabot[bot] in https://github.com/fujiwara/awslim/pull/133
+- Bump docker/login-action from 3.5.0 to 3.6.0 by @dependabot[bot] in https://github.com/fujiwara/awslim/pull/134
+- Bump actions/upload-artifact from 4.6.2 to 5.0.0 by @dependabot[bot] in https://github.com/fujiwara/awslim/pull/137
+
 ## [v0.5.0](https://github.com/fujiwara/awslim/compare/v0.4.5...v0.5.0) - 2025-11-21
 - Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/135
 - Update all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/138
