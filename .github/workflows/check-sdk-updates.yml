@@ -34,13 +34,51 @@ jobs:
             exit 0
           fi
           echo "updated=true" >> "$GITHUB_OUTPUT"
-          git switch -c update-aws-sdk-go-v2-$(date +%Y%m%d-%H%M%S)
+
+          # Extract added/removed services from the diff
+          ADDED=$(git diff all-services.yaml | grep '^+  ' | sed 's/^+  //' | sed 's/:$//' | sort)
+          REMOVED=$(git diff all-services.yaml | grep '^-  ' | sed 's/^-  //' | sed 's/:$//' | sort)
+
+          # Build PR title
+          ADDED_INLINE=$(echo "$ADDED" | tr '\n' ', ' | sed 's/,$//' | sed 's/,/, /g')
+          REMOVED_INLINE=$(echo "$REMOVED" | tr '\n' ', ' | sed 's/,$//' | sed 's/,/, /g')
+          if [[ -n "$ADDED" && -n "$REMOVED" ]]; then
+            PR_TITLE="Add ${ADDED_INLINE}; Remove ${REMOVED_INLINE} in all-services.yaml"
+          elif [[ -n "$ADDED" ]]; then
+            PR_TITLE="Add ${ADDED_INLINE} to all-services.yaml"
+          elif [[ -n "$REMOVED" ]]; then
+            PR_TITLE="Remove ${REMOVED_INLINE} from all-services.yaml"
+          else
+            PR_TITLE="Update all-services.yaml"
+          fi
+
+          # Build PR body
+          PR_BODY=""
+          if [[ -n "$ADDED" ]]; then
+            PR_BODY+="## Added"$'\n'
+            while IFS= read -r svc; do
+              PR_BODY+="- ${svc}"$'\n'
+            done <<< "$ADDED"
+            PR_BODY+=$'\n'
+          fi
+          if [[ -n "$REMOVED" ]]; then
+            PR_BODY+="## Removed"$'\n'
+            while IFS= read -r svc; do
+              PR_BODY+="- ${svc}"$'\n'
+            done <<< "$REMOVED"
+          fi
+          if [[ -z "$PR_BODY" ]]; then
+            PR_BODY="Update all-services.yaml"
+          fi
+
+          BRANCH_NAME="update-aws-sdk-go-v2-$(date +%Y%m%d-%H%M%S)"
+          git switch -c "${BRANCH_NAME}"
           git add all-services.yaml
           git config --global user.email "${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
           git config --global user.name "${GITHUB_ACTOR}"
-          git commit -m "Update all-services.yaml"
-          git push --set-upstream origin update-aws-sdk-go-v2-$(date +%Y%m%d-%H%M%S)
-          gh pr create --title "Update all-services.yaml" --body "Update all-services.yaml" --base main
+          git commit -m "${PR_TITLE}"
+          git push --set-upstream origin "${BRANCH_NAME}"
+          gh pr create --title "${PR_TITLE}" --body "${PR_BODY}" --base main
       - name: make all services
         if: ${{ steps.check-sdk.outputs.updated == 'true' }}
         run: |
