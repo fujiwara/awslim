@@ -39,7 +39,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6
         with:
-          go-version: "1.24"
+          go-version: "1.26"
         if: ${{ steps.tagpr.outputs.tag != '' || github.event_name == 'workflow_dispatch' }}
 
       - name: setup for all services
