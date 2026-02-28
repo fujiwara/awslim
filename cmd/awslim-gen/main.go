@@ -95,7 +95,6 @@ func generateMain() {
 
 func gen(pkgName string, clientType reflect.Type, genNames []string) error {
 	log.Printf("generating %s_gen.go", pkgName)
-	generatedServices = append(generatedServices, pkgName)
 
 	methods := make([]map[string]string, 0)
 	for i := 0; i < clientType.NumMethod(); i++ {
@@ -157,6 +156,11 @@ func gen(pkgName string, clientType reflect.Type, genNames []string) error {
 			"OutputReadCloserField":  outputReadCloserField,
 		})
 	}
+	if len(methods) == 0 {
+		log.Printf("no methods found for %s, skipping", pkgName)
+		return nil
+	}
+	generatedServices = append(generatedServices, pkgName)
 	data := map[string]interface{}{
 		"PkgName": pkgName,
 		"Methods": methods,
