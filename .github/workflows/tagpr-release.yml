@@ -2,8 +2,6 @@ name: tagpr and release
 on:
   push:
     branches: ["main"]
-  pull_request_target:
-    types: [labeled]
   workflow_dispatch:
     inputs:
       tag:
