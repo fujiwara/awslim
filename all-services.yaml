@@ -102,6 +102,7 @@ services:
   connectcampaignsv2:
   connectcases:
   connectcontactlens:
+  connecthealth:
   connectparticipant:
   controlcatalog:
   controltower:
