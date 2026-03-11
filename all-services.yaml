@@ -365,6 +365,7 @@ services:
   signer:
   signerdata:
   signin:
+  simpledbv2:
   simspaceweaver:
   snowball:
   snowdevicemanagement:
