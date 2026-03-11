@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.6.13](https://github.com/fujiwara/awslim/compare/v0.6.12...v0.6.13) - 2026-03-11
+- Remove pull_request_target labeled trigger from release workflow by @fujiwara in https://github.com/fujiwara/awslim/pull/175
+- Add connecthealth to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/177
+- Add simpledbv2 to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/178
+
 ## [v0.6.2](https://github.com/fujiwara/awslim/compare/v0.6.1...v0.6.2) - 2026-02-28
 - Skip code generation for services with no methods by @fujiwara in https://github.com/fujiwara/awslim/pull/167
 
