@@ -120,6 +120,7 @@ services:
   deadline:
   detective:
   devicefarm:
+  devopsagent:
   devopsguru:
   directconnect:
   directoryservice:
