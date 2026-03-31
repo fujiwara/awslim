@@ -351,6 +351,7 @@ services:
   scheduler:
   schemas:
   secretsmanager:
+  securityagent:
   securityhub:
   securityir:
   securitylake:
@@ -387,6 +388,7 @@ services:
   supplychain:
   support:
   supportapp:
+  sustainability:
   swf:
   synthetics:
   taxsettings:
