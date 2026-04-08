@@ -240,6 +240,7 @@ services:
   marketplacecatalog:
   marketplacecommerceanalytics:
   marketplacedeployment:
+  marketplacediscovery:
   marketplaceentitlementservice:
   marketplacemetering:
   marketplacereporting:
