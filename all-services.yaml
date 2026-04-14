@@ -184,6 +184,7 @@ services:
   inspector:
   inspector2:
   inspectorscan:
+  interconnect:
   internetmonitor:
   invoicing:
   iot:
