@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.6.14](https://github.com/fujiwara/awslim/compare/v0.6.13...v0.6.14) - 2026-04-14
+- Add interconnect to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/186
+
 ## [v0.6.13](https://github.com/fujiwara/awslim/compare/v0.6.12...v0.6.13) - 2026-04-08
 - Remove pull_request_target labeled trigger from release workflow by @fujiwara in https://github.com/fujiwara/awslim/pull/175
 - Add connecthealth to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/177
