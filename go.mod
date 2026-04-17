@@ -3,7 +3,7 @@ module github.com/fujiwara/awslim
 go 1.24
 
 require (
-	github.com/alecthomas/kong v1.10.0
+	github.com/alecthomas/kong v1.14.0
 	github.com/aws/aws-sdk-go-v2 v1.41.2
 	github.com/aws/aws-sdk-go-v2/config v1.32.10
 	github.com/goccy/go-yaml v1.19.2
