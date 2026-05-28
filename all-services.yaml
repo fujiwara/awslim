@@ -322,6 +322,7 @@ services:
   rekognition:
   repostspace:
   resiliencehub:
+  resiliencehubv2:
   resourceexplorer2:
   resourcegroups:
   resourcegroupstaggingapi:
