@@ -348,6 +348,7 @@ services:
   sagemakeredge:
   sagemakerfeaturestoreruntime:
   sagemakergeospatial:
+  sagemakerjobruntime:
   sagemakermetrics:
   sagemakerruntime:
   sagemakerruntimehttp2:
