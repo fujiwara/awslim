@@ -220,6 +220,8 @@ services:
   kms:
   lakeformation:
   lambda:
+  lambdacore:
+  lambdamicrovms:
   launchwizard:
   lexmodelbuildingservice:
   lexmodelsv2:
