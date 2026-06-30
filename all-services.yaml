@@ -190,8 +190,6 @@ services:
   iot:
   iotdataplane:
   iotdeviceadvisor:
-  iotevents:
-  ioteventsdata:
   iotfleetwise:
   iotjobsdataplane:
   iotmanagedintegrations:
@@ -288,7 +286,6 @@ services:
   organizations:
   osis:
   outposts:
-  panorama:
   partnercentralaccount:
   partnercentralbenefits:
   partnercentralchannel:
@@ -375,7 +372,6 @@ services:
   signerdata:
   signin:
   simpledbv2:
-  simspaceweaver:
   snowball:
   snowdevicemanagement:
   sns:
@@ -395,6 +391,7 @@ services:
   supplychain:
   support:
   supportapp:
+  supportauthz:
   sustainability:
   swf:
   synthetics:
