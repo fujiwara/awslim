@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.6.14](https://github.com/fujiwara/awslim/compare/v0.6.13...v0.6.14) - 2026-07-08
+- Add interconnect to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/186
+- Add resiliencehubv2 to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/190
+- Add sagemakerjobruntime to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/192
+- Add lambdacore, lambdamicrovms to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/193
+- Add sagemakerjobruntime to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/191
+- Add supportauthz; Remove iotevents, ioteventsdata, panorama, simspaceweaver in all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/195
+- Add partnercentralrevenuemeasurement to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/197
+
 ## [v0.6.13](https://github.com/fujiwara/awslim/compare/v0.6.12...v0.6.13) - 2026-04-08
 - Remove pull_request_target labeled trigger from release workflow by @fujiwara in https://github.com/fujiwara/awslim/pull/175
 - Add connecthealth to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/177
