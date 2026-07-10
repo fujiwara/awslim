@@ -1,6 +1,6 @@
 module github.com/fujiwara/awslim
 
-go 1.24
+go 1.24.5
 
 require (
 	github.com/alecthomas/kong v1.10.0
@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.32.10
 	github.com/goccy/go-yaml v1.19.2
 	github.com/google/go-cmp v0.7.0
-	github.com/google/go-jsonnet v0.20.0
+	github.com/google/go-jsonnet v0.22.0
 	github.com/jmespath/go-jmespath v0.4.0
 	github.com/mattn/go-shellwords v1.0.12
 )
@@ -26,6 +26,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.35.15 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.41.7 // indirect
 	github.com/aws/smithy-go v1.24.2 // indirect
-	gopkg.in/yaml.v2 v2.2.8 // indirect
-	sigs.k8s.io/yaml v1.1.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	sigs.k8s.io/yaml v1.4.0 // indirect
 )
