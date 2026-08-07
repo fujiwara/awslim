@@ -3,6 +3,8 @@ services:
   account:
   acm:
   acmpca:
+  agentregistry:
+  agentregistrycontrol:
   aiops:
   amp:
   amplify:
