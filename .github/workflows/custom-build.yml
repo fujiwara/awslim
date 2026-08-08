@@ -64,7 +64,7 @@ jobs:
           GOARCH: ${{ github.event.inputs.arch }}
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v4
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4
         with:
           name: awslim-${{ github.event.inputs.os }}-${{ github.event.inputs.arch }}
           path: awslim
