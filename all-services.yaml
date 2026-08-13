@@ -1,6 +1,7 @@
 services:
   accessanalyzer:
   account:
+  accountaccess:
   acm:
   acmpca:
   agentregistry:
