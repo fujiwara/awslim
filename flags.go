@@ -13,9 +13,25 @@ func flagExists(k *kong.Kong, flagName string) bool {
 			if f.Name == flagName {
 				return true
 			}
+			if negatedFlagName(f) == flagName {
+				return true
+			}
 		}
 	}
 	return false
+}
+
+// negatedFlagName returns the negated name of a negatable flag (e.g. "no-strict" for "strict").
+// It returns "" if the flag is not negatable.
+func negatedFlagName(f *kong.Flag) string {
+	switch neg := f.Tag.Negatable; neg {
+	case "":
+		return ""
+	case "_": // kong's placeholder for the default "no-" prefix
+		return "no-" + f.Name
+	default:
+		return neg
+	}
 }
 
 func parseDynamicFlags(k *kong.Kong, args []string, convert func(string) string) ([]string, map[string]any, error) {

@@ -24,8 +24,21 @@ type clientMethodParam struct {
 		OutputField string
 		InputField  string
 	}
-	awsCfg  aws.Config
-	cleanup []func() error
+	ClientOptions json.RawMessage
+	awsCfg        aws.Config
+	cleanup       []func() error
+}
+
+// ApplyClientOptions unmarshals ClientOptions (JSON) into o.
+// o must be a pointer to the service client Options struct (e.g. *s3.Options).
+func (p *clientMethodParam) ApplyClientOptions(o any) error {
+	if len(p.ClientOptions) == 0 {
+		return nil
+	}
+	if err := UnmarshalJSON(p.ClientOptions, o, p.Strict); err != nil {
+		return &clientOptionsError{err: fmt.Errorf("failed to apply client options: %w", err)}
+	}
+	return nil
 }
 
 func (p *clientMethodParam) Cleanup() {

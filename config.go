@@ -18,8 +18,17 @@ const (
 )
 
 type RuntimeConfig struct {
-	Open    string           `json:"open" yaml:"open"`
-	Aliases map[string]Alias `json:"aliases" yaml:"aliases"`
+	Open          string                    `json:"open" yaml:"open"`
+	Aliases       map[string]Alias          `json:"aliases" yaml:"aliases"`
+	ClientOptions map[string]map[string]any `json:"client_options" yaml:"client_options"`
+}
+
+// clientOptionsFor returns the client options for the service defined in the config.
+func (rc *RuntimeConfig) clientOptionsFor(service string) map[string]any {
+	if rc == nil || rc.ClientOptions == nil {
+		return nil
+	}
+	return rc.ClientOptions[service]
 }
 
 type Alias string

@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"slices"
 	"strings"
 	"text/template"
 )
@@ -24,7 +25,13 @@ import (
 
 {{ range .Methods }}
 func {{ $.PkgName }}_{{ .Name }}(ctx context.Context, p *clientMethodParam) (any, error) {
-	svc := {{ $.PkgName }}.NewFromConfig(p.awsCfg)
+	var optErr error
+	svc := {{ $.PkgName }}.NewFromConfig(p.awsCfg, func(o *{{ $.PkgName }}.Options) {
+		optErr = p.ApplyClientOptions(o)
+	})
+	if optErr != nil {
+		return nil, optErr
+	}
 	var in {{ .Input }}
 	{{- if .InputReaderLengthField }}
 	if err := p.Inject("{{ .InputReaderLengthField }}", p.InputReaderLength); err != nil {
@@ -161,7 +168,7 @@ func gen(pkgName string, clientType reflect.Type, genNames []string) error {
 		return nil
 	}
 	generatedServices = append(generatedServices, pkgName)
-	data := map[string]interface{}{
+	data := map[string]any{
 		"PkgName": pkgName,
 		"Methods": methods,
 	}
@@ -169,12 +176,7 @@ func gen(pkgName string, clientType reflect.Type, genNames []string) error {
 }
 
 func contains(ss []string, s string) bool {
-	for _, v := range ss {
-		if v == s {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(ss, s)
 }
 
 func writeTemplate(t string, v any, name string) error {
