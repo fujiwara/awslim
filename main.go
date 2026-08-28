@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
+	"maps"
 	"os"
 	"os/exec"
 	"slices"
@@ -36,6 +38,14 @@ type ClientMethod func(context.Context, *clientMethodParam) (any, error)
 
 var ErrDryRun = fmt.Errorf("dry-run mode")
 
+// clientOptionsError is returned when client options cannot be applied to the service client.
+type clientOptionsError struct {
+	err error
+}
+
+func (e *clientOptionsError) Error() string { return e.err.Error() }
+func (e *clientOptionsError) Unwrap() error { return e.err }
+
 type CLI struct {
 	Service string   `arg:"" help:"service name" default:""`
 	Method  string   `arg:"" help:"method name" default:""`
@@ -50,9 +60,10 @@ type CLI struct {
 	Query        string            `short:"q" help:"JMESPath query to apply to output"`
 	ExtStr       map[string]string `help:"external variables for Jsonnet"`
 	ExtCode      map[string]string `help:"external code for Jsonnet"`
-	Strict       bool              `name:"strict" help:"strict input JSON unmarshaling" default:"true" negatable:"true"`
+	Strict       bool              `name:"strict" help:"strict input JSON unmarshaling" default:"true" negatable:""`
 	FollowNext   string            `short:"f" help:"OutputField=InputField format. follow the next token." default:""`
 	CamelCase    bool              `name:"camel" help:"convert keys to camelCase"`
+	ClientOption string            `short:"C" help:"client options JSON/Jsonnet struct or filename (e.g. '{UsePathStyle: true}')"`
 
 	DryRun  bool `short:"n" help:"dry-run mode"`
 	Version bool `short:"v" help:"show version"`
@@ -96,7 +107,7 @@ func NewCLI(ctx context.Context, args []string) (*CLI, error) {
 	}
 	slog.Debug("resolved args", "args", args)
 
-	k, err := kong.New(&c, kong.Vars{"version": Version})
+	k, err := kong.New(&c, kong.Vars{"version": Version}, kong.DefaultEnvars("AWSLIM"))
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +169,15 @@ func (c *CLI) CallMethod(ctx context.Context) error {
 		if err != nil {
 			if err == ErrDryRun {
 				fmt.Fprintf(c.w, "dry-run: %s will be called with:\n%s", key, string(p.InputBytes))
+				if len(p.ClientOptions) > 0 {
+					fmt.Fprintf(c.w, "\nclient options:\n%s\n", string(p.ClientOptions))
+				}
 				return nil
+			}
+			var coe *clientOptionsError
+			if errors.As(err, &coe) {
+				c.showHelp(c.Service + "#Options")
+				return err
 			} else if strings.Contains(err.Error(), "json: unknown field") {
 				c.showHelp(key)
 				return err
@@ -227,7 +246,40 @@ func (c *CLI) output(_ context.Context, out any) error {
 	return nil
 }
 
-func (c *CLI) loadInput(_ context.Context) ([]byte, error) {
+func (c *CLI) loadInput(ctx context.Context) ([]byte, error) {
+	return c.evaluateJsonnet(ctx, c.Input)
+}
+
+// loadClientOptions merges client options from the runtime config (per service)
+// and the --client-option flag. The flag takes precedence over the config.
+func (c *CLI) loadClientOptions(ctx context.Context) (json.RawMessage, error) {
+	merged := make(map[string]any)
+	maps.Copy(merged, c.rc.clientOptionsFor(c.Service))
+	if c.ClientOption != "" {
+		b, err := c.evaluateJsonnet(ctx, c.ClientOption)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load client options: %w", err)
+		}
+		var v map[string]any
+		if err := json.Unmarshal(b, &v); err != nil {
+			return nil, fmt.Errorf("failed to load client options: %w", err)
+		}
+		maps.Copy(merged, v)
+	}
+	if len(merged) == 0 {
+		return nil, nil
+	}
+	b, err := json.Marshal(merged)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal client options: %w", err)
+	}
+	slog.Debug("client options", "service", c.Service, "options", string(b))
+	return b, nil
+}
+
+// evaluateJsonnet evaluates src as a JSON/Jsonnet snippet (if it starts with "{")
+// or as a filename, and returns the resulting JSON.
+func (c *CLI) evaluateJsonnet(_ context.Context, src string) ([]byte, error) {
 	var input []byte
 	vm := jsonnet.MakeVM()
 	for k, v := range c.ExtStr {
@@ -237,9 +289,9 @@ func (c *CLI) loadInput(_ context.Context) ([]byte, error) {
 		vm.ExtCode(k, v)
 	}
 	def := c.setNativeFuncs(vm)
-	if strings.HasPrefix(c.Input, "{") {
+	if strings.HasPrefix(src, "{") {
 		// string is JSON or Jsonnet
-		in := def + c.Input
+		in := def + src
 		slog.Debug("evaluate Jsonnet", "input", in)
 		s, err := vm.EvaluateAnonymousSnippet("input", in)
 		if err != nil {
@@ -248,7 +300,7 @@ func (c *CLI) loadInput(_ context.Context) ([]byte, error) {
 		input = []byte(s)
 	} else {
 		// string is filename
-		s, err := vm.EvaluateFile(c.Input)
+		s, err := vm.EvaluateFile(src)
 		if err != nil {
 			return nil, fmt.Errorf("failed to evaluate Jsonnet: %w", err)
 		}
@@ -266,14 +318,19 @@ func (c *CLI) clientMethodParam(ctx context.Context) (*clientMethodParam, error)
 	if err != nil {
 		return nil, err
 	}
+	clientOptions, err := c.loadClientOptions(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	p := &clientMethodParam{
-		awsCfg:       awsCfg,
-		InputBytes:   input,
-		InputReader:  nil,
-		OutputWriter: nil,
-		DryRun:       c.DryRun,
-		Strict:       c.Strict,
+		awsCfg:        awsCfg,
+		ClientOptions: clientOptions,
+		InputBytes:    input,
+		InputReader:   nil,
+		OutputWriter:  nil,
+		DryRun:        c.DryRun,
+		Strict:        c.Strict,
 	}
 	p.SetNextToken(c.FollowNext)
 

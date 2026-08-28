@@ -13,6 +13,15 @@ type PagingOutput struct {
 	Next string `json:"Next,omitempty"`
 }
 
+// MockOptions mimics a service client Options struct (e.g. s3.Options).
+type MockOptions struct {
+	Region           string
+	BaseEndpoint     *string
+	UsePathStyle     bool
+	RetryMaxAttempts int
+	HTTPClient       any
+}
+
 func init() {
 	sdkclient.SetClientMethod("foo", "List", func(_ context.Context, _ *sdkclient.ClientMethodParam) (any, error) {
 		return []string{"a", "b", "c"}, nil
@@ -30,6 +39,26 @@ func init() {
 		var v any
 		err := json.Unmarshal(p.InputBytes, &v)
 		return v, err
+	})
+	sdkclient.SetClientMethod("baz", "Options", func(_ context.Context, p *sdkclient.ClientMethodParam) (any, error) {
+		o := MockOptions{Region: "default-region"}
+		if err := p.ApplyClientOptions(&o); err != nil {
+			return nil, err
+		}
+		if p.DryRun {
+			return nil, sdkclient.ErrDryRun
+		}
+		return o, nil
+	})
+	sdkclient.SetClientMethod("foo", "Options", func(_ context.Context, p *sdkclient.ClientMethodParam) (any, error) {
+		o := MockOptions{Region: "default-region"}
+		if err := p.ApplyClientOptions(&o); err != nil {
+			return nil, err
+		}
+		if p.DryRun {
+			return nil, sdkclient.ErrDryRun
+		}
+		return o, nil
 	})
 	sdkclient.SetClientMethod("baz", "Paging", func(_ context.Context, p *sdkclient.ClientMethodParam) (any, error) {
 		var v map[string]string
@@ -63,7 +92,7 @@ var TestCases = []TestCase{
 	{
 		Name:   "list methods of foo",
 		Args:   []string{"foo"},
-		Expect: "Get\nList\n",
+		Expect: "Get\nList\nOptions\n",
 	},
 	{
 		Name:   "list methods of bar",
@@ -73,7 +102,7 @@ var TestCases = []TestCase{
 	{
 		Name:   "list methods of baz",
 		Args:   []string{"baz"},
-		Expect: "Echo\nPaging\n",
+		Expect: "Echo\nOptions\nPaging\n",
 	},
 	{
 		Name:   "call foo#Client.List",
@@ -162,6 +191,59 @@ var TestCases = []TestCase{
 		Name:   "call baz#Client.Echo with dynamic flags",
 		Args:   []string{"baz", "Echo", "--foo-Foo", "FOO", `{Baz:"baz"}`, "-c", "--bar=BAR"},
 		Expect: `{"Bar":"BAR","Baz":"baz","FooFoo":"FOO"}`,
+	},
+	{
+		Name:   "client options from config",
+		Args:   []string{"baz", "Options", "{}", "-c"},
+		Expect: `{"Region":"default-region","BaseEndpoint":"http://localhost:9000","UsePathStyle":true,"RetryMaxAttempts":0,"HTTPClient":null}`,
+	},
+	{
+		Name:   "client options not defined in config",
+		Args:   []string{"foo", "Options", "{}", "-c"},
+		Expect: `{"Region":"default-region","BaseEndpoint":null,"UsePathStyle":false,"RetryMaxAttempts":0,"HTTPClient":null}`,
+	},
+	{
+		Name:   "client options by flag (Jsonnet)",
+		Args:   []string{"foo", "Options", "{}", "-c", "-C", `{UsePathStyle: true, RetryMaxAttempts: 1+2}`},
+		Expect: `{"Region":"default-region","BaseEndpoint":null,"UsePathStyle":true,"RetryMaxAttempts":3,"HTTPClient":null}`,
+	},
+	{
+		Name:   "client options by flag overrides config",
+		Args:   []string{"baz", "Options", "{}", "-c", "--client-option", `{UsePathStyle: false, Region: "ap-northeast-1"}`},
+		Expect: `{"Region":"ap-northeast-1","BaseEndpoint":"http://localhost:9000","UsePathStyle":false,"RetryMaxAttempts":0,"HTTPClient":null}`,
+	},
+	{
+		Name:   "client options by env",
+		Args:   []string{"foo", "Options", "{}", "-c"},
+		Env:    map[string]string{"AWSLIM_CLIENT_OPTION": `{"UsePathStyle": true}`},
+		Expect: `{"Region":"default-region","BaseEndpoint":null,"UsePathStyle":true,"RetryMaxAttempts":0,"HTTPClient":null}`,
+	},
+	{
+		Name:    "client options unknown field (strict)",
+		Args:    []string{"foo", "Options", "{}", "-c", "-C", `{Unknown: true}`},
+		Expect:  "See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/foo#Options\n",
+		IsError: true,
+	},
+	{
+		Name:   "client options unknown field (no-strict)",
+		Args:   []string{"foo", "Options", "{}", "-c", "--no-strict", "-C", `{Unknown: true, UsePathStyle: true}`},
+		Expect: `{"Region":"default-region","BaseEndpoint":null,"UsePathStyle":true,"RetryMaxAttempts":0,"HTTPClient":null}`,
+	},
+	{
+		Name:   "call baz#Client.Echo --no-strict is not a dynamic flag",
+		Args:   []string{"baz", "Echo", `{Baz:"baz"}`, "-c", "--no-strict"},
+		Expect: `{"Baz":"baz"}`,
+	},
+	{
+		Name:   "flag by env (compact)",
+		Args:   []string{"foo", "List"},
+		Env:    map[string]string{"AWSLIM_COMPACT": "true"},
+		Expect: `["a","b","c"]`,
+	},
+	{
+		Name:   "dry-run shows client options",
+		Args:   []string{"foo", "Options", `{}`, "-n", "-C", `{"UsePathStyle":true}`},
+		Expect: "dry-run: foo#Client.Options will be called with:\n{}\nclient options:\n{\"UsePathStyle\":true}\n",
 	},
 }
 

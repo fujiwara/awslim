@@ -186,6 +186,7 @@ Flags:
       --[no-]strict               strict input JSON unmarshaling
   -f, --follow-next=""            OutputField=InputField format. follow the next token.
       --camel                     convert keys to camelCase
+  -C, --client-option=STRING      client options JSON/Jsonnet struct or filename (e.g. '{UsePathStyle: true}')
   -n, --dry-run                   dry-run mode
   -v, --version                   show version
       --debug                     turn on debug logging
@@ -196,6 +197,8 @@ Flags:
 - `input`: JSON input for the method.
 
 The output is JSON format.
+
+All flags can also be set by environment variables prefixed with `AWSLIM_` (e.g., `AWSLIM_COMPACT=true`, `AWSLIM_CLIENT_OPTION='{"UsePathStyle":true}'`).
 
 ### Example usage
 
@@ -385,6 +388,21 @@ This conversion is performed mechanically, so objects for which any key can be s
 
 It is not guaranteed that the results will match those in the AWS CLI output.
 
+#### `--client-option (-C)` option
+
+`--client-option` sets the options of the service client (`Options` struct of the service package, e.g. [s3.Options](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#Options)). The value is a JSON/Jsonnet struct or a filename, same as the input.
+
+For example, to access an S3 compatible storage (e.g. MinIO) with path-style URLs:
+
+```console
+$ awslim s3 list-objects-v2 '{Bucket: "mybucket"}' \
+    -C '{UsePathStyle: true, BaseEndpoint: "http://localhost:9000"}'
+```
+
+The keys are the field names of the `Options` struct. Only fields which can be unmarshaled from JSON (e.g. `bool`, `string`, `int`) are supported. Fields of function or interface types (e.g. `HTTPClient`, `EndpointResolverV2`, `APIOptions`) cannot be set. Unknown fields cause an error unless `--no-strict` is specified.
+
+The client options can also be defined per service in the [runtime configuration file](#runtime-configurations). Options specified by `--client-option` override the options in the configuration file.
+
 #### Query output by JMESPath
 
 Query the output by JMESPath like the AWS CLI.
@@ -412,11 +430,16 @@ open: /usr/bin/open
 aliases:
   whoami: sts get-caller-identity
   regions: ec2 describe-regions --query Regions[].RegionName
+client_options:
+  s3:
+    UsePathStyle: true
+    BaseEndpoint: http://localhost:9000
 ```
 
 - `open`: The command to open the URL to the documentation.
 - `aliases`: The alias of the cli arguments.
   For example, `awslim whoami` is equivalent to `awslim sts get-caller-identity`.
+- `client_options`: The default client options for each service. See [`--client-option`](#--client-option--c-option).
 
 `XDG_CONFIG_HOME` environment variable is used for the configuration file path. If `XDG_CONFIG_HOME` is not set, `~/.config` is used.
 

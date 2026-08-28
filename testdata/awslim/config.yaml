@@ -1,0 +1,4 @@
+client_options:
+  baz:
+    UsePathStyle: true
+    BaseEndpoint: http://localhost:9000
