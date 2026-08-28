@@ -41,3 +41,5 @@
 	releaseBranch = main
 	versionFile = -
 	release = draft
+	majorLabels = tagpr:major
+	minorLabels = tagpr:minor
