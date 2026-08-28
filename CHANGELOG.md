@@ -1,5 +1,38 @@
 # Changelog
 
+## [v0.7.0](https://github.com/fujiwara/awslim/compare/v0.6.13...v0.7.0) - 2026-08-28
+### 🚀 New Features
+- Add client options support and environment variable flags by @fujiwara in https://github.com/fujiwara/awslim/pull/207
+### ☁️ AWS Service Updates
+- Add interconnect to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/186
+- Add resiliencehubv2 to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/190
+- Add sagemakerjobruntime to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/192
+- Add lambdacore, lambdamicrovms to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/193
+- Add sagemakerjobruntime to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/191
+- Add supportauthz; Remove iotevents, ioteventsdata, panorama, simspaceweaver in all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/195
+- Add partnercentralrevenuemeasurement to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/197
+- Add pricingplanmanager to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/200
+- Add partnercentralrevenuemeasurement to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/196
+- Add agentregistry, agentregistrycontrol to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/201
+- Add accountaccess to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/203
+- Add iamtoolbox to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/206
+### 📦 Dependency Updates
+- Bump goreleaser/goreleaser-action from 6.4.0 to 7.0.0 by @dependabot[bot] in https://github.com/fujiwara/awslim/pull/169
+- Bump actions/upload-artifact from 5.0.0 to 7.0.0 by @dependabot[bot] in https://github.com/fujiwara/awslim/pull/170
+- Bump docker/setup-buildx-action from 3.11.1 to 3.12.0 by @dependabot[bot] in https://github.com/fujiwara/awslim/pull/172
+- Bump actions/setup-go from 6.0.0 to 6.3.0 by @dependabot[bot] in https://github.com/fujiwara/awslim/pull/173
+- Bump docker/login-action from 3.6.0 to 3.7.0 by @dependabot[bot] in https://github.com/fujiwara/awslim/pull/174
+- Bump github.com/mattn/go-shellwords from 1.0.12 to 1.0.13 by @dependabot[bot] in https://github.com/fujiwara/awslim/pull/189
+- Bump github.com/alecthomas/kong from 1.10.0 to 1.15.0 by @dependabot[bot] in https://github.com/fujiwara/awslim/pull/188
+- Bump github.com/google/go-jsonnet from 0.20.0 to 0.22.0 by @dependabot[bot] in https://github.com/fujiwara/awslim/pull/183
+- Update aws-sdk-go-v2 to the latest version by @fujiwara in https://github.com/fujiwara/awslim/pull/209
+- Update dependencies by @fujiwara in https://github.com/fujiwara/awslim/pull/213
+### Other Changes
+- Add CLAUDE.md by @fujiwara in https://github.com/fujiwara/awslim/pull/208
+- Categorize release notes by labels by @fujiwara in https://github.com/fujiwara/awslim/pull/210
+- Use tagpr:major/tagpr:minor labels for version bumps by @fujiwara in https://github.com/fujiwara/awslim/pull/211
+- Support Go 1.26 and 1.27 by @fujiwara in https://github.com/fujiwara/awslim/pull/212
+
 ## [v0.6.13](https://github.com/fujiwara/awslim/compare/v0.6.12...v0.6.13) - 2026-04-08
 - Remove pull_request_target labeled trigger from release workflow by @fujiwara in https://github.com/fujiwara/awslim/pull/175
 - Add connecthealth to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/177
