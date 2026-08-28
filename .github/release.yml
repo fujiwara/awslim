@@ -5,10 +5,10 @@ changelog:
   categories:
     - title: 💥 Breaking Changes
       labels:
-        - major
+        - tagpr:major
     - title: 🚀 New Features
       labels:
-        - minor
+        - tagpr:minor
     - title: ☁️ AWS Service Updates
       labels:
         - aws-services
