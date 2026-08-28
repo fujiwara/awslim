@@ -182,6 +182,7 @@ services:
   health:
   healthlake:
   iam:
+  iamtoolbox:
   identitystore:
   imagebuilder:
   inspector:
