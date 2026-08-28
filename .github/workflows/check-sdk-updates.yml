@@ -78,7 +78,7 @@ jobs:
           git config --global user.name "${GITHUB_ACTOR}"
           git commit -m "${PR_TITLE}"
           git push --set-upstream origin "${BRANCH_NAME}"
-          gh pr create --title "${PR_TITLE}" --body "${PR_BODY}" --base main
+          gh pr create --title "${PR_TITLE}" --body "${PR_BODY}" --base main --label aws-services
       - name: make all services
         if: ${{ steps.check-sdk.outputs.updated == 'true' }}
         run: |

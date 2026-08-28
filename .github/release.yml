@@ -2,3 +2,19 @@ changelog:
   exclude:
     labels:
       - tagpr
+  categories:
+    - title: 💥 Breaking Changes
+      labels:
+        - major
+    - title: 🚀 New Features
+      labels:
+        - minor
+    - title: ☁️ AWS Service Updates
+      labels:
+        - aws-services
+    - title: 📦 Dependency Updates
+      labels:
+        - dependencies
+    - title: Other Changes
+      labels:
+        - "*"
