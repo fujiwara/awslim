@@ -10,7 +10,7 @@ import (
 )
 
 // Version is the version of awslim. Updated by tagpr, and overridden by -ldflags at build time.
-var Version = "v0.7.0"
+var Version = "v0.7.1"
 
 // readBuildInfo is replaced in tests.
 var readBuildInfo = debug.ReadBuildInfo
