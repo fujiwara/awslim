@@ -39,7 +39,7 @@
 [tagpr]
 	vPrefix = true
 	releaseBranch = main
-	versionFile = -
+	versionFile = version.go
 	release = draft
 	majorLabels = tagpr:major
 	minorLabels = tagpr:minor

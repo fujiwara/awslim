@@ -30,8 +30,6 @@ func init() {
 	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, opts)))
 }
 
-var Version = "HEAD"
-
 var clientMethods = map[string]map[string]ClientMethod{} // to be defined in main_gen.go
 
 type ClientMethod func(context.Context, *clientMethodParam) (any, error)

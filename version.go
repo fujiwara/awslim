@@ -9,6 +9,12 @@ import (
 	"strings"
 )
 
+// Version is the version of awslim. Updated by tagpr, and overridden by -ldflags at build time.
+var Version = "v0.7.0"
+
+// readBuildInfo is replaced in tests.
+var readBuildInfo = debug.ReadBuildInfo
+
 const (
 	sdkModulePrefix        = "github.com/aws/aws-sdk-go-v2"
 	sdkServiceModulePrefix = sdkModulePrefix + "/service/"
@@ -19,7 +25,7 @@ const (
 // (e.g. "" for the core module, "/config", "/service/s3").
 func sdkModuleVersions() map[string]string {
 	versions := map[string]string{}
-	info, ok := debug.ReadBuildInfo()
+	info, ok := readBuildInfo()
 	if !ok {
 		return versions
 	}
