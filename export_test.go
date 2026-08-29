@@ -1,5 +1,7 @@
 package sdkclient
 
+import "runtime/debug"
+
 var (
 	MarshalJSON = marshalJSON
 )
@@ -18,3 +20,9 @@ func ClientMethods() map[string]map[string]ClientMethod {
 }
 
 type ClientMethodParam = clientMethodParam
+
+func SetBuildInfo(info *debug.BuildInfo) {
+	readBuildInfo = func() (*debug.BuildInfo, bool) {
+		return info, info != nil
+	}
+}
