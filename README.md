@@ -26,7 +26,7 @@ While the [AWS CLI](https://aws.amazon.com/cli/) is very useful, it can be resou
 
 ## Installation
 
-**Note:** The release binaries are large (about 500MB after being extracted) and have a slight startup delay (about 100ms), due to the inclusion of code to access **[all AWS services](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service)**. However, it is still [faster](#performance-comparison) than the AWS CLI.
+**Note:** The release binaries are large (about 640MB after being extracted) and have a slight startup delay (about 100ms), due to the inclusion of code to access **[all AWS services](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service)**. However, it is still [faster](#performance-comparison) than the AWS CLI.
 
 For optimized performance, build your own binary tailored to the specific services you need. See the [Build](#build) section for details.
 
@@ -74,6 +74,21 @@ services:
 ```
 
 Keys under `services` are AWS service names (`github.com/aws/aws-sdk-go-v2/service/*`), and values are method names of the service client (for example, `s3` is [s3.Client](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#Client)). If you don't specify the method names, all methods of the service client are generated.
+
+### Binary size
+
+The binary size is dominated by the SDK code for each API (request serializers and response deserializers), so it grows roughly in proportion to the number of methods included. Methods that are not listed in `gen.yaml` are removed by the Go linker.
+
+Examples (linux/amd64):
+
+| Services | Size |
+|---|---|
+| `sts` only (baseline) | 16MB |
+| `ec2` with 2 methods | 17MB |
+| `ec2` with all methods | 46MB |
+| All services (423) | 642MB |
+
+To get a small binary, list only the methods you need in `gen.yaml`. Note that a large binary does not start noticeably slower, since only the pages actually used are loaded; the cost of a large binary is download and disk space.
 
 ### Build binary for specified OS/Architecture
 
@@ -140,7 +155,7 @@ Run `./build-in-docker.sh` in the container to build the client. The built binar
 ```Dockerfile
 FROM ghcr.io/fujiwara/awslim:builder AS builder
 ENV AWSLIM_GEN=ecs,firehose,s3
-ENV GIT_REF=v0.3.0
+ENV GIT_REF=v0.7.0
 RUN ./build-in-docker.sh
 
 FROM debian:bookworm-slim
@@ -149,18 +164,18 @@ COPY --from=builder /app/awslim /usr/local/bin/awslim
 
 ## Performance comparison
 
-Example of executing `sts get-caller-identity` on a 0.25 vCPU Fargate(AMD64) using `/usr/bin/time -v` for time measurement.
+Example of executing `sts get-caller-identity` on a Linux desktop (AMD Ryzen 7 255, 16 cores), measured with `/usr/bin/time` (median of 5 runs).
 
 | command | CPU time(user, sys)| Elapsed time(s) | Max memory(MB) | Size(MB) |
 | ---- | ---- | ---- | --- | --- |
-| aws         | 0.67 + 0.10 = 0.77 | 3.11 | 64.2  | 225 |
-| awslim(all) | 0.08 + 0.03 = 0.11 | 0.43 | 101.5 | 476 |
-| awslim(40)  | 0.02 + 0.01 = 0.03 | 0.05 | 30.2  |  95 |
+| aws         | 0.52 + 0.09 = 0.61 | 0.68 | 83.8  | 326 |
+| awslim(all) | 0.08 + 0.07 = 0.15 | 0.14 | 171.2 | 642 |
+| awslim(40)  | 0.01 + 0.02 = 0.03 | 0.06 | 42.4  | 153 |
 
-- `awslim`(built for all AWS services): 7.0x faster than `aws`
-- `awslim`(built for 40 AWS services): 62.0x faster than `aws`
+- `awslim`(built for all 423 AWS services): 4.9x faster than `aws`
+- `awslim`(built for 40 AWS services): 11.3x faster than `aws`
 
-`aws-cli/2.15.51 Python/3.11.8`, `awslim 0.1.0`
+`aws-cli/2.34.28 Python/3.14.3`, `awslim v0.7.0`. Elapsed time includes the network round trip to the STS API, so the difference in CPU time is more representative of the startup cost.
 
 ## Usage
 

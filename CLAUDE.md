@@ -69,6 +69,21 @@ Client options (`--client-option`/`-C`, `AWSLIM_CLIENT_OPTION`, or `client_optio
 
 Tests live in the root package as `package sdkclient_test`. `export_test.go` exposes internals (`SetClientMethod`, `ClientMethods`, `ClientMethodParam`). `cli_test.go` registers mock services `foo`, `bar`, `baz` in `init()`, sets `XDG_CONFIG_HOME=testdata` (config in `testdata/awslim/config.yaml`), and uses table-driven cases (`TestCases`) with `Args`, `Env`, `Expect`, `IsError`. Add new CLI behavior as cases there.
 
+## Binary Size
+
+- Size is dominated by per-API serializer/deserializer code in the SDK service packages, so it scales with the number of methods included, not with anything in awslim itself. Measured (linux/amd64, `-s -w`): `sts` only 16MB (baseline), `ec2` all methods +30MB, ec2 limited to 2 methods ≈ baseline, all services (423) ≈ 640MB.
+- The only effective reduction is restricting methods in `gen.yaml`: unreferenced methods are dead-code-eliminated by the linker. `-trimpath` has no effect; `-s -w` is already applied.
+- UPX is not an option for the all-services binary: decompression time scales linearly with size (≈80ms per 46MB with default settings, ≈330ms with `--best --lzma`), so it would add over a second to startup, plus the whole image is held in memory. It also has issues on macOS.
+- A large binary does not start slower by itself (pages are loaded lazily via mmap); the cost is download/disk size only.
+- To inspect what contributes to size: `go build -o awslim ./cmd/awslim` (without `-s -w`) then `go tool nm -size -sort size awslim`. Ignore `B` (BSS) symbols such as `crypto/internal/fips140/drbg.memory`; they do not occupy file space.
+
+### Startup Cost (all-services binary)
+
+- Measured with `GODEBUG=inittrace=1`: 1,083 packages are initialized, taking ~67ms and allocating ~55MB on the heap. This is essentially all of the ~100ms startup delay and most of the ~170MB max RSS (the rest is binary pages touched during init).
+- The cost is in SDK package `init`, not in awslim: `service/*/internal/endpoints` (423 pkgs, ~29MB, ~70KB each) and `service/*/schemas` (109 pkgs, ~25MB, up to 900KB each) build map-containing composite literals at init, which cannot be laid out statically. The service root packages (~0.1MB) and awslim's own method map (~0.9MB) are negligible. `GOGC=off` makes no difference.
+- Lazy initialization per service is not possible in-process: Go always runs `init` of every linked package. Deferring it would require not linking the service packages (Go plugins, or separate binaries with an exec dispatcher), which breaks the single static binary and costs more in size/complexity than the ~60ms/~120MB it saves. The only lever in awslim is building with fewer services.
+- Inspect with: `GODEBUG=inittrace=1 ./awslim -v 2>&1 >/dev/null | sort -k8 -n -r | head` (columns: init time in ms at $5, bytes allocated at $8).
+
 ## Release & Maintenance
 
 - `.goreleaser.yml`: release configuration (linux/darwin × amd64/arm64), `Dockerfile` / `build-in-docker.sh` for custom builds.
