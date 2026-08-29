@@ -86,6 +86,7 @@ Tests live in the root package as `package sdkclient_test`. `export_test.go` exp
 
 ## Release & Maintenance
 
-- `.goreleaser.yml`: release configuration (linux/darwin × amd64/arm64), `Dockerfile` / `build-in-docker.sh` for custom builds.
 - `.tagpr`: releases are cut by tagpr on merge to `main`; `CHANGELOG.md` is generated, do not edit by hand.
+- `.github/workflows/tagpr-release.yml`: after tagpr creates the tag and draft release, the `gen` job runs `make gen` for all services once and passes the generated code (`*_gen.go`, `cmd/awslim-gen/gen.go`, `go.mod`/`go.sum`) as an artifact to a matrix job that builds the binary per OS/arch (linux/darwin × amd64/arm64) with `make awslim VERSION=<tag>` and uploads `awslim_<ver>_<os>_<arch>.tar.gz` to the draft; the `release` job merges `checksums.txt` and publishes it. Asset names must stay stable (the Homebrew tap depends on them). `setup-go` runs with `cache: false` because saving the all-services module cache takes minutes and nothing else reuses it.
+- `Dockerfile` / `build-in-docker.sh`: builder image for custom builds, pushed by the `docker` job of the release workflow.
 - `all-services.yaml` is regenerated from the SDK repo by `make all-services.yaml` (daily `check-sdk-updates.yml` workflow opens PRs); don't edit it manually.
