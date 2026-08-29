@@ -188,7 +188,8 @@ Flags:
       --camel                     convert keys to camelCase
   -C, --client-option=STRING      client options JSON/Jsonnet struct or filename (e.g. '{UsePathStyle: true}')
   -n, --dry-run                   dry-run mode
-  -v, --version                   show version
+  -v, --version                   show version (with SDK version of the specified service)
+      --sdk-versions              show versions of all embedded AWS SDK modules
       --debug                     turn on debug logging
 ```
 
@@ -197,6 +198,23 @@ Flags:
 - `input`: JSON input for the method.
 
 The output is JSON format.
+
+### Show versions
+
+`awslim -v` shows the version of awslim and the core AWS SDK module (`github.com/aws/aws-sdk-go-v2`). When a service name is given, the version of that service's SDK module embedded in the binary is also shown.
+
+```console
+$ awslim -v
+awslim v0.7.0
+aws-sdk-go-v2 v1.45.1
+
+$ awslim -v s3
+awslim v0.7.0
+aws-sdk-go-v2 v1.45.1
+aws-sdk-go-v2/service/s3 v1.109.1
+```
+
+`awslim --sdk-versions` lists the versions of all `aws-sdk-go-v2` modules embedded in the binary.
 
 All flags can also be set by environment variables prefixed with `AWSLIM_` (e.g., `AWSLIM_COMPACT=true`, `AWSLIM_CLIENT_OPTION='{"UsePathStyle":true}'`).
 

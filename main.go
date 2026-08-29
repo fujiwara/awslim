@@ -65,9 +65,10 @@ type CLI struct {
 	CamelCase    bool              `name:"camel" help:"convert keys to camelCase"`
 	ClientOption string            `short:"C" help:"client options JSON/Jsonnet struct or filename (e.g. '{UsePathStyle: true}')"`
 
-	DryRun  bool `short:"n" help:"dry-run mode"`
-	Version bool `short:"v" help:"show version"`
-	Debug   bool `help:"turn on debug logging"`
+	DryRun      bool `short:"n" help:"dry-run mode"`
+	Version     bool `short:"v" help:"show version (with SDK version of the specified service)"`
+	SDKVersions bool `name:"sdk-versions" help:"show versions of all embedded AWS SDK modules"`
+	Debug       bool `help:"turn on debug logging"`
 
 	w            io.Writer
 	rc           *RuntimeConfig
@@ -125,8 +126,10 @@ func NewCLI(ctx context.Context, args []string) (*CLI, error) {
 
 func (c *CLI) Dispatch(ctx context.Context) error {
 	if c.Version {
-		fmt.Fprintf(c.w, "awslim %s\n", Version)
-		return nil
+		return c.ShowVersion(ctx)
+	}
+	if c.SDKVersions {
+		return c.ShowSDKVersions(ctx)
 	}
 	if c.Service == "" {
 		return c.ListServices(ctx)
