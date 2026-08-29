@@ -71,7 +71,7 @@ Tests live in the root package as `package sdkclient_test`. `export_test.go` exp
 
 ## Binary Size
 
-- Size is dominated by per-API serializer/deserializer code in the SDK service packages, so it scales with the number of methods included, not with anything in awslim itself. Measured (linux/amd64, `-s -w`): `sts` only 16MB (baseline), `ec2` all methods +30MB, ec2 limited to 2 methods ≈ baseline, all services ≈ 500MB.
+- Size is dominated by per-API serializer/deserializer code in the SDK service packages, so it scales with the number of methods included, not with anything in awslim itself. Measured (linux/amd64, `-s -w`): `sts` only 16MB (baseline), `ec2` all methods +30MB, ec2 limited to 2 methods ≈ baseline, all services (423) ≈ 640MB.
 - The only effective reduction is restricting methods in `gen.yaml`: unreferenced methods are dead-code-eliminated by the linker. `-trimpath` has no effect; `-s -w` is already applied.
 - UPX is not an option for the all-services binary: decompression time scales linearly with size (≈80ms per 46MB with default settings, ≈330ms with `--best --lzma`), so it would add over a second to startup, plus the whole image is held in memory. It also has issues on macOS.
 - A large binary does not start slower by itself (pages are loaded lazily via mmap); the cost is download/disk size only.
