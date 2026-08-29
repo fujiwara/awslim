@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.7.1](https://github.com/fujiwara/awslim/compare/v0.7.0...v0.7.1) - 2026-08-29
+
+### 📦 Dependency Updates
+- Update GitHub Actions and deduplicate test runs by @fujiwara in https://github.com/fujiwara/awslim/pull/217
+### Other Changes
+- Show embedded aws-sdk-go-v2 module versions by @fujiwara in https://github.com/fujiwara/awslim/pull/214
+- Document what determines the binary size by @fujiwara in https://github.com/fujiwara/awslim/pull/216
+- Parallelize the release workflow per OS/arch by @fujiwara in https://github.com/fujiwara/awslim/pull/218
+
 ## [v0.7.0](https://github.com/fujiwara/awslim/compare/v0.6.13...v0.7.0) - 2026-08-28
 ### 🚀 New Features
 - Add client options support and environment variable flags by @fujiwara in https://github.com/fujiwara/awslim/pull/207
