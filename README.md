@@ -75,6 +75,21 @@ services:
 
 Keys under `services` are AWS service names (`github.com/aws/aws-sdk-go-v2/service/*`), and values are method names of the service client (for example, `s3` is [s3.Client](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#Client)). If you don't specify the method names, all methods of the service client are generated.
 
+### Binary size
+
+The binary size is dominated by the SDK code for each API (request serializers and response deserializers), so it grows roughly in proportion to the number of methods included. Methods that are not listed in `gen.yaml` are removed by the Go linker.
+
+Examples (linux/amd64):
+
+| Services | Size |
+|---|---|
+| `sts` only (baseline) | 16MB |
+| `ec2` with 2 methods | 17MB |
+| `ec2` with all methods | 46MB |
+| All services | about 500MB |
+
+To get a small binary, list only the methods you need in `gen.yaml`. Note that a large binary does not start noticeably slower, since only the pages actually used are loaded; the cost of a large binary is download and disk space.
+
 ### Build binary for specified OS/Architecture
 
 Set the `AWSLIM_OS` and `AWSLIM_ARCH` environment variables to specify the OS and architecture for the build.
