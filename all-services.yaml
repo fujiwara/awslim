@@ -80,6 +80,7 @@ services:
   cloudwatch:
   cloudwatchevents:
   cloudwatchlogs:
+  cloudwatchomni:
   codeartifact:
   codebuild:
   codecatalyst:
