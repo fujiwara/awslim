@@ -156,6 +156,7 @@ services:
   emrserverless:
   entityresolution:
   eventbridge:
+  eventbridgev2:
   evs:
   finspace:
   finspacedata:
