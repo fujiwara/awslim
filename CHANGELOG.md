@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.7.2](https://github.com/fujiwara/awslim/compare/v0.7.1...v0.7.2) - 2026-09-25
+
+### ☁️ AWS Service Updates
+- Add cloudwatchomni, networksecuritymanager to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/222
+- Add eventbridgev2 to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/223
+### Other Changes
+- Rename CLAUDE.md to AGENTS.md by @fujiwara in https://github.com/fujiwara/awslim/pull/219
+
 ## [v0.7.1](https://github.com/fujiwara/awslim/compare/v0.7.0...v0.7.1) - 2026-08-29
 
 ### 📦 Dependency Updates
