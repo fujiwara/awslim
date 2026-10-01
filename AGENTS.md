@@ -46,6 +46,8 @@ gen.yaml (or AWSLIM_GEN env var)
   → go build cmd/awslim/main.go   produces  → awslim binary
 ```
 
+Service keys in `gen.yaml` / `AWSLIM_GEN` accept `name@version` (e.g. `s3@v1.100.0`). `awslim-gen-gen` strips the version for code generation and runs `go get github.com/aws/aws-sdk-go-v2/service/<name>@<version>` for pinned services before `go get ./...` adds the remaining ones at latest. Its parsing is tested by `go test ./cmd/awslim-gen-gen`.
+
 `*_gen.go` and `cmd/awslim-gen/gen.go` are build artifacts and are not committed (`make clean` removes them). `go generate` directives chain the stages:
 - `cmd/awslim-gen/main.go`: `//go:generate go run ../awslim-gen-gen/main.go`
 - `main.go` (root): `//go:generate go run cmd/awslim-gen/main.go cmd/awslim-gen/gen.go`

@@ -25,7 +25,7 @@ jobs:
 
       - name: Test
         run: |
-          go test -v .
+          go test -v . ./cmd/awslim-gen-gen
 
       - name: Build
         run: |

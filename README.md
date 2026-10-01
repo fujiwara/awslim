@@ -75,6 +75,24 @@ services:
 
 Keys under `services` are AWS service names (`github.com/aws/aws-sdk-go-v2/service/*`), and values are method names of the service client (for example, `s3` is [s3.Client](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#Client)). If you don't specify the method names, all methods of the service client are generated.
 
+### Pin the version of the service SDK
+
+By default, the latest version of each service module (`github.com/aws/aws-sdk-go-v2/service/*`) is fetched by `go get` when the service is not yet in `go.mod`. To use a specific version, append `@version` to the service name. The version is passed to `go get` as is, so any [module query](https://go.dev/ref/mod#version-queries) (`v1.100.0`, `latest`, etc.) is accepted.
+
+```yaml
+# gen.yaml
+services:
+  ecs@v1.70.0:
+    - DescribeClusters
+  s3@v1.100.0:
+```
+
+```console
+$ export AWSLIM_GEN="ecs@v1.70.0,s3@v1.100.0,firehose"
+```
+
+Note that `go get` may also update shared modules (such as `github.com/aws/aws-sdk-go-v2`) to satisfy the requirements of the specified version. You can check the embedded versions with `awslim -v <service>` or `awslim --sdk-versions`.
+
 ### Binary size
 
 The binary size is dominated by the SDK code for each API (request serializers and response deserializers), so it grows roughly in proportion to the number of methods included. Methods that are not listed in `gen.yaml` are removed by the Go linker.
