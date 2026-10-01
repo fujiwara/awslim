@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.8.0](https://github.com/fujiwara/awslim/compare/v0.7.2...v0.8.0) - 2026-10-01
+
+### 🚀 New Features
+- Allow pinning service SDK versions with service@version by @fujiwara in https://github.com/fujiwara/awslim/pull/224
+
 ## [v0.7.2](https://github.com/fujiwara/awslim/compare/v0.7.1...v0.7.2) - 2026-09-25
 
 ### ☁️ AWS Service Updates
