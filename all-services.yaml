@@ -154,6 +154,7 @@ services:
   emr:
   emrcontainers:
   emrserverless:
+  endusermessaging:
   entityresolution:
   eventbridge:
   eventbridgev2:
@@ -226,6 +227,7 @@ services:
   lambda:
   lambdacore:
   lambdamicrovms:
+  lambdaweb:
   launchwizard:
   lexmodelbuildingservice:
   lexmodelsv2:
