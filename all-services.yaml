@@ -362,6 +362,7 @@ services:
   sagemakermetrics:
   sagemakerruntime:
   sagemakerruntimehttp2:
+  sagemakertrainingsessionruntime:
   savingsplans:
   scheduler:
   schemas:
