@@ -108,6 +108,7 @@ services:
   connectcontactlens:
   connecthealth:
   connectparticipant:
+  continuum:
   controlcatalog:
   controltower:
   costandusagereportservice:
