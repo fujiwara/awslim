@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.8.1](https://github.com/fujiwara/awslim/compare/v0.8.0...v0.8.1) - 2026-10-22
+
+### ☁️ AWS Service Updates
+- Add endusermessaging, lambdaweb to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/232
+- Add sagemakertrainingsessionruntime to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/234
+- Remove finspace, finspacedata, tnb from all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/235
+- Add continuum to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/236
+
 ## [v0.8.0](https://github.com/fujiwara/awslim/compare/v0.7.2...v0.8.0) - 2026-10-01
 
 ### 🚀 New Features
