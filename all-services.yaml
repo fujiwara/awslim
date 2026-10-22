@@ -159,8 +159,6 @@ services:
   eventbridge:
   eventbridgev2:
   evs:
-  finspace:
-  finspacedata:
   firehose:
   fis:
   fms:
@@ -412,7 +410,6 @@ services:
   timestreaminfluxdb:
   timestreamquery:
   timestreamwrite:
-  tnb:
   transcribe:
   transcribestreaming:
   transfer:
