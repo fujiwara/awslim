@@ -52,7 +52,7 @@ type CLI struct {
 
 	InputStream  string            `short:"i" help:"bind input filename or '-' to io.Reader field in the input struct"`
 	OutputStream string            `short:"o" help:"bind output filename or '-' to io.ReadCloser field in the output struct"`
-	APIOutput    bool              `help:"output API response into stdout" default:"true" negatable:""`
+	APIOutput    bool              `help:"output API response into stdout (stderr when --output-stream is '-')" default:"true" negatable:""`
 	RawOutput    bool              `short:"r" help:"output raw strings, not JSON texts"`
 	Compact      bool              `short:"c" help:"compact JSON output"`
 	Query        string            `short:"q" help:"JMESPath query to apply to output"`
@@ -69,6 +69,7 @@ type CLI struct {
 	Debug       bool `help:"turn on debug logging"`
 
 	w            io.Writer
+	ew           io.Writer
 	rc           *RuntimeConfig
 	dynamicFlags map[string]any
 }
@@ -100,6 +101,7 @@ func NewCLI(ctx context.Context, args []string) (*CLI, error) {
 	slog.Debug("runtime config", "config", c.rc)
 
 	c.w = os.Stdout
+	c.ew = os.Stderr
 	args, err := c.resolveAliases(args)
 	if err != nil {
 		return nil, err
@@ -211,6 +213,11 @@ func (c *CLI) output(_ context.Context, out any) error {
 	if !c.APIOutput {
 		return nil
 	}
+	w := c.w
+	if c.OutputStream == "-" {
+		// stdout is used for the output stream, so the API response goes to stderr
+		w = c.ew
+	}
 	camelCase := c.CamelCase
 	if c.Query != "" {
 		var err error
@@ -225,10 +232,10 @@ func (c *CLI) output(_ context.Context, out any) error {
 	if c.RawOutput {
 		switch t := out.(type) {
 		case string:
-			fmt.Fprintln(c.w, t)
+			fmt.Fprintln(w, t)
 			return nil
 		case *string:
-			fmt.Fprintln(c.w, aws.ToString(t))
+			fmt.Fprintln(w, aws.ToString(t))
 			return nil
 		default:
 			// do nothing. output as JSON
@@ -243,9 +250,9 @@ func (c *CLI) output(_ context.Context, out any) error {
 		var buf bytes.Buffer
 		json.Indent(&buf, b, "", "  ")
 		buf.WriteString("\n")
-		buf.WriteTo(c.w)
+		buf.WriteTo(w)
 	} else {
-		io.WriteString(c.w, string(b))
+		io.WriteString(w, string(b))
 	}
 	return nil
 }
@@ -389,7 +396,7 @@ func (c *CLI) clientMethodParam(ctx context.Context) (*clientMethodParam, error)
 	case "":
 		// do nothing
 	case "-": // stdout
-		p.OutputWriter = os.Stdout
+		p.OutputWriter = c.w
 	default:
 		f, err := os.Create(c.OutputStream)
 		if err != nil {

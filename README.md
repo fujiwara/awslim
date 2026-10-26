@@ -210,7 +210,7 @@ Flags:
   -h, --help                      Show context-sensitive help.
   -i, --input-stream=STRING       bind input filename or '-' to io.Reader field in the input struct
   -o, --output-stream=STRING      bind output filename or '-' to io.ReadCloser field in the output struct
-      --[no-]api-output           output API response into stdout
+      --[no-]api-output           output API response into stdout (stderr when --output-stream is '-')
   -r, --raw-output                output raw strings, not JSON texts
   -c, --compact                   compact JSON output
   -q, --query=STRING              JMESPath query to apply to output
@@ -373,7 +373,11 @@ $ awslim s3 get-object '{Bucket:"my-bucket",Key:"my.txt"}' --output-stream my.tx
 
 When the output struct has only one field of `io.ReadCloser`, `awslim` copies it to the file automatically. (Currently, all SDK output structs have at most one io.ReadCloser field.)
 
-If `--output-stream` is "-", `awslim` writes into stdout. The result of the API also writes to stdout by default. If you don't want to output the result, use `--no-api-output`.
+If `--output-stream` is "-", `awslim` writes into stdout. In this case, the result of the API is written to stderr instead of stdout, so the stream is not mixed with it. If you don't want to output the result, use `--no-api-output`.
+
+```console
+$ awslim s3 get-object '{Bucket:"my-bucket",Key:"archive.tar.gz"}' -o - --no-api-output | tar -xz
+```
 
 #### `--raw-output (-r)` option
 
