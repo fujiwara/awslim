@@ -1,5 +1,19 @@
 # Changelog
 
+## [v0.9.0](https://github.com/fujiwara/awslim/compare/v0.8.0...v0.9.0) - 2026-10-26
+
+### ☁️ AWS Service Updates
+- Add endusermessaging, lambdaweb to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/232
+- Add sagemakertrainingsessionruntime to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/234
+- Remove finspace, finspacedata, tnb from all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/235
+- Add continuum to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/236
+### Other Changes
+- Apply JMESPath query to JSON representation of the response by @fujiwara in https://github.com/fujiwara/awslim/pull/239
+- Write API response to stderr when --output-stream is "-" by @fujiwara in https://github.com/fujiwara/awslim/pull/240
+- Update dependencies by @fujiwara in https://github.com/fujiwara/awslim/pull/241
+- Use Debian trixie for the builder image and enable Dependabot for Docker by @fujiwara in https://github.com/fujiwara/awslim/pull/242
+- Update GitHub Actions by @fujiwara in https://github.com/fujiwara/awslim/pull/246
+
 ## [v0.8.0](https://github.com/fujiwara/awslim/compare/v0.7.2...v0.8.0) - 2026-10-01
 
 ### 🚀 New Features
