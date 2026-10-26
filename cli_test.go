@@ -6,8 +6,24 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	sdkclient "github.com/fujiwara/awslim"
 )
+
+// StorageClass mimics an SDK enum type.
+type StorageClass string
+
+// Object mimics an SDK struct with pointer fields (e.g. s3 types.Object).
+type Object struct {
+	Key          *string
+	Size         *int64
+	StorageClass StorageClass
+}
+
+type ListObjectsOutput struct {
+	Contents []Object
+	Name     *string
+}
 
 type PagingOutput struct {
 	Next string `json:"Next,omitempty"`
@@ -34,6 +50,16 @@ func init() {
 	})
 	sdkclient.SetClientMethod("bar", "Get", func(_ context.Context, _ *sdkclient.ClientMethodParam) (any, error) {
 		return struct{ Name string }{Name: "bar"}, nil
+	})
+	sdkclient.SetClientMethod("bar", "Objects", func(_ context.Context, _ *sdkclient.ClientMethodParam) (any, error) {
+		return ListObjectsOutput{
+			Contents: []Object{
+				{Key: aws.String("a.txt"), Size: aws.Int64(10), StorageClass: "STANDARD"},
+				{Key: aws.String("b.meta"), Size: aws.Int64(30), StorageClass: "GLACIER"},
+				{Key: aws.String("c.meta"), Size: aws.Int64(20), StorageClass: "STANDARD"},
+			},
+			Name: aws.String("my-bucket"),
+		}, nil
 	})
 	sdkclient.SetClientMethod("baz", "Echo", func(_ context.Context, p *sdkclient.ClientMethodParam) (any, error) {
 		var v any
@@ -97,7 +123,7 @@ var TestCases = []TestCase{
 	{
 		Name:   "list methods of bar",
 		Args:   []string{"bar"},
-		Expect: "Get\nList\n",
+		Expect: "Get\nList\nObjects\n",
 	},
 	{
 		Name:   "list methods of baz",
@@ -158,6 +184,41 @@ var TestCases = []TestCase{
 		Name:   "call baz#Client.Echo raw object",
 		Args:   []string{"baz", "Echo", `{"Example": "value"}`, "-r"},
 		Expect: "{\n  \"Example\": \"value\"\n}\n",
+	},
+	{
+		Name:   "JMESPath function with pointer fields",
+		Args:   []string{"bar", "Objects", "-q", "Contents[?ends_with(Key, '.meta')].Key", "-c"},
+		Expect: `["b.meta","c.meta"]`,
+	},
+	{
+		Name:   "JMESPath function with enum fields",
+		Args:   []string{"bar", "Objects", "-q", "Contents[?starts_with(StorageClass, 'GLA')].Key", "-c"},
+		Expect: `["b.meta"]`,
+	},
+	{
+		Name:   "JMESPath sort_by with pointer number fields",
+		Args:   []string{"bar", "Objects", "-q", "sort_by(Contents, &Size)[].Key", "-c"},
+		Expect: `["a.txt","c.meta","b.meta"]`,
+	},
+	{
+		Name:   "JMESPath function with struct",
+		Args:   []string{"bar", "Objects", "-q", "keys(@)", "-c"},
+		Expect: `["Contents","Name"]`,
+	},
+	{
+		Name:   "JMESPath raw string from pointer field",
+		Args:   []string{"bar", "Objects", "-q", "Name", "-r"},
+		Expect: "my-bucket\n",
+	},
+	{
+		Name:   "JMESPath with --camel",
+		Args:   []string{"bar", "Objects", "--camel", "-q", "contents[?size > `15`].key", "-c"},
+		Expect: `["b.meta","c.meta"]`,
+	},
+	{
+		Name:   "JMESPath with --camel keeps keys in query",
+		Args:   []string{"bar", "Objects", "--camel", "-q", "{BucketName: name, Count: length(contents)}", "-c"},
+		Expect: `{"BucketName":"my-bucket","Count":3}`,
 	},
 	{
 		Name:   "call baz#Client.Paging",

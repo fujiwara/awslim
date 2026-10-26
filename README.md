@@ -463,6 +463,18 @@ $ awslim sts get-caller-identity --query 'Account'
 "012345678901"
 ```
 
+The query is applied to the JSON representation of the API response, so JMESPath functions (`ends_with`, `sort_by`, `length`, etc.) work with any field.
+
+```console
+$ awslim s3 list-objects-v2 --bucket my-bucket --query "Contents[?ends_with(Key, '.meta')].Key"
+```
+
+When `--camel` is specified, the query is applied to the camelCase keys. Keys written in the query (e.g. multi-select hash) are output as is.
+
+```console
+$ awslim ecs describe-clusters '{Clusters:["default"]}' --camel --query 'clusters[].clusterName'
+```
+
 #### Show help
 
 Use the `help` argument to display the URL of the method's documentation. Since `awslim` is a simple wrapper for the AWS SDK Go v2 service client, its usage is the same as the SDK.
