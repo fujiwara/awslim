@@ -1,6 +1,9 @@
 package sdkclient
 
-import "runtime/debug"
+import (
+	"io"
+	"runtime/debug"
+)
 
 var (
 	MarshalJSON = marshalJSON
@@ -25,4 +28,8 @@ func SetBuildInfo(info *debug.BuildInfo) {
 	readBuildInfo = func() (*debug.BuildInfo, bool) {
 		return info, info != nil
 	}
+}
+
+func (c *CLI) SetErrWriter(w io.Writer) {
+	c.ew = w
 }

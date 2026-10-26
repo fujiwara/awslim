@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
+	"strings"
 	"testing"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -86,6 +88,12 @@ func init() {
 		}
 		return o, nil
 	})
+	sdkclient.SetClientMethod("baz", "Stream", func(_ context.Context, p *sdkclient.ClientMethodParam) (any, error) {
+		if err := p.Output(io.NopCloser(strings.NewReader("BODY"))); err != nil {
+			return nil, err
+		}
+		return struct{ ContentLength int64 }{ContentLength: 4}, nil
+	})
 	sdkclient.SetClientMethod("baz", "Paging", func(_ context.Context, p *sdkclient.ClientMethodParam) (any, error) {
 		var v map[string]string
 		json.Unmarshal(p.InputBytes, &v)
@@ -128,7 +136,7 @@ var TestCases = []TestCase{
 	{
 		Name:   "list methods of baz",
 		Args:   []string{"baz"},
-		Expect: "Echo\nOptions\nPaging\n",
+		Expect: "Echo\nOptions\nPaging\nStream\n",
 	},
 	{
 		Name:   "call foo#Client.List",
@@ -344,4 +352,47 @@ func newCLI(ctx context.Context, args []string, out *bytes.Buffer) (*sdkclient.C
 	}
 	c.SetWriter(out)
 	return c, nil
+}
+
+func TestOutputStreamStdout(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", "testdata") // don't use real config
+	cases := []struct {
+		Name      string
+		Args      []string
+		Expect    string
+		ExpectErr string
+	}{
+		{
+			Name:      "API response goes to stderr",
+			Args:      []string{"baz", "Stream", "-o", "-", "-c"},
+			Expect:    "BODY",
+			ExpectErr: `{"ContentLength":4}`,
+		},
+		{
+			Name:      "--no-api-output suppresses API response",
+			Args:      []string{"baz", "Stream", "-o", "-", "--no-api-output"},
+			Expect:    "BODY",
+			ExpectErr: "",
+		},
+	}
+	for _, tc := range cases {
+		ctx := context.Background()
+		t.Run(tc.Name, func(t *testing.T) {
+			out, errOut := &bytes.Buffer{}, &bytes.Buffer{}
+			c, err := newCLI(ctx, tc.Args, out)
+			if err != nil {
+				t.Fatal(err)
+			}
+			c.SetErrWriter(errOut)
+			if err := c.Dispatch(ctx); err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if got := out.String(); got != tc.Expect {
+				t.Errorf("unexpected stdout: got %q, expect %q", got, tc.Expect)
+			}
+			if got := errOut.String(); got != tc.ExpectErr {
+				t.Errorf("unexpected stderr: got %q, expect %q", got, tc.ExpectErr)
+			}
+		})
+	}
 }
