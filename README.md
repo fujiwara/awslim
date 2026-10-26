@@ -176,7 +176,7 @@ ENV AWSLIM_GEN=ecs,firehose,s3
 ENV GIT_REF=v0.7.0
 RUN ./build-in-docker.sh
 
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 COPY --from=builder /app/awslim /usr/local/bin/awslim
 ```
 
