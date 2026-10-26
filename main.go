@@ -211,12 +211,15 @@ func (c *CLI) output(_ context.Context, out any) error {
 	if !c.APIOutput {
 		return nil
 	}
-	var err error
+	camelCase := c.CamelCase
 	if c.Query != "" {
-		out, err = jmespath.Search(c.Query, out)
+		var err error
+		out, err = c.query(out)
 		if err != nil {
-			return fmt.Errorf("failed to apply JMESPath query: %w", err)
+			return err
 		}
+		// keys are already converted before the query, and keys written in the query are kept as is
+		camelCase = false
 	}
 
 	if c.RawOutput {
@@ -232,7 +235,7 @@ func (c *CLI) output(_ context.Context, out any) error {
 		}
 	}
 
-	b, err := marshalJSON(out, c.CamelCase)
+	b, err := marshalJSON(out, camelCase)
 	if err != nil {
 		return fmt.Errorf("failed to marshal response: %w", err)
 	}
@@ -245,6 +248,27 @@ func (c *CLI) output(_ context.Context, out any) error {
 		io.WriteString(c.w, string(b))
 	}
 	return nil
+}
+
+// query applies the JMESPath query to the JSON representation of out.
+// SDK structs have pointer fields (*string, *int64, ...) and named types (enums),
+// which JMESPath functions cannot handle, so out is converted into generic JSON values first.
+func (c *CLI) query(out any) (any, error) {
+	var v any
+	if out != nil {
+		b, err := marshalJSON(out, c.CamelCase)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal response for query: %w", err)
+		}
+		if err := json.Unmarshal(b, &v); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal response for query: %w", err)
+		}
+	}
+	res, err := jmespath.Search(c.Query, v)
+	if err != nil {
+		return nil, fmt.Errorf("failed to apply JMESPath query: %w", err)
+	}
+	return res, nil
 }
 
 func (c *CLI) loadInput(ctx context.Context) ([]byte, error) {
