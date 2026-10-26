@@ -202,7 +202,7 @@ var TestCases = []TestCase{
 	},
 	{
 		Name:   "JMESPath function with struct",
-		Args:   []string{"bar", "Objects", "-q", "keys(@)", "-c"},
+		Args:   []string{"bar", "Objects", "-q", "sort(keys(@))", "-c"},
 		Expect: `["Contents","Name"]`,
 	},
 	{
