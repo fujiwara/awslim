@@ -2,6 +2,7 @@ services:
   accessanalyzer:
   account:
   accountaccess:
+  accountaccessruntime:
   acm:
   acmpca:
   agentregistry:
