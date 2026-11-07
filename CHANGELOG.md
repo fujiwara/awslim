@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.9.1](https://github.com/fujiwara/awslim/compare/v0.9.0...v0.9.1) - 2026-11-07
+
+### ☁️ AWS Service Updates
+- Add accountaccessruntime to all-services.yaml by @github-actions[bot] in https://github.com/fujiwara/awslim/pull/250
+### 📦 Dependency Updates
+- Bump the aws-sdk-go-v2 group with 2 updates by @dependabot[bot] in https://github.com/fujiwara/awslim/pull/249
+### Other Changes
+- Keep a single PR for all-services.yaml updates by @fujiwara in https://github.com/fujiwara/awslim/pull/253
+
 ## [v0.9.0](https://github.com/fujiwara/awslim/compare/v0.8.0...v0.9.0) - 2026-10-26
 
 ### ☁️ AWS Service Updates
