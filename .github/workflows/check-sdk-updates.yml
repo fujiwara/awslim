@@ -26,11 +26,19 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AWS_SDK_GO_V2_DIR: ./aws-sdk-go-v2
         run: |
-          set +e
+          BRANCH_NAME="update-all-services"
           make all-services.yaml
-          git diff --exit-code all-services.yaml
-          if [[ $? -eq 0 ]]; then
+          if git diff --quiet all-services.yaml; then
             echo "No changes detected"
+            exit 0
+          fi
+
+          # Skip if the open PR already has the same all-services.yaml
+          PR_NUMBER=$(gh pr list --head "${BRANCH_NAME}" --state open --json number --jq '.[0].number // empty')
+          if [[ -n "${PR_NUMBER}" ]] \
+            && git fetch --depth=1 origin "${BRANCH_NAME}" \
+            && git diff --quiet FETCH_HEAD -- all-services.yaml; then
+            echo "PR #${PR_NUMBER} is already up to date"
             exit 0
           fi
           echo "updated=true" >> "$GITHUB_OUTPUT"
@@ -71,14 +79,18 @@ jobs:
             PR_BODY="Update all-services.yaml"
           fi
 
-          BRANCH_NAME="update-aws-sdk-go-v2-$(date +%Y%m%d-%H%M%S)"
-          git switch -c "${BRANCH_NAME}"
+          # Recreate the branch from main and force-push to keep a single PR
+          git switch -C "${BRANCH_NAME}"
           git add all-services.yaml
           git config --global user.email "${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
           git config --global user.name "${GITHUB_ACTOR}"
           git commit -m "${PR_TITLE}"
-          git push --set-upstream origin "${BRANCH_NAME}"
-          gh pr create --title "${PR_TITLE}" --body "${PR_BODY}" --base main --label aws-services
+          git push --force --set-upstream origin "${BRANCH_NAME}"
+          if [[ -n "${PR_NUMBER}" ]]; then
+            gh pr edit "${PR_NUMBER}" --title "${PR_TITLE}" --body "${PR_BODY}"
+          else
+            gh pr create --title "${PR_TITLE}" --body "${PR_BODY}" --base main --head "${BRANCH_NAME}" --label aws-services
+          fi
       - name: make all services
         if: ${{ steps.check-sdk.outputs.updated == 'true' }}
         run: |
