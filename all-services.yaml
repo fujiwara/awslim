@@ -1,10 +1,12 @@
 services:
+  abusesignal:
   accessanalyzer:
   account:
   accountaccess:
   accountaccessruntime:
   acm:
   acmpca:
+  agentdiscovery:
   agentregistry:
   agentregistrycontrol:
   aiops:
@@ -15,6 +17,7 @@ services:
   apigateway:
   apigatewaymanagementapi:
   apigatewayv2:
+  apiportal:
   appconfig:
   appconfigdata:
   appfabric:
@@ -109,6 +112,7 @@ services:
   connectcontactlens:
   connecthealth:
   connectparticipant:
+  connectscheduling:
   continuum:
   controlcatalog:
   controltower:
@@ -291,6 +295,7 @@ services:
   odb:
   omics:
   opensearch:
+  opensearchmemory:
   opensearchserverless:
   organizations:
   osis:
@@ -298,10 +303,12 @@ services:
   partnercentralaccount:
   partnercentralbenefits:
   partnercentralchannel:
+  partnercentralmarketing:
   partnercentralrevenuemeasurement:
   partnercentralselling:
   paymentcryptography:
   paymentcryptographydata:
+  payments:
   pcaconnectorad:
   pcaconnectorscep:
   pcs:
@@ -357,7 +364,9 @@ services:
   sagemakera2iruntime:
   sagemakeredge:
   sagemakerfeaturestoreruntime:
+  sagemakergatewayruntime:
   sagemakergeospatial:
+  sagemakerinferencerouterruntime:
   sagemakerjobruntime:
   sagemakermetrics:
   sagemakerruntime:
