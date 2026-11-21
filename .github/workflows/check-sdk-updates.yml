@@ -33,7 +33,18 @@ jobs:
             exit 0
           fi
 
-          # Skip if the open PR already has the same all-services.yaml
+          # Extract added/removed services from the diff
+          ADDED=$(git diff all-services.yaml | grep '^+  ' | sed 's/^+  //' | sed 's/:$//' | sort)
+          REMOVED=$(git diff all-services.yaml | grep '^-  ' | sed 's/^-  //' | sed 's/:$//' | sort)
+          {
+            echo "updated=true"
+            echo "added<<EOF"
+            echo "$ADDED"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          # Do not touch the open PR if it already has the same all-services.yaml.
+          # The build below still runs, as an earlier run may have skipped it.
           PR_NUMBER=$(gh pr list --head "${BRANCH_NAME}" --state open --json number --jq '.[0].number // empty')
           if [[ -n "${PR_NUMBER}" ]] \
             && git fetch --depth=1 origin "${BRANCH_NAME}" \
@@ -41,11 +52,6 @@ jobs:
             echo "PR #${PR_NUMBER} is already up to date"
             exit 0
           fi
-          echo "updated=true" >> "$GITHUB_OUTPUT"
-
-          # Extract added/removed services from the diff
-          ADDED=$(git diff all-services.yaml | grep '^+  ' | sed 's/^+  //' | sed 's/:$//' | sort)
-          REMOVED=$(git diff all-services.yaml | grep '^-  ' | sed 's/^-  //' | sed 's/:$//' | sort)
 
           # Build PR title
           ADDED_INLINE=$(echo "$ADDED" | tr '\n' ', ' | sed 's/,$//' | sed 's/,/, /g')
@@ -93,6 +99,36 @@ jobs:
           fi
       - name: make all services
         if: ${{ steps.check-sdk.outputs.updated == 'true' }}
+        env:
+          ADDED: ${{ steps.check-sdk.outputs.added }}
         run: |
+          # A module released just now may not be served by the Go module proxy
+          # yet, and go does not fall back to "direct" for it because the parent
+          # module (github.com/aws/aws-sdk-go-v2) exists on the proxy.
+          # Skip the build in that case instead of failing the workflow.
+          # The service list is derived from directory names, so a service
+          # without a release tag is not an importable module: fail for it.
+          PENDING=""
+          INVALID=""
+          while IFS= read -r svc; do
+            [[ -z "$svc" ]] && continue
+            if GOPROXY=https://proxy.golang.org go list -m "github.com/aws/aws-sdk-go-v2/service/${svc}@latest"; then
+              continue
+            fi
+            TAGS=$(git -C aws-sdk-go-v2 ls-remote --tags origin "refs/tags/service/${svc}/v*")
+            if [[ -n "$TAGS" ]]; then
+              PENDING+=" ${svc}"
+            else
+              INVALID+=" ${svc}"
+            fi
+          done <<< "$ADDED"
+          if [[ -n "$INVALID" ]]; then
+            echo "::error::No release tag in aws-sdk-go-v2, not importable as a module:${INVALID}"
+            exit 1
+          fi
+          if [[ -n "$PENDING" ]]; then
+            echo "::warning::Skipped building all services. Released but not available on the Go module proxy yet:${PENDING}"
+            exit 0
+          fi
           cp all-services.yaml gen.yaml
           make
