@@ -8,6 +8,8 @@
 
 While the [AWS CLI](https://aws.amazon.com/cli/) is very useful, it can be resource intensive to boot up. `awslim` offers a simpler and faster alternative for limited use cases. It acts as a simple wrapper around AWS SDK Go v2, providing essential functionality without the full feature set of the AWS CLI.
 
+`awslim` is not a high-level CLI like `aws s3 cp`. It calls an SDK method with the input you give and outputs the API response as is. Behaviors that can be adjusted on the user side (flags, environment variables, [aliases](#runtime-configurations), and [client options](#--client-option--c-option)) are left to the user, rather than being changed by default.
+
 
 ### Features
 
@@ -349,6 +351,8 @@ $ awslim ecs list-tasks my.jsonnet --ext-str Cluster=default
 
 Bind a file or stdin to the input struct.
 
+Some SDK methods take an `io.Reader` in the input struct, which cannot be expressed in JSON. `--input-stream` (and `--output-stream`) exist only to pass such a reader/writer to the SDK from the command line. Other behaviors are not changed: the API response is still output as usual (see [Suppress the API response](#suppress-the-api-response)).
+
 ```console
 $ awslim s3 put-object '{Bucket:"my-bucket",Key:"my.txt"}' --input-stream my.txt
 ```
@@ -369,14 +373,51 @@ Bind the `io.ReadCloser` of the API output to a file or stdout.
 $ awslim s3 get-object '{Bucket:"my-bucket",Key:"my.txt"}' --output-stream my.txt
 ```
 
-[s3#GetObjectOutput](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#PutObjectOutput) has `Body` field of `io.ReadeCloser`. `--output-stream` option binds the file to the field.
+[s3#GetObjectOutput](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#GetObjectOutput) has `Body` field of `io.ReadCloser`. `--output-stream` option binds the file to the field.
 
 When the output struct has only one field of `io.ReadCloser`, `awslim` copies it to the file automatically. (Currently, all SDK output structs have at most one io.ReadCloser field.)
 
-If `--output-stream` is "-", `awslim` writes into stdout. In this case, the result of the API is written to stderr instead of stdout, so the stream is not mixed with it. If you don't want to output the result, use `--no-api-output`.
+If `--output-stream` is "-", `awslim` writes into stdout. In this case, the result of the API is written to stderr instead of stdout, so the stream is not mixed with it.
+
+#### Suppress the API response
+
+The API response is output even when `--input-stream` or `--output-stream` is used (to stdout, or to stderr when `--output-stream` is "-"). This is the same as `aws s3api get-object` / `aws s3api put-object`, and the response contains useful values such as `ETag` and `VersionId`.
+
+If you need only the stream, use `--no-api-output`. It suppresses the API response completely (neither stdout nor stderr).
 
 ```console
 $ awslim s3 get-object '{Bucket:"my-bucket",Key:"archive.tar.gz"}' -o - --no-api-output | tar -xz
+```
+
+To avoid specifying it on every call, set the environment variable in your script, or define an alias in the [runtime configuration file](#runtime-configurations).
+
+```console
+$ export AWSLIM_API_OUTPUT=false
+$ awslim s3 get-object '{Bucket:"my-bucket",Key:"archive.tar.gz"}' -o - | tar -xz
+```
+
+```yaml
+aliases:
+  s3get: s3 get-object --no-api-output
+```
+
+```console
+$ awslim s3get '{Bucket:"my-bucket",Key:"archive.tar.gz"}' -o - | tar -xz
+```
+
+The SDK itself may write logs to stderr. For example, `s3 get-object` logs `Response has no supported checksum. Not validating response payload.` or `Skipped validation of multipart checksum.` when the object has no checksum that the SDK can validate. These logs can be disabled by the client option `DisableLogOutputChecksumValidationSkipped` of [s3.Options](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/s3#Options).
+
+```console
+$ awslim s3 get-object '{Bucket:"my-bucket",Key:"archive.tar.gz"}' -o - --no-api-output \
+    -C '{DisableLogOutputChecksumValidationSkipped: true}' | tar -xz
+```
+
+Or in the runtime configuration file:
+
+```yaml
+client_options:
+  s3:
+    DisableLogOutputChecksumValidationSkipped: true
 ```
 
 #### `--raw-output (-r)` option
@@ -506,6 +547,7 @@ client_options:
 - `open`: The command to open the URL to the documentation.
 - `aliases`: The alias of the cli arguments.
   For example, `awslim whoami` is equivalent to `awslim sts get-caller-identity`.
+  Arguments after the alias are appended to the expanded arguments, so `awslim regions --compact` is equivalent to `awslim ec2 describe-regions --query Regions[].RegionName --compact`. The alias must be the first argument.
 - `client_options`: The default client options for each service. See [`--client-option`](#--client-option--c-option).
 
 `XDG_CONFIG_HOME` environment variable is used for the configuration file path. If `XDG_CONFIG_HOME` is not set, `~/.config` is used.
