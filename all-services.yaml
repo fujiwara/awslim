@@ -156,6 +156,7 @@ services:
   elasticloadbalancing:
   elasticloadbalancingv2:
   elasticsearchservice:
+  elbproxy:
   elementalinference:
   emr:
   emrcontainers:
